@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>JSDoc: Source: youtubePlayer.js</title>
+
+    <script src="scripts/prettify/prettify.js"> </script>
+    <script src="scripts/prettify/lang-css.js"> </script>
+    <!--[if lt IE 9]>
+      <script src="//html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+    <link type="text/css" rel="stylesheet" href="styles/prettify-tomorrow.css">
+    <link type="text/css" rel="stylesheet" href="styles/jsdoc-default.css">
+</head>
+
+<body>
+
+<div id="main">
+
+    <h1 class="page-title">Source: youtubePlayer.js</h1>
+
+    
+
+
+
+    
+    <section>
+        <article>
+            <pre class="prettyprint source linenums"><code>// Declaramos una variable global para almacenar el reproductor de YouTube
+let player;
+// Variable de control para verificar si el reproductor está listo
+let isPlayerReady = false;
+
+// Lista de videos a reproducir en secuencia
+const videoIds = ['sb3mznAthlU', '_QSfV9Weomc', 'QrFyvuu34NU'];
+
+/**
+ * Función que se llama cuando la API de YouTube está lista y se puede cargar el reproductor.
+ * 
+ * @function
+ * @returns {void} No retorna ningún valor.
+ */
+function onYouTubeIframeAPIReady() {
+    player = new YT.Player('player', { 
+        height: '0', 
+        width: '0',  
+        videoId: videoIds[0], // Primer video de la lista
+        playerVars: {
+            autoplay: 1,  // Reproducción automática
+            playlist: videoIds.join(','),  // Lista de videos a reproducir
+            loop: 1, // Hacer que la playlist sea un bucle
+            rel: 0 // Evita que aparezcan videos relacionados al final
+        },
+        events: {
+            'onReady': (event) => {
+                isPlayerReady = true;
+                console.log("YouTube Player Ready");
+                event.target.setVolume(50); // Ajustamos el volumen al 50%
+            },
+            'onStateChange': onPlayerStateChange // Detectar cambios de estado
+        }
+    });
+}
+
+/**
+ * Función que maneja los cambios de estado del reproductor de YouTube.
+ * 
+ * @function
+ * @param {Object} event - El evento que contiene la información sobre el estado del reproductor.
+ * @returns {void} No retorna ningún valor.
+ */
+function onPlayerStateChange(event) {
+    if (event.data === YT.PlayerState.ENDED) {
+        console.log("Video terminado, comenzando de nuevo...");
+    }
+}
+
+/**
+ * Función para obtener la instancia actual del reproductor de YouTube.
+ * 
+ * @function
+ * @returns {YT.Player|null} Retorna la instancia del reproductor si está disponible, de lo contrario retorna null.
+ */
+function getPlayer() {
+    return player; // Retornamos la instancia del reproductor
+}
+
+/**
+ * Función para alternar la reproducción de la música en el reproductor de YouTube.
+ * Pausa la música si está sonando, y la reanuda si está pausada.
+ * 
+ * @function
+ * @returns {void} No retorna ningún valor.
+ */
+function toggleMusic() {
+    if (isPlayerReady) { // Verificamos si el reproductor ya está listo
+        const currentPlayer = getPlayer(); // Obtenemos la instancia del reproductor
+        if (currentPlayer) {
+            const playerState = currentPlayer.getPlayerState(); // Obtenemos el estado actual del reproductor
+            if (playerState === YT.PlayerState.PLAYING) { // Si el video está en reproducción...
+                currentPlayer.pauseVideo(); // Pausamos la reproducción
+            } else {
+                currentPlayer.playVideo(); // Si está pausado, reanudamos la reproducción
+            }
+        }
+    } else {
+        console.log("El reproductor no está inicializado aún. Espera unos segundos."); // Mensaje en consola si el reproductor aún no está listo
+    }
+}
+
+// Hacemos que la función `toggleMusic` esté disponible globalmente para poder llamarla desde otros archivos
+window.toggleMusic = toggleMusic;
+</code></pre>
+        </article>
+    </section>
+
+
+
+
+</div>
+
+<nav>
+    <h2><a href="index.html">Home</a></h2><h3>Classes</h3><ul><li><a href="Carta.html">Carta</a></li><li><a href="Jugador.html">Jugador</a></li><li><a href="Mazo.html">Mazo</a></li></ul><h3>Global</h3><ul><li><a href="global.html#activarTecnicaEspecial">activarTecnicaEspecial</a></li><li><a href="global.html#actualizarBarraHabilidad">actualizarBarraHabilidad</a></li><li><a href="global.html#actualizarBarraVida">actualizarBarraVida</a></li><li><a href="global.html#actualizarBotones">actualizarBotones</a></li><li><a href="global.html#actualizarEstadisticas">actualizarEstadisticas</a></li><li><a href="global.html#animarAtaque">animarAtaque</a></li><li><a href="global.html#animarRecibirDa%25C3%25B1o">animarRecibirDaño</a></li><li><a href="global.html#animarRecibirDa%25C3%25B1oEspecial">animarRecibirDañoEspecial</a></li><li><a href="global.html#anunciarTurno">anunciarTurno</a></li><li><a href="global.html#anuncioTurno">anuncioTurno</a></li><li><a href="global.html#atacar">atacar</a></li><li><a href="global.html#aumentarEnergia">aumentarEnergia</a></li><li><a href="global.html#cambiarTurno">cambiarTurno</a></li><li><a href="global.html#colocar">colocar</a></li><li><a href="global.html#connection">connection</a></li><li><a href="global.html#getPlayer">getPlayer</a></li><li><a href="global.html#mazo">mazo</a></li><li><a href="global.html#mostrarDa%25C3%25B1o">mostrarDaño</a></li><li><a href="global.html#onPlayerStateChange">onPlayerStateChange</a></li><li><a href="global.html#onYouTubeIframeAPIReady">onYouTubeIframeAPIReady</a></li><li><a href="global.html#reiniciarJuego">reiniciarJuego</a></li><li><a href="global.html#toggleMusic">toggleMusic</a></li><li><a href="global.html#turno">turno</a></li><li><a href="global.html#turnos">turnos</a></li><li><a href="global.html#verificarFinDeJuego">verificarFinDeJuego</a></li></ul>
+</nav>
+
+<br class="clear">
+
+<footer>
+    Documentation generated by <a href="https://github.com/jsdoc/jsdoc">JSDoc 4.0.4</a> on Fri Mar 07 2025 15:46:54 GMT+0100 (hora estándar de Europa central)
+</footer>
+
+<script> prettyPrint(); </script>
+<script src="scripts/linenumber.js"> </script>
+</body>
+</html>

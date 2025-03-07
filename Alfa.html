@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Juego de Cartas - Dragon Ball</title>
+
+    <!-- Enlace a la hoja de estilos principal -->
+    <link rel="stylesheet" href="css/Alfa.css">
+
+    <!-- Carga el archivo JavaScript principal del juego -->
+    <script defer type="module" src="js/main.js"></script>
+
+    <!-- Carga la API de YouTube para la integración de videos -->
+    <script defer src="https://www.youtube.com/iframe_api"></script>
+
+    <!-- Script para controlar el reproductor de YouTube -->
+    <script defer src="/js/youtubePlayer.js"></script>
+</head>
+<body>
+
+    <!-- Contenedor del fondo animado -->
+    <div id="fondo-container">
+        <div class="fondo fondo1">
+            <img src="/fondo/Supreme Kai’s Planet.jpg" alt="Imagen de fondo 1">
+        </div>
+        <div class="fondo fondo2">
+            <img src="/fondo/Supreme Kai’s Planet.jpg" alt="Imagen de fondo 2">
+        </div>
+    </div>
+    
+    <!-- Tapete donde se colocarán las cartas -->
+    <div id="tapete"></div>
+
+    <!-- Contenedor del reproductor de YouTube -->
+    <div id="player"></div>
+
+    <!-- Botón para activar o desactivar la música -->
+    <button id="toggleMusicBtn">
+        <img src="/fondo/icono-altavoz.webp" alt="Botón de música">
+    </button>   
+</body>
+</html>
+
+

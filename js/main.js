@@ -1,0 +1,557 @@
+// Importación de las clases y funciones necesarias
+import { Carta } from './clases.js'; // Importa la clase Carta para crear cartas con atributos
+import { colocar } from './funciones.js'; // Importa la función para colocar las cartas en el tablero
+import { toggleMusic } from './music.js'; // Importa la función para alternar la música
+
+/**
+ * Espera a que el contenido de la página esté completamente cargado antes de ejecutar el código.
+ */
+document.addEventListener("DOMContentLoaded", () => {
+    /**
+     * Botón para activar o desactivar la música.
+     * @type {HTMLElement | null}
+     */
+    const toggleMusicBtn = document.getElementById("toggleMusicBtn");
+
+    // Verificar si el botón de música existe en el DOM
+    if (!toggleMusicBtn) {
+        console.log("No se encontró el botón de música."); // Mensaje de error si no se encuentra el botón
+        return;
+    }
+
+    /**
+     * Agrega un evento de clic al botón de música para alternar la música cuando se presione.
+     */
+    toggleMusicBtn.addEventListener("click", () => {
+        console.log("toggleMusic llamado.");
+        toggleMusic(); // Llama a la función de alternancia de música
+        window.toggleMusic(); // Llama a la misma función desde el objeto global 'window' (dependiendo de la implementación)
+    });
+});
+
+/**
+ * Objeto que representa un mazo de cartas en el juego.
+ * @type {Object}
+ * @property {Carta[]} cartas - Array de cartas en el mazo.
+ */
+const mazo = {
+    cartas: [
+        new Carta("Goku", 100, 25, 50, "Kamehameha", 35, "cartas/Goku.webp"),
+        new Carta("Vegeta", 100, 20, 40, "Big Bang Attack", 60, "cartas/Vegeta.webp"),
+    ]
+};
+
+// Obtener el contenedor del tapete de juego
+const tapete = document.getElementById('tapete');
+
+/**
+ * Crear un div para mostrar el turno actual en pantalla.
+ * @type {HTMLDivElement}
+ */
+const anuncioTurno = document.createElement('div');
+anuncioTurno.classList.add('turno-anuncio'); // Clase CSS para el estilo del anuncio de turno
+document.body.appendChild(anuncioTurno); // Insertar el anuncio en el cuerpo del documento
+
+/**
+ * Inicializar el turno de manera aleatoria.
+ * 0 para Jugador 1, 1 para Jugador 2.
+ * @type {number} 
+ */
+let turno = Math.random() < 0.5 ? 0 : 1; // 50% de probabilidad para cada jugador
+
+/**
+ * Contador de turnos del juego.
+ * @type {number}
+ */
+let turnos = 0;
+
+/**
+ * Muestra un mensaje indicando de quién es el turno actual.
+ * El mensaje aparece con una animación y desaparece después de 1.5 segundos.
+ */
+function anunciarTurno() {
+    anuncioTurno.innerText = turno === 0 ? "Turno de J1" : "Turno de J2"; // Mensaje según el turno
+    anuncioTurno.classList.add('turno-activo'); // Activar animación visual
+
+    // Eliminar la animación después de 1.5 segundos
+    setTimeout(() => {
+        anuncioTurno.classList.remove('turno-activo');
+    }, 1500);
+}
+
+
+/**
+ * Muestra el daño infligido a la carta del rival.
+ * @param {number} index - Índice de la carta objetivo en el array de cartas.
+ * @param {number} daño - Cantidad de daño a mostrar.
+ */
+function mostrarDaño(index, daño) {
+    // Buscar el contenedor de la carta en la posición indicada
+    const cartaRival = document.querySelectorAll('.carta-container')[index];
+    if (!cartaRival) return; // Si no existe el contenedor, termina la función
+
+    // Crear un nuevo div que muestre el daño
+    const dañoDiv = document.createElement('div');
+    dañoDiv.classList.add('daño'); // Agregar clase para estilizar el daño
+    dañoDiv.innerText = `-${daño}`; // Mostrar el valor del daño como un número negativo
+
+    // Añadir el div de daño al contenedor de la carta
+    cartaRival.appendChild(dañoDiv);
+
+    // Eliminar el daño después de 1 segundo
+    setTimeout(() => {
+        dañoDiv.remove(); // Quitar el div de daño después de que haya pasado un tiempo
+    }, 1000);
+}
+
+/**
+ * Anima un ataque de un jugador.
+ * @param {number} atacanteIndex - Índice de la carta atacante en el array de cartas.
+ */
+function animarAtaque(atacanteIndex) {
+    // Seleccionar el contenedor de la carta del atacante
+    const cartaAtacante = document.querySelectorAll('.carta-container')[atacanteIndex];
+    if (!cartaAtacante) return; // Si la carta no existe, termina la función
+
+    cartaAtacante.classList.add('ataque'); // Añadir la clase para la animación de ataque
+
+    // Eliminar la animación después de 300ms
+    setTimeout(() => {
+        cartaAtacante.classList.remove('ataque'); // Quitar la animación después del tiempo
+    }, 300);
+}
+
+/**
+ * Anima la recepción de daño por parte del rival.
+ * @param {number} rivalIndex - Índice de la carta del rival en el array de cartas.
+ */
+function animarRecibirDaño(rivalIndex) {
+    // Seleccionar la carta del rival que recibe daño
+    const cartaRival = document.querySelectorAll('.carta-container')[rivalIndex];
+    if (!cartaRival) return; // Si la carta no existe, termina la función
+
+    cartaRival.classList.add('recibir-daño'); // Añadir la animación de recibir daño
+
+    // Eliminar la animación de daño después de 200ms
+    setTimeout(() => {
+        cartaRival.classList.remove('recibir-daño');
+    }, 200);
+}
+
+/**
+ * Anima la recepción de daño especial por parte del rival.
+ * @param {number} rivalIndex - Índice de la carta del rival en el array de cartas.
+ */
+function animarRecibirDañoEspecial(rivalIndex) {
+    // Seleccionar la carta del rival que recibe daño especial
+    const cartaRival = document.querySelectorAll('.carta-container')[rivalIndex];
+    if (!cartaRival) return; // Si la carta no existe, termina la función
+
+    cartaRival.classList.add('recibir-daño-especial'); // Añadir la animación de daño especial
+
+    // Eliminar la animación especial después de 200ms
+    setTimeout(() => {
+        cartaRival.classList.remove('recibir-daño-especial');
+    }, 200);
+}
+
+
+/**
+ * Verifica si el juego ha terminado comprobando si algún jugador ha llegado a 0 de vida.
+ * Si el juego termina, actualiza las estadísticas, muestra un mensaje y deshabilita los botones.
+ * @returns {boolean} - Devuelve `true` si el juego ha terminado, `false` en caso contrario.
+ */
+function verificarFinDeJuego() {
+    // Buscar la carta cuyo valor de vida sea 0
+    const jugadorPerdedor = mazo.cartas.findIndex(carta => carta.vida <= 0);
+
+    if (jugadorPerdedor !== -1) {
+        // Determinar quién es el ganador y el perdedor
+        const ganadorIndex = jugadorPerdedor === 0 ? 1 : 0;
+        const perdedorIndex = jugadorPerdedor;
+
+        const ganador = jugadorPerdedor === 0 ? "J2" : "J1";
+        const perdedor = jugadorPerdedor === 0 ? "J1" : "J2";
+
+        const personajeGanador = mazo.cartas[ganadorIndex].nombre;
+        const personajePerdedor = mazo.cartas[perdedorIndex].nombre;
+
+        const vidaFinalGanador = mazo.cartas[ganadorIndex].vida;
+        const vidaFinalPerdedor = mazo.cartas[perdedorIndex].vida;
+
+        // Actualizar las estadísticas del ganador y perdedor
+        actualizarEstadisticas(ganador, 'victoria', personajeGanador, vidaFinalGanador, turnos);
+        actualizarEstadisticas(perdedor, 'derrota', personajePerdedor, vidaFinalPerdedor, turnos);
+
+        // Mostrar un mensaje de fin de juego
+        setTimeout(() => {
+            const mensajeFinJuego = document.createElement('div');
+            mensajeFinJuego.classList.add('mensaje-fin-juego');
+            mensajeFinJuego.innerHTML = `${ganador} ha ganado <br> ${perdedor} ha perdido`;
+            document.body.appendChild(mensajeFinJuego);
+
+            setTimeout(() => {
+                // Deshabilitar los botones después de 1 segundo
+                document.querySelectorAll('.carta-container button').forEach(boton => {
+                    boton.disabled = true;
+                });
+            }, 1000);
+        }, 1000);
+
+        return true; // Indica que el juego ha terminado
+    }
+    return false; // Si no hay perdedor, el juego sigue
+}
+
+/**
+ * Actualiza la barra de vida de un jugador en el tablero.
+ * 
+ * Esta función selecciona la carta del rival indicada por el índice y actualiza la barra de vida y el texto que muestra la vida restante,
+ * ajustando su ancho según el porcentaje de vida de la carta. Si la vida es 0, la barra de vida se oculta.
+ *
+ * @param {number} index - El índice de la carta del jugador cuyo estado de vida se actualizará.
+ */
+function actualizarBarraVida(index) {
+    const cartaRival = document.querySelectorAll('.carta-container')[index];
+    const barraVida = cartaRival.querySelector('.barra-vida'); // Seleccionar la barra de vida
+    const textoVida = cartaRival.querySelector('p'); // Buscar el párrafo de la vida
+    const vida = mazo.cartas[index].vida; // Obtener la vida actual de la carta
+
+    // Actualizar el ancho de la barra de vida en función del porcentaje de vida
+    if (barraVida) {
+        barraVida.style.width = `${(vida / 100) * 100}%`;
+        if (vida === 0) {
+            barraVida.style.display = 'none'; // Ocultar la barra de vida si la vida es 0
+        }
+    }
+
+    // Actualizar el texto que muestra la vida restante
+    if (textoVida) {
+        textoVida.innerText = `Vida: ${vida}`;
+    }
+}
+
+
+/**
+ * Actualiza la barra de habilidad de una carta en el tablero.
+ * 
+ * Esta función selecciona la carta indicada por el índice y actualiza la barra de habilidad y el texto que muestra el valor de habilidad,
+ * ajustando su ancho según el valor de habilidad de la carta. Si la habilidad es 0, la barra de habilidad se oculta.
+ *
+ * @param {number} index - El índice de la carta cuyo estado de habilidad se actualizará.
+ */
+function actualizarBarraHabilidad(index) {
+    const carta = document.querySelectorAll('.carta-container')[index];
+    const barraHabilidad = carta.querySelector('.barra-habilidad'); // Seleccionar la barra de habilidad
+    const textoHabilidad = carta.querySelector('.habilidad-texto'); // Seleccionar el texto de habilidad
+    const habilidad = mazo.cartas[index].habilidad; // Obtener el valor de habilidad
+
+    // Actualizar el ancho de la barra de habilidad en función de la habilidad
+    if (barraHabilidad) {
+        barraHabilidad.style.width = `${(habilidad / 100) * 100}%`;
+        if (habilidad === 0) {
+            barraHabilidad.style.display = 0; // Ocultar la barra si la habilidad es 0
+        }
+    }
+
+    // Actualizar el texto de la habilidad
+    if (textoHabilidad) {
+        textoHabilidad.innerText = `Habilidad: ${habilidad}`;
+    }
+}
+
+
+/**
+ * Activa la técnica especial de un jugador.
+ * 
+ * Esta función verifica si el jugador tiene la habilidad al máximo (100) y, en ese caso, ejecuta su técnica especial,
+ * mostrando una animación correspondiente y realizando los cambios de vida al rival. También gestiona el ciclo de animaciones y
+ * las actualizaciones en las barras de habilidad y vida, así como el cambio de turno.
+ * 
+ * Si el ataque especial afecta el resultado del juego, verifica si el juego ha terminado. Después de la animación, limpia
+ * los elementos visuales y pasa al siguiente turno.
+ */
+function activarTecnicaEspecial() {
+    const atacante = mazo.cartas[turno];
+    const rivalIndex = turno === 0 ? 1 : 0;
+    const rival = mazo.cartas[rivalIndex];
+
+    if (atacante.habilidad === 100) {
+
+        // Crear una nueva imagen para la animación
+        const nuevaImagen = document.createElement('img');
+        nuevaImagen.src = document.querySelectorAll('.carta-container')[turno].querySelector('.carta img').src; // Obtener la fuente de la carta
+        nuevaImagen.alt = 'Habilidad Especial';
+        nuevaImagen.classList.add('nueva-imagen');
+
+        // Asignar la clase específica para la animación dependiendo de la carta
+        if (turno === 0) {
+            nuevaImagen.classList.add('primera-carta');
+        } else {
+            nuevaImagen.classList.add('segunda-carta');
+        }
+
+        // Insertar la nueva imagen en el documento
+        document.body.appendChild(nuevaImagen);
+
+        // Crear la capa oscura para el fondo
+        const capaOscura = document.createElement('div');
+        capaOscura.classList.add('fondo-oscuro');
+        document.body.appendChild(capaOscura);
+
+        // Esperar a que termine la animación
+        nuevaImagen.addEventListener('animationend', () => {
+            // Realizar la acción del ataque especial
+            rival.vida = Math.max(0, rival.vida - atacante.dañoEspecial);
+
+            atacante.habilidad = 0;  // Reseteamos la barra de habilidad
+            atacante.habilidadLista = false;
+
+            actualizarBarraHabilidad(turno);
+            actualizarBarraVida(rivalIndex);
+            mostrarDaño(rivalIndex, atacante.dañoEspecial);
+
+            animarAtaque(turno);
+            animarRecibirDañoEspecial(rivalIndex);
+
+            // Verificar fin del juego
+            if (verificarFinDeJuego()) {
+                capaOscura.remove();  // Eliminar la capa oscura si el juego terminó
+                return;
+            }        
+            cambiarTurno();
+
+            // Eliminar la imagen una vez que la animación termine
+            nuevaImagen.remove();
+
+            // Eliminar la capa oscura después de la animación
+            capaOscura.remove();
+        });
+    }
+}
+
+/**
+ * Realiza un ataque de un jugador al rival en su turno.
+ * 
+ * Esta función obtiene la carta del jugador que está atacando y determina el daño que causará al rival,
+ * basado en las estadísticas de la carta atacante. Después de reducir la vida del rival, actualiza las barras de vida y
+ * muestra el daño recibido. La animación de ataque y el daño recibido también son activadas.
+ * 
+ * Luego, verifica si el juego ha terminado tras el ataque (si la vida del rival llega a 0) y, si no, cambia el turno
+ * para que el siguiente jugador pueda actuar.
+ */
+function atacar() {
+    // Obtener la carta del jugador que está atacando en este turno
+    const atacante = mazo.cartas[turno];
+
+    // Determinar quién es el rival en función del turno actual (si turno es 0, el rival es 1, y viceversa)
+    const rivalIndex = turno === 0 ? 1 : 0;
+    const rival = mazo.cartas[rivalIndex];
+
+    // Establecer el daño que el atacante puede causar (basado en la carta del atacante)
+    let daño = atacante.daño;
+    console.log(`Daño de ${atacante.nombre}: ${daño}`);
+
+    // Reducir la vida del rival, asegurando que no sea menor que 0
+    rival.vida = Math.max(0, rival.vida - daño);
+
+    // Actualizar la barra de vida del rival
+    actualizarBarraVida(rivalIndex);
+
+    // Mostrar el daño recibido por el rival
+    mostrarDaño(rivalIndex, daño);
+
+    // Animar el ataque del jugador
+    animarAtaque(turno);
+
+    // Animar el daño recibido por el rival
+    animarRecibirDaño(rivalIndex);
+
+    // Verificar si el juego ha terminado después del ataque (si la vida del rival llega a 0)
+    if (verificarFinDeJuego()) return;
+
+    // Cambiar el turno para que el siguiente jugador actúe
+    cambiarTurno();
+}
+
+
+/**
+ * Aumenta la energía de la carta del jugador en el turno actual.
+ * 
+ * Esta función incrementa la habilidad de la carta atacante sumando su energía. Si la habilidad supera 100, se limita a 100.
+ * Cuando la habilidad llega a 100, se marca la carta como lista para ejecutar su habilidad especial. Luego, se actualizan
+ * visualmente la barra de habilidad y el texto que muestra la habilidad actual. Se agrega una animación de carga a la carta
+ * para representar el aumento de energía, la cual se elimina después de un breve intervalo.
+ * 
+ * Finalmente, se cambia el turno para el siguiente jugador.
+ */
+function aumentarEnergia() {
+    const cartaAtacante = mazo.cartas[turno];
+    cartaAtacante.habilidad += cartaAtacante.energia;
+
+    // Limitar la habilidad a un máximo de 100
+    if (cartaAtacante.habilidad > 100) {
+        cartaAtacante.habilidad = 100;
+    }
+
+    // Marcar la carta como lista para usar su habilidad especial si la habilidad llega a 100
+    if (cartaAtacante.habilidad === 100) {
+        cartaAtacante.habilidadLista = true;
+    }
+
+    // Obtener el contenedor de la carta actual
+    const cartaContainer = document.querySelectorAll('.carta-container')[turno];
+
+    // Actualizar el número de la habilidad
+    const habilidadElement = cartaContainer.querySelector('.habilidad-texto'); // Seleccionar el párrafo correcto
+    if (habilidadElement) {
+        habilidadElement.innerText = `Habilidad: ${cartaAtacante.habilidad}`;
+    }
+
+    // Actualizar la barra de habilidad
+    const barraHabilidad = cartaContainer.querySelector('.barra-habilidad'); // Seleccionar la barra de habilidad
+    if (barraHabilidad) {
+        barraHabilidad.style.width = `${cartaAtacante.habilidad}%`;
+    }
+
+    // Obtener la carta específica dentro del contenedor
+    const carta = cartaContainer.querySelector('.carta');
+
+    // Agregar animaciones solo a la carta
+    carta.classList.add('cargando-energia', 'resplandor');
+
+    // Quitar animaciones después de 1.5 segundos (cuando la energía ha cargado)
+    setTimeout(() => {
+        carta.classList.remove('cargando-energia', 'resplandor');
+    }, 1500);
+
+    // Cambiar el turno para el siguiente jugador
+    cambiarTurno();
+}
+
+
+/**
+ * Cambia el turno entre los jugadores, alternando entre 0 y 1.
+ * 
+ * Esta función incrementa el contador de turnos, alterna el turno entre los dos jugadores (de 0 a 1 o viceversa), 
+ * actualiza la interfaz de usuario para reflejar los cambios en los botones disponibles, y finalmente, anuncia 
+ * de quién es el turno actual, ya sea mostrando un mensaje o resaltando la carta activa del jugador correspondiente.
+ */
+function cambiarTurno() {
+    // Alternar el turno entre los jugadores (si turno es 0, pasa a 1; si es 1, pasa a 0)
+    turno = turno === 0 ? 1 : 0;
+
+    // Incrementar el contador de turnos
+    turnos++;
+
+    // Actualizar la interfaz de usuario para reflejar los cambios en los botones disponibles
+    actualizarBotones();
+
+    // Anunciar de quién es el turno actual (puede mostrar un mensaje o resaltar visualmente la carta activa)
+    anunciarTurno();
+}
+
+
+
+/**
+ * Actualiza los botones de la interfaz de usuario según el turno actual.
+ * 
+ * Esta función recorre todos los contenedores de cartas y, para cada uno, actualiza el estado de los botones 
+ * que contiene. Si no es el turno del jugador correspondiente a una carta, los botones de esa carta se 
+ * deshabilitan y se reduce su opacidad para indicar que no están disponibles. Si es el turno de la carta, 
+ * los botones se habilitan y se les devuelve su opacidad completa.
+ */
+function actualizarBotones() {
+    // Seleccionar todos los contenedores de cartas
+    document.querySelectorAll('.carta-container').forEach((container, index) => {
+        // Seleccionar todos los botones dentro del contenedor actual
+        const botones = container.querySelectorAll('button');
+        
+        botones.forEach(boton => {
+            // Deshabilitar los botones si no es el turno de la carta correspondiente
+            boton.disabled = index !== turno;
+            
+            // Reducir la opacidad de los botones deshabilitados para indicar que no pueden usarse
+            boton.style.opacity = index !== turno ? "0.5" : "1";
+        });
+    });
+}
+
+
+
+/**
+ * Reinicia la partida, restableciendo las cartas, el turno y la interfaz de usuario.
+ * 
+ * Esta función elimina cualquier mensaje de fin de juego, restablece el estado de todas las cartas a sus valores 
+ * iniciales, limpia el tapete y vuelve a colocar las cartas. También reinicia el contador de turnos, actualiza los 
+ * botones disponibles y crea un nuevo botón de reinicio para volver a jugar.
+ */
+function reiniciarJuego() {
+    // Eliminar mensaje de fin de juego si existe
+    const mensajeFinJuego = document.querySelector('.mensaje-fin-juego');
+    if (mensajeFinJuego) {
+        mensajeFinJuego.remove();
+    }
+
+    // Resetear las cartas
+    mazo.cartas.forEach(carta => {
+        carta.vida = 100;
+        carta.habilidad = 0;
+        carta.habilidadLista = false;
+    });
+
+    // Limpiar el tapete
+    tapete.innerHTML = '';
+
+    // Volver a colocar las cartas en el tapete
+    colocar(mazo, tapete, atacar, turno);
+
+    // Resetear turno y actualizar botones
+    turno = Math.random() < 0.5 ? 0 : 1;
+    actualizarBotones();
+    anunciarTurno();
+
+    // Eliminar botones previos antes de crear uno nuevo
+    const botonReiniciarPrevio = document.getElementById('boton-reiniciar');
+    if (botonReiniciarPrevio) {
+        botonReiniciarPrevio.remove();
+    }
+
+    // Crear botón de reinicio si no existe
+    const botonReiniciar = document.createElement('button');
+    botonReiniciar.classList.add('boton-reiniciar');
+    botonReiniciar.innerText = "Reiniciar Partida";
+    botonReiniciar.addEventListener('click', reiniciarJuego);
+
+    // Agregar el botón al cuerpo si no está presente
+    document.body.appendChild(botonReiniciar);
+    turnos = 0;
+}
+
+// Colocar cartas en el tapete
+reiniciarJuego();
+
+// Exporta las funciones de ataque, aumento de energía y activación de la técnica especial
+export { atacar, aumentarEnergia, activarTecnicaEspecial };
+
+/**
+ * Función para actualizar las estadísticas del jugador tras una partida.
+ * 
+ * @param {string} jugador - Nombre o identificador del jugador.
+ * @param {string} resultado - Resultado de la partida (victoria, derrota, empate).
+ * @param {string} personaje - Personaje utilizado en la partida.
+ * @param {number} vidaFinal - Vida restante del personaje al finalizar la partida.
+ * @param {number} turnos - Número total de turnos jugados en la partida.
+ */
+function actualizarEstadisticas(jugador, resultado, personaje, vidaFinal, turnos) {
+    fetch('http://localhost:3000/actualizar', { // Enviar datos al servidor
+        method: 'POST', // Método HTTP para enviar datos
+        headers: {
+            'Content-Type': 'application/json' // Especifica que el contenido es JSON
+        },
+        body: JSON.stringify({ jugador, resultado, personaje, vidaFinal, turnos }) // Convierte los datos en JSON para enviarlos
+    })
+    .then(res => res.json()) // Convierte la respuesta en un objeto JSON
+    .then(data => console.log('Estadísticas actualizadas:', data)) // Muestra un mensaje en la consola si la actualización es exitosa
+    .catch(error => console.error('Error al actualizar estadísticas:', error)); // Captura y muestra errores en caso de fallo
+}
