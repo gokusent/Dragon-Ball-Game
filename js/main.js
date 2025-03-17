@@ -30,16 +30,52 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /**
- * Objeto que representa un mazo de cartas en el juego.
+ * Objeto que representa el mazo de cartas en el juego.
  * @type {Object}
  * @property {Carta[]} cartas - Array de cartas en el mazo.
  */
 const mazo = {
-    cartas: [
-        new Carta("Goku", 100, 25, 50, "Kamehameha", 35, "cartas/Goku.webp"),
-        new Carta("Vegeta", 100, 20, 40, "Big Bang Attack", 60, "cartas/Vegeta.webp"),
-    ]
+    cartas: []
 };
+
+// Obtener los personajes seleccionados por el jugador
+const cartasGuardadas = localStorage.getItem("personajesSeleccionados");
+
+if (!cartasGuardadas) {
+    alert("No has seleccionado personajes. Vuelve a la selección.");
+    window.location.href = "seleccion.html"; 
+} else {
+    const personajesJugador = JSON.parse(cartasGuardadas);
+
+    personajesJugador.forEach(personaje => {
+        const cartaJugador = new Carta(
+            personaje.nombre,
+            personaje.vida || 100,
+            personaje.daño || 20,
+            personaje.energia || 30,
+            personaje.tecnicaEspecial || "Ataque básico",
+            personaje.dañoEspecial || 50,
+            personaje.imagen.includes("cartas/") ? personaje.imagen : `cartas/${personaje.imagen}`
+        );
+
+        // Agregar cada personaje seleccionado al mazo del jugador
+        mazo.cartas.push(cartaJugador);
+    });
+}
+
+// Vegeta siempre será el único enemigo
+const cartaVegeta = new Carta(
+    "Vegeta",
+    100,
+    20,
+    40,
+    "Big Bang Attack",
+    60,
+    "cartas/Vegeta.webp"
+);
+
+mazo.cartas.push(cartaVegeta);
+
 
 // Obtener el contenedor del tapete de juego
 const tapete = document.getElementById('tapete');

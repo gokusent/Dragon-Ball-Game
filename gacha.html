@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gacha - Dragon Ball</title>
+    <link rel="stylesheet" href="css/gacha.css">
+    <script defer src="js/gacha.js"></script>
+</head>
+<body>
+
+    <h1>Gacha de Dragon Ball</h1>
+    <p>Monedas: <span id="monedas">100</span></p>
+
+    <!-- Botón para tirar del Gacha -->
+    <button id="tirarGacha">Tirar (Coste: 10 Monedas)</button>
+
+    <!-- Contenedor donde se mostrará el resultado -->
+    <div id="resultado"></div>
+
+    <!-- Botón para volver al menú -->
+    <button id="volverMenu">Volver al Menú</button>
+
+    <script>
+        document.getElementById("volverMenu").addEventListener("click", () => {
+            window.location.href = "index.html";
+        });
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dragon Ball Gacha</title>
+    <link rel="stylesheet" href="css/pantalla-titulo.css">
+    <script src="js/pantalla-titulo.js" defer></script>
+</head>
+<body>
+
+    <!-- Pantalla de título -->
+    <div id="pantalla-titulo">
+        <img src="fondo/logo.webp">
+        <button id="btn-iniciar">Iniciar</button>
+
+        <div id="registroContainer" style="display: none;">
+            <h2>Registrarse</h2>
+            <input type="text" id="nombre" placeholder="Nombre">
+            <input type="email" id="email" placeholder="Correo">
+            <input type="password" id="password" placeholder="Contraseña">
+            <button id="btnRegistrar">Registrarse</button>
+        </div>
+            </div>
+
+    <!-- Pantalla de Inicio (Menú Principal) - Oculta al principio -->
+    <div id="pantalla-inicio" class="oculto">
+        <h2>Menú Principal</h2>
+        <button id="btn-jugar">Jugar Partida</button>
+        <button id="btn-gacha">Tirar en el Gacha</button>
+        <button id="btn-inventario">Ver Personajes</button>
+        <button id="btn-ajustes">Ajustes</button>
+    </div>
+</body>
+</html>
