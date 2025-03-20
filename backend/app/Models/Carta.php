@@ -60,4 +60,19 @@ class Carta extends Model
 	{
 		return $this->hasMany(Movimiento::class);
 	}
+
+	public function aplicarEfecto($jugador)
+{
+    // Si la carta tiene daño
+    if ($this->daño > 0) {
+        $jugador->vida -= $this->daño;
+    }
+
+    // Si la carta tiene una técnica especial
+    if ($this->tecnica_especial) {
+        // Ejecutar lógica para técnica especial
+        $jugador->vida -= $this->daño_especial; // O lo que corresponda
+    }
+}
+
 }

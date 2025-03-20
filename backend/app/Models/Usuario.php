@@ -53,7 +53,8 @@ class Usuario extends Authenticatable
 		'email',
 		'password',
 		'avatar',
-		'fecha_registro'
+		'fecha_registro',
+		'monedas'
 	];
 
 	public function comentarios_foros()

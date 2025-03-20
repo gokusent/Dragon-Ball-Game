@@ -6,6 +6,10 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\CartasController;
 use App\Http\Controllers\InventarioController;
 use App\Http\Controllers\EquipoController;
+use App\Http\Controllers\MonedasController;
+use App\Http\Controllers\PartidaController;
+use App\Http\Controllers\MovimientoController;
+
 
 Route::get('/user', function (Request $request) {
     return $request->user();
@@ -24,6 +28,8 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/gacha', [CartasController::class, 'gacha']);
 });
 
+Route::middleware('auth:sanctum')->post('/monedas/gastar', [MonedasController::class, 'gastar']);
+
 // Ruta protegida con Sanctum
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/inventario', [InventarioController::class, 'verInventario']);
@@ -33,5 +39,12 @@ Route::middleware('auth:sanctum')->group(function () {
 // Ruta protegida con Sanctum
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/equipo', [EquipoController::class, 'verEquipo']);
-    Route::post('/equipo/seleccionar', [EquipoController::class, 'seleccionarCartas']);
+    Route::middleware('auth:sanctum')->post('/equipo/seleccionar', [EquipoController::class, 'seleccionarEquipo']);
 });
+
+Route::post('/partidas', [PartidaController::class, 'crear']);  // Crear partida
+Route::put('/partidas/{id}', [PartidaController::class, 'unirse']);  // Unirse a partida
+Route::get('/partidas/{id}', [PartidaController::class, 'estado']);  // Obtener estado de la partida
+
+Route::post('/movimientos', [MovimientoController::class, 'registrar']);  // Registrar movimiento
+  

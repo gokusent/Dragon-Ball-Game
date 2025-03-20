@@ -4,83 +4,6 @@ import { colocar } from './funciones.js'; // Importa la función para colocar la
 import { toggleMusic } from './music.js'; // Importa la función para alternar la música
 
 /**
- * Espera a que el contenido de la página esté completamente cargado antes de ejecutar el código.
- */
-document.addEventListener("DOMContentLoaded", () => {
-    /**
-     * Botón para activar o desactivar la música.
-     * @type {HTMLElement | null}
-     */
-    const toggleMusicBtn = document.getElementById("toggleMusicBtn");
-
-    // Verificar si el botón de música existe en el DOM
-    if (!toggleMusicBtn) {
-        console.log("No se encontró el botón de música."); // Mensaje de error si no se encuentra el botón
-        return;
-    }
-
-    /**
-     * Agrega un evento de clic al botón de música para alternar la música cuando se presione.
-     */
-    toggleMusicBtn.addEventListener("click", () => {
-        console.log("toggleMusic llamado.");
-        toggleMusic(); // Llama a la función de alternancia de música
-        window.toggleMusic(); // Llama a la misma función desde el objeto global 'window' (dependiendo de la implementación)
-    });
-});
-
-/**
- * Objeto que representa el mazo de cartas en el juego.
- * @type {Object}
- * @property {Carta[]} cartas - Array de cartas en el mazo.
- */
-const mazo = {
-    cartas: []
-};
-
-// Obtener los personajes seleccionados por el jugador
-const cartasGuardadas = localStorage.getItem("personajesSeleccionados");
-
-if (!cartasGuardadas) {
-    alert("No has seleccionado personajes. Vuelve a la selección.");
-    window.location.href = "seleccion.html"; 
-} else {
-    const personajesJugador = JSON.parse(cartasGuardadas);
-
-    personajesJugador.forEach(personaje => {
-        const cartaJugador = new Carta(
-            personaje.nombre,
-            personaje.vida || 100,
-            personaje.daño || 20,
-            personaje.energia || 30,
-            personaje.tecnicaEspecial || "Ataque básico",
-            personaje.dañoEspecial || 50,
-            personaje.imagen.includes("cartas/") ? personaje.imagen : `cartas/${personaje.imagen}`
-        );
-
-        // Agregar cada personaje seleccionado al mazo del jugador
-        mazo.cartas.push(cartaJugador);
-    });
-}
-
-// Vegeta siempre será el único enemigo
-const cartaVegeta = new Carta(
-    "Vegeta",
-    100,
-    20,
-    40,
-    "Big Bang Attack",
-    60,
-    "cartas/Vegeta.webp"
-);
-
-mazo.cartas.push(cartaVegeta);
-
-
-// Obtener el contenedor del tapete de juego
-const tapete = document.getElementById('tapete');
-
-/**
  * Crear un div para mostrar el turno actual en pantalla.
  * @type {HTMLDivElement}
  */
@@ -115,111 +38,292 @@ function anunciarTurno() {
     }, 1500);
 }
 
+/**
+ * Actualiza los botones según el turno.
+ */
+function actualizarBotones() {
+    // Seleccionamos todos los contenedores de las cartas
+    const contenedoresJugador = document.querySelectorAll('.contenedor-jugador .carta-container');
+    const contenedoresRival = document.querySelectorAll('.contenedor-rival .carta-container');
+
+    // Deshabilitar botones del rival si es el turno del jugador (turno 0)
+    contenedoresRival.forEach((container) => {
+        const botones = container.querySelectorAll('button');
+        botones.forEach(boton => {
+            boton.disabled = turno === 0;
+            boton.style.opacity = boton.disabled ? "0.5" : "1";
+        });
+    });
+
+    // Deshabilitar botones del jugador si es el turno del rival (turno 1)
+    contenedoresJugador.forEach((container) => {
+        const botones = container.querySelectorAll('button');
+        botones.forEach(boton => {
+            boton.disabled = turno === 1;
+            boton.style.opacity = boton.disabled ? "0.5" : "1";
+        });
+    });
+}
+
+// Llamar a la función al cargar la página para asegurarnos de que se deshabiliten los botones correctamente
+window.addEventListener('load', actualizarBotones);
+
 
 /**
- * Muestra el daño infligido a la carta del rival.
+ * Espera a que el contenido de la página esté completamente cargado antes de ejecutar el código.
+ */
+document.addEventListener("DOMContentLoaded", () => {
+    /**
+     * Botón para activar o desactivar la música.
+     * @type {HTMLElement | null}
+     */
+    const toggleMusicBtn = document.getElementById("toggleMusicBtn");
+
+    // Verificar si el botón de música existe en el DOM
+    if (!toggleMusicBtn) {
+        console.log("No se encontró el botón de música."); // Mensaje de error si no se encuentra el botón
+        return;
+    }
+
+    /**
+     * Agrega un evento de clic al botón de música para alternar la música cuando se presione.
+     */
+    toggleMusicBtn.addEventListener("click", () => {
+        console.log("toggleMusic llamado.");
+        toggleMusic(); // Llama a la función de alternancia de música
+        window.toggleMusic(); // Llama a la misma función desde el objeto global 'window' (dependiendo de la implementación)
+    });
+});
+
+// Definir el token al inicio del archivo
+const token = localStorage.getItem("token");
+
+if (!token) {
+    alert("Debes iniciar sesión para jugar.");
+    window.location.href = "index.html";
+}
+
+// Objeto que representa los mazos del jugador y del rival
+const jugador = { cartas: [] };
+const rival = { cartas: [] };
+
+async function cargarEquipo() {
+    try {
+        const respuesta = await fetch("http://127.0.0.1:8000/api/equipo", {
+            method: "GET",
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        if (!respuesta.ok) throw new Error("Error al obtener los personajes seleccionados");
+
+        const personajesJugador = await respuesta.json();
+        console.log("Personajes obtenidos para el combate:", personajesJugador);
+
+        if (!personajesJugador.length) {
+            alert("No has seleccionado personajes. Vuelve a la selección.");
+            window.location.href = "seleccion.html";
+            return;
+        }
+
+        // 📌 **Agregar cartas solo al jugador**
+        personajesJugador.forEach(personaje => {
+            const cartaJugador = new Carta(
+                personaje.nombre,
+                personaje.vida || 100,
+                personaje.daño || 20,
+                personaje.energia || 30,
+                personaje.tecnicaEspecial || "Ataque básico",
+                personaje.dañoEspecial !== null ? personaje.dañoEspecial : 50,
+                personaje.imagen_url || "cartas/default.jpg"
+            );
+
+            cartaJugador.vidaOriginal = personaje.vida || 100; // Guardar la vida original para reiniciar
+            jugador.cartas.push(cartaJugador);
+        });
+        
+        // 📌 **El rival siempre será Vegeta**
+        const cartaRival = new Carta("Vegeta", 100, 20, 40, "Big Bang Attack", 60, "cartas/Vegeta.webp");
+        cartaRival.vidaOriginal = 100; // Guardar la vida original para reiniciar
+        rival.cartas.push(cartaRival);
+
+        console.log("Cartas del jugador:", jugador.cartas);
+        console.log("Carta del rival:", rival.cartas);
+
+        // 📌 **Colocar cartas solo si las cartas están disponibles**
+        if (jugador.cartas.length > 0 && rival.cartas.length > 0) {
+            const tapete = document.getElementById("tapete");
+            colocar(jugador, rival, tapete);
+        } else {
+            alert("No se han cargado las cartas correctamente.");
+        }
+
+    } catch (error) {
+        console.error("Error:", error);
+        alert("Hubo un problema al cargar los personajes.");
+    }
+}
+
+// Cargar el equipo al iniciar la página
+actualizarBotones();
+cargarEquipo();
+
+/**
+ * Muestra el daño infligido a la carta del jugador o del rival.
+ * @param {string} objetivo - "jugador" o "rival", indica a quién se le aplica el daño.
  * @param {number} index - Índice de la carta objetivo en el array de cartas.
  * @param {number} daño - Cantidad de daño a mostrar.
  */
-function mostrarDaño(index, daño) {
-    // Buscar el contenedor de la carta en la posición indicada
-    const cartaRival = document.querySelectorAll('.carta-container')[index];
-    if (!cartaRival) return; // Si no existe el contenedor, termina la función
+function mostrarDaño(objetivo, index, daño) {
+    // Determinar el contenedor del jugador o rival basado en el objetivo
+    const contenedor = document.querySelector(
+        objetivo === "jugador" ? ".contenedor-jugador" : ".contenedor-rival"
+    );
 
-    // Crear un nuevo div que muestre el daño
-    const dañoDiv = document.createElement('div');
-    dañoDiv.classList.add('daño'); // Agregar clase para estilizar el daño
-    dañoDiv.innerText = `-${daño}`; // Mostrar el valor del daño como un número negativo
+    // Seleccionar todas las cartas dentro del contenedor
+    const cartas = contenedor.querySelectorAll(".carta-container");
 
-    // Añadir el div de daño al contenedor de la carta
-    cartaRival.appendChild(dañoDiv);
+    // Verificar si el índice es válido
+    if (!cartas[index]) {
+        console.error(`Error: No se encontró la carta en ${objetivo} con índice ${index}`);
+        return;
+    }
 
-    // Eliminar el daño después de 1 segundo
+    const cartaObjetivo = cartas[index];
+
+    // Crear un div para mostrar el daño
+    const dañoDiv = document.createElement("div");
+    dañoDiv.classList.add("daño"); // Aplicamos la clase CSS para la animación
+    dañoDiv.innerText = `-${daño}`; // Mostramos el daño en texto
+
+    // Ajustar la posición dentro de la carta
+    cartaObjetivo.style.position = "relative"; 
+    dañoDiv.style.position = "absolute"; // Para que se superponga a la carta
+
+    // Añadir el div de daño a la carta
+    cartaObjetivo.appendChild(dañoDiv);
+
+    // Eliminar la animación después de 1s
     setTimeout(() => {
-        dañoDiv.remove(); // Quitar el div de daño después de que haya pasado un tiempo
+        dañoDiv.remove();
     }, 1000);
 }
 
+
 /**
  * Anima un ataque de un jugador.
- * @param {number} atacanteIndex - Índice de la carta atacante en el array de cartas.
+ * @param {string} atacante - "jugador" o "rival".
+ * @param {number} atacanteIndex - Índice de la carta atacante.
  */
-function animarAtaque(atacanteIndex) {
-    // Seleccionar el contenedor de la carta del atacante
-    const cartaAtacante = document.querySelectorAll('.carta-container')[atacanteIndex];
-    if (!cartaAtacante) return; // Si la carta no existe, termina la función
+function animarAtaque(atacante, atacanteIndex) {
+    // Determinar el contenedor del atacante (jugador o rival)
+    const contenedor = document.querySelector(
+        atacante === "jugador" ? ".contenedor-jugador" : ".contenedor-rival"
+    );
 
-    cartaAtacante.classList.add('ataque'); // Añadir la clase para la animación de ataque
+    // Obtener todas las cartas dentro del contenedor
+    const cartas = contenedor.querySelectorAll(".carta-container");
 
-    // Eliminar la animación después de 300ms
+    // Verificar que el índice sea válido
+    if (!cartas[atacanteIndex]) {
+        console.error(`Error: No se encontró la carta en ${atacante} con índice ${atacanteIndex}`);
+        return;
+    }
+
+    const cartaAtacante = cartas[atacanteIndex];
+
+    // Aplicar animación de ataque
+    cartaAtacante.classList.add("ataque");
+
+    // Quitar la animación después de 300ms
     setTimeout(() => {
-        cartaAtacante.classList.remove('ataque'); // Quitar la animación después del tiempo
+        cartaAtacante.classList.remove("ataque");
     }, 300);
 }
 
 /**
  * Anima la recepción de daño por parte del rival.
- * @param {number} rivalIndex - Índice de la carta del rival en el array de cartas.
+ * @param {string} defensor - "jugador" o "rival".
+ * @param {number} defensorIndex - Índice de la carta defensora.
  */
-function animarRecibirDaño(rivalIndex) {
-    // Seleccionar la carta del rival que recibe daño
-    const cartaRival = document.querySelectorAll('.carta-container')[rivalIndex];
-    if (!cartaRival) return; // Si la carta no existe, termina la función
+function animarRecibirDaño(defensor, defensorIndex) {
+    // Determinar el contenedor del defensor (jugador o rival)
+    const contenedor = document.querySelector(
+        defensor === "jugador" ? ".contenedor-jugador" : ".contenedor-rival"
+    );
 
-    cartaRival.classList.add('recibir-daño'); // Añadir la animación de recibir daño
+    // Obtener todas las cartas dentro del contenedor
+    const cartas = contenedor.querySelectorAll(".carta-container");
 
-    // Eliminar la animación de daño después de 200ms
+    // Verificar que el índice sea válido
+    if (!cartas[defensorIndex]) {
+        console.error(`Error: No se encontró la carta en ${defensor} con índice ${defensorIndex}`);
+        return;
+    }
+
+    const cartaDefensor = cartas[defensorIndex];
+
+    // Aplicar animación de recibir daño
+    cartaDefensor.classList.add("recibir-daño");
+
+    // Quitar la animación después de 200ms
     setTimeout(() => {
-        cartaRival.classList.remove('recibir-daño');
+        cartaDefensor.classList.remove("recibir-daño");
     }, 200);
 }
+
 
 /**
  * Anima la recepción de daño especial por parte del rival.
  * @param {number} rivalIndex - Índice de la carta del rival en el array de cartas.
  */
-function animarRecibirDañoEspecial(rivalIndex) {
-    // Seleccionar la carta del rival que recibe daño especial
-    const cartaRival = document.querySelectorAll('.carta-container')[rivalIndex];
-    if (!cartaRival) return; // Si la carta no existe, termina la función
+function animarRecibirDañoEspecial(atacadoIndex, esJugador) {
+    // Determinar el contenedor del objetivo (jugador o rival)
+    const contenedor = document.querySelector(
+        esJugador ? ".contenedor-jugador" : ".contenedor-rival"
+    );
 
-    cartaRival.classList.add('recibir-daño-especial'); // Añadir la animación de daño especial
+    if (!contenedor) {
+        console.error(`Error: No se encontró el contenedor para ${esJugador ? "jugador" : "rival"}`);
+        return;
+    }
 
-    // Eliminar la animación especial después de 200ms
+    // Obtener todas las cartas dentro del contenedor
+    const cartas = contenedor.querySelectorAll(".carta-container");
+
+    // Validar el índice antes de aplicar la animación
+    if (atacadoIndex < 0 || atacadoIndex >= cartas.length) {
+        console.error(`Error: No se encontró la carta atacada en ${esJugador ? "jugador" : "rival"} con índice ${atacadoIndex}`);
+        return;
+    }
+
+    // Seleccionar la carta atacada
+    const cartaAtacada = cartas[atacadoIndex];
+
+    // Aplicar la animación de daño especial
+    cartaAtacada.classList.add("recibir-daño-especial");
+
+    // Eliminar la animación después de 600ms
     setTimeout(() => {
-        cartaRival.classList.remove('recibir-daño-especial');
-    }, 200);
+        cartaAtacada.classList.remove("recibir-daño-especial");
+    }, 600);
 }
 
 
 /**
- * Verifica si el juego ha terminado comprobando si algún jugador ha llegado a 0 de vida.
- * Si el juego termina, actualiza las estadísticas, muestra un mensaje y deshabilita los botones.
+ * Verifica si el juego ha terminado comprobando si algún equipo ha perdido todas sus cartas.
+ * Si el juego termina, muestra un mensaje y deshabilita los botones.
  * @returns {boolean} - Devuelve `true` si el juego ha terminado, `false` en caso contrario.
  */
 function verificarFinDeJuego() {
-    // Buscar la carta cuyo valor de vida sea 0
-    const jugadorPerdedor = mazo.cartas.findIndex(carta => carta.vida <= 0);
+    // Comprobar si todas las cartas del jugador están KO
+    const jugadorDerrotado = jugador.cartas.every(carta => carta.vida <= 0);
+    // Comprobar si todas las cartas del rival están KO
+    const rivalDerrotado = rival.cartas.every(carta => carta.vida <= 0);
 
-    if (jugadorPerdedor !== -1) {
-        // Determinar quién es el ganador y el perdedor
-        const ganadorIndex = jugadorPerdedor === 0 ? 1 : 0;
-        const perdedorIndex = jugadorPerdedor;
+    if (jugadorDerrotado || rivalDerrotado) {
+        const ganador = rivalDerrotado ? "Jugador" : "Vegeta";
+        const perdedor = rivalDerrotado ? "Vegeta" : "Jugador";
 
-        const ganador = jugadorPerdedor === 0 ? "J2" : "J1";
-        const perdedor = jugadorPerdedor === 0 ? "J1" : "J2";
-
-        const personajeGanador = mazo.cartas[ganadorIndex].nombre;
-        const personajePerdedor = mazo.cartas[perdedorIndex].nombre;
-
-        const vidaFinalGanador = mazo.cartas[ganadorIndex].vida;
-        const vidaFinalPerdedor = mazo.cartas[perdedorIndex].vida;
-
-        // Actualizar las estadísticas del ganador y perdedor
-        actualizarEstadisticas(ganador, 'victoria', personajeGanador, vidaFinalGanador, turnos);
-        actualizarEstadisticas(perdedor, 'derrota', personajePerdedor, vidaFinalPerdedor, turnos);
-
-        // Mostrar un mensaje de fin de juego
         setTimeout(() => {
             const mensajeFinJuego = document.createElement('div');
             mensajeFinJuego.classList.add('mensaje-fin-juego');
@@ -240,189 +344,243 @@ function verificarFinDeJuego() {
 }
 
 /**
- * Actualiza la barra de vida de un jugador en el tablero.
- * 
- * Esta función selecciona la carta del rival indicada por el índice y actualiza la barra de vida y el texto que muestra la vida restante,
- * ajustando su ancho según el porcentaje de vida de la carta. Si la vida es 0, la barra de vida se oculta.
+ * Actualiza la barra de vida de una carta en el tablero.
  *
- * @param {number} index - El índice de la carta del jugador cuyo estado de vida se actualizará.
+ * @param {string} tipo - "jugador" o "rival" para seleccionar el equipo.
+ * @param {number} index - Índice de la carta dentro del equipo correspondiente.
  */
-function actualizarBarraVida(index) {
-    const cartaRival = document.querySelectorAll('.carta-container')[index];
-    const barraVida = cartaRival.querySelector('.barra-vida'); // Seleccionar la barra de vida
-    const textoVida = cartaRival.querySelector('p'); // Buscar el párrafo de la vida
-    const vida = mazo.cartas[index].vida; // Obtener la vida actual de la carta
+function actualizarBarraVida(tipo, index) {
+    const equipo = tipo === "jugador" ? jugador.cartas : rival.cartas;
+    const carta = document.querySelectorAll(`.contenedor-${tipo} .carta-container`)[index];
+    
+    if (!carta) return;
 
-    // Actualizar el ancho de la barra de vida en función del porcentaje de vida
+    const barraVida = carta.querySelector('.barra-vida .vida');
+    const textoVida = carta.querySelector('p');
+
+    const cartaDatos = equipo[index];
+    const vidaMaxima = cartaDatos.vidaMaxima || 100;
+    const vida = cartaDatos.vida;
+
+    const porcentajeVida = Math.max(vida / vidaMaxima * 100, 0);
+
     if (barraVida) {
-        barraVida.style.width = `${(vida / 100) * 100}%`;
-        if (vida === 0) {
-            barraVida.style.display = 'none'; // Ocultar la barra de vida si la vida es 0
-        }
-    }
-
-    // Actualizar el texto que muestra la vida restante
-    if (textoVida) {
-        textoVida.innerText = `Vida: ${vida}`;
-    }
-}
-
-
-/**
- * Actualiza la barra de habilidad de una carta en el tablero.
- * 
- * Esta función selecciona la carta indicada por el índice y actualiza la barra de habilidad y el texto que muestra el valor de habilidad,
- * ajustando su ancho según el valor de habilidad de la carta. Si la habilidad es 0, la barra de habilidad se oculta.
- *
- * @param {number} index - El índice de la carta cuyo estado de habilidad se actualizará.
- */
-function actualizarBarraHabilidad(index) {
-    const carta = document.querySelectorAll('.carta-container')[index];
-    const barraHabilidad = carta.querySelector('.barra-habilidad'); // Seleccionar la barra de habilidad
-    const textoHabilidad = carta.querySelector('.habilidad-texto'); // Seleccionar el texto de habilidad
-    const habilidad = mazo.cartas[index].habilidad; // Obtener el valor de habilidad
-
-    // Actualizar el ancho de la barra de habilidad en función de la habilidad
-    if (barraHabilidad) {
-        barraHabilidad.style.width = `${(habilidad / 100) * 100}%`;
-        if (habilidad === 0) {
-            barraHabilidad.style.display = 0; // Ocultar la barra si la habilidad es 0
-        }
-    }
-
-    // Actualizar el texto de la habilidad
-    if (textoHabilidad) {
-        textoHabilidad.innerText = `Habilidad: ${habilidad}`;
-    }
-}
-
-
-/**
- * Activa la técnica especial de un jugador.
- * 
- * Esta función verifica si el jugador tiene la habilidad al máximo (100) y, en ese caso, ejecuta su técnica especial,
- * mostrando una animación correspondiente y realizando los cambios de vida al rival. También gestiona el ciclo de animaciones y
- * las actualizaciones en las barras de habilidad y vida, así como el cambio de turno.
- * 
- * Si el ataque especial afecta el resultado del juego, verifica si el juego ha terminado. Después de la animación, limpia
- * los elementos visuales y pasa al siguiente turno.
- */
-function activarTecnicaEspecial() {
-    const atacante = mazo.cartas[turno];
-    const rivalIndex = turno === 0 ? 1 : 0;
-    const rival = mazo.cartas[rivalIndex];
-
-    if (atacante.habilidad === 100) {
-
-        // Crear una nueva imagen para la animación
-        const nuevaImagen = document.createElement('img');
-        nuevaImagen.src = document.querySelectorAll('.carta-container')[turno].querySelector('.carta img').src; // Obtener la fuente de la carta
-        nuevaImagen.alt = 'Habilidad Especial';
-        nuevaImagen.classList.add('nueva-imagen');
-
-        // Asignar la clase específica para la animación dependiendo de la carta
-        if (turno === 0) {
-            nuevaImagen.classList.add('primera-carta');
+        barraVida.style.width = `${porcentajeVida}%`;
+        if (vida <= 0) {
+            barraVida.style.display = 'none';
         } else {
-            nuevaImagen.classList.add('segunda-carta');
+            barraVida.style.display = 'block';
         }
+    }
 
-        // Insertar la nueva imagen en el documento
-        document.body.appendChild(nuevaImagen);
-
-        // Crear la capa oscura para el fondo
-        const capaOscura = document.createElement('div');
-        capaOscura.classList.add('fondo-oscuro');
-        document.body.appendChild(capaOscura);
-
-        // Esperar a que termine la animación
-        nuevaImagen.addEventListener('animationend', () => {
-            // Realizar la acción del ataque especial
-            rival.vida = Math.max(0, rival.vida - atacante.dañoEspecial);
-
-            atacante.habilidad = 0;  // Reseteamos la barra de habilidad
-            atacante.habilidadLista = false;
-
-            actualizarBarraHabilidad(turno);
-            actualizarBarraVida(rivalIndex);
-            mostrarDaño(rivalIndex, atacante.dañoEspecial);
-
-            animarAtaque(turno);
-            animarRecibirDañoEspecial(rivalIndex);
-
-            // Verificar fin del juego
-            if (verificarFinDeJuego()) {
-                capaOscura.remove();  // Eliminar la capa oscura si el juego terminó
-                return;
-            }        
-            cambiarTurno();
-
-            // Eliminar la imagen una vez que la animación termine
-            nuevaImagen.remove();
-
-            // Eliminar la capa oscura después de la animación
-            capaOscura.remove();
-        });
+    if (textoVida) {
+        textoVida.innerText = `Vida: ${Math.max(vida, 0)}`;
     }
 }
 
-/**
- * Realiza un ataque de un jugador al rival en su turno.
- * 
- * Esta función obtiene la carta del jugador que está atacando y determina el daño que causará al rival,
- * basado en las estadísticas de la carta atacante. Después de reducir la vida del rival, actualiza las barras de vida y
- * muestra el daño recibido. La animación de ataque y el daño recibido también son activadas.
- * 
- * Luego, verifica si el juego ha terminado tras el ataque (si la vida del rival llega a 0) y, si no, cambia el turno
- * para que el siguiente jugador pueda actuar.
- */
+function actualizarBarraHabilidad(tipo, index) {
+    const equipo = tipo === "jugador" ? jugador.cartas : rival.cartas;
+    const carta = document.querySelectorAll(`.contenedor-${tipo} .carta-container`)[index];
+    
+    if (!carta) return;
+
+    const barraHabilidad = carta.querySelector('.barra-habilidad .habilidad');
+    const textoHabilidad = carta.querySelector('.habilidad-texto');
+
+    const cartaDatos = equipo[index];
+    const habilidadMaxima = cartaDatos.habilidadMaxima || 100;
+    const habilidad = cartaDatos.habilidad;
+
+    const porcentajeHabilidad = Math.max(habilidad / habilidadMaxima * 100, 0);
+
+    if (barraHabilidad) {
+        barraHabilidad.style.width = `${porcentajeHabilidad}%`;
+        if (habilidad <= 0) {
+            barraHabilidad.style.display = 'none';
+        } else {
+            barraHabilidad.style.display = 'block';
+        }
+    }
+
+    if (textoHabilidad) {
+        textoHabilidad.innerText = `Habilidad: ${Math.max(habilidad, 0)}`;
+    }
+}
+
+
+function activarTecnicaEspecial(jugadorActual, turno) {
+    // Determinar el rival
+    const rivalJugador = jugadorActual === jugador ? rival : jugador;
+
+    // Buscar la carta activa del jugador (primera con vida > 0)
+    const atacanteIndex = jugadorActual.cartas.findIndex(carta => carta.vida > 0);
+    if (atacanteIndex === -1) {
+        console.error("No hay cartas activas para realizar la técnica especial.");
+        return;
+    }
+
+    const atacante = jugadorActual.cartas[atacanteIndex];
+
+    // Verificar si la habilidad está cargada al 100%
+    if (atacante.habilidad < 100) {
+        console.warn(`${atacante.nombre} aún no ha cargado su habilidad especial.`);
+        return;
+    }
+
+    // Buscar la carta activa del rival (primera con vida > 0)
+    const defensorIndex = rivalJugador.cartas.findIndex(carta => carta.vida > 0);
+    if (defensorIndex === -1) {
+        console.error("No hay cartas enemigas activas para recibir el ataque especial.");
+        return;
+    }
+
+    const defensor = rivalJugador.cartas[defensorIndex];
+
+    console.log(`⚡ ${atacante.nombre} usa ${atacante.tecnicaEspecial} contra ${defensor.nombre}`);
+
+    // Validar turno
+    if (turno !== 0 && turno !== 1) {
+        console.error(`Turno inválido: ${turno}`);
+        return;
+    }
+
+    // Obtener el contenedor de la carta atacante
+    const cartaContainerAtacante = document.querySelectorAll(`.contenedor-${turno === 0 ? 'jugador' : 'rival'} .carta-container`)[atacanteIndex];
+    if (!cartaContainerAtacante) {
+        console.error(`No se encontró la carta activa en turno ${turno}`);
+        return;
+    }
+
+    // Obtener el contenedor de la carta defensora
+    const cartaContainerDefensor = document.querySelectorAll(`.contenedor-${turno === 0 ? 'rival' : 'jugador'} .carta-container`)[defensorIndex];
+    if (!cartaContainerDefensor) {
+        console.error(`No se encontró la carta defensora en turno ${turno}`);
+        return;
+    }
+
+    // Crear la animación
+    // Crear imagen de animación
+    const cartaImagen = cartaContainerAtacante.querySelector('.carta img');
+    if (!cartaImagen) {
+        console.error('No se encontró la imagen de la carta atacante.');
+        return;
+    }
+
+    const nuevaImagen = document.createElement('img');
+    nuevaImagen.src = cartaImagen.src;
+    nuevaImagen.alt = 'Habilidad Especial';
+    nuevaImagen.classList.add('nueva-imagen', turno === 0 ? 'primera-carta' : 'segunda-carta');
+    document.body.appendChild(nuevaImagen);
+
+    // Crear capa oscura de fondo
+    const capaOscura = document.createElement('div');
+    capaOscura.classList.add('fondo-oscuro');
+    document.body.appendChild(capaOscura);
+
+    // Esperar fin de animación
+    nuevaImagen.addEventListener('animationend', () => {
+        // Restar vida al rival
+        defensor.vida = Math.max(0, defensor.vida - atacante.dañoEspecial);
+
+        // Mostrar daño en la carta del defensor
+        mostrarDaño(turno === 0 ? "rival" : "jugador", defensorIndex, atacante.dañoEspecial);
+
+        // Resetear habilidad del atacante
+        atacante.habilidad = 0;
+        atacante.habilidadLista = false;
+
+        // Actualizar la interfaz gráfica
+        actualizarBarraVida(turno === 0 ? 'rival' : 'jugador', defensorIndex);
+        actualizarBarraHabilidad(turno);
+
+        // Mostrar animaciones adicionales
+        animarAtaque(turno);
+        
+        // Aplicar animación de daño especial
+        animarRecibirDañoEspecial(defensorIndex, turno === 0 ? false : true);
+        
+        // Verificar si el juego ha terminado
+        if (verificarFinDeJuego()) {
+            capaOscura.remove();
+            return;
+        }
+
+        // Cambiar turno
+        cambiarTurno();
+
+        // Limpiar elementos de animación
+        nuevaImagen.remove();
+        capaOscura.remove();
+    });
+}
+
+
 function atacar() {
-    // Obtener la carta del jugador que está atacando en este turno
-    const atacante = mazo.cartas[turno];
+    // Determinar qué equipo ataca y cuál defiende
+    const equipoAtacante = turno === 0 ? jugador.cartas : rival.cartas;
+    const equipoDefensor = turno === 0 ? rival.cartas : jugador.cartas;
 
-    // Determinar quién es el rival en función del turno actual (si turno es 0, el rival es 1, y viceversa)
-    const rivalIndex = turno === 0 ? 1 : 0;
-    const rival = mazo.cartas[rivalIndex];
+    // Encontrar la primera carta con vida en cada equipo
+    const atacanteIndex = equipoAtacante.findIndex(carta => carta.vida > 0);
+    const defensorIndex = equipoDefensor.findIndex(carta => carta.vida > 0);
 
-    // Establecer el daño que el atacante puede causar (basado en la carta del atacante)
+    // Si no quedan cartas en alguno de los equipos, termina el juego
+    if (atacanteIndex === -1 || defensorIndex === -1) {
+        verificarFinDeJuego();
+        return;
+    }
+
+    const atacante = equipoAtacante[atacanteIndex];
+    const defensor = equipoDefensor[defensorIndex];
+
     let daño = atacante.daño;
     console.log(`Daño de ${atacante.nombre}: ${daño}`);
 
-    // Reducir la vida del rival, asegurando que no sea menor que 0
-    rival.vida = Math.max(0, rival.vida - daño);
+    // Aplicar el daño asegurando que la vida no sea negativa
+    defensor.vida = Math.max(0, defensor.vida - daño);
 
-    // Actualizar la barra de vida del rival
-    actualizarBarraVida(rivalIndex);
+    // Determinar a quién se aplican las animaciones y actualizaciones
+    const objetivoDefensor = turno === 0 ? "rival" : "jugador";
+    const objetivoAtacante = turno === 0 ? "jugador" : "rival";
 
-    // Mostrar el daño recibido por el rival
-    mostrarDaño(rivalIndex, daño);
+    // Actualizar UI y animaciones
+    actualizarBarraVida(objetivoDefensor, defensorIndex);
+    mostrarDaño(objetivoDefensor, defensorIndex, daño);
+    animarAtaque(objetivoAtacante, atacanteIndex);
+    animarRecibirDaño(objetivoDefensor, defensorIndex);
 
-    // Animar el ataque del jugador
-    animarAtaque(turno);
+    // Si la carta defensora quedó sin vida, buscar la siguiente en su equipo
+    if (defensor.vida <= 0) {
+        const siguienteDefensorIndex = equipoDefensor.findIndex(carta => carta.vida > 0);
+        if (siguienteDefensorIndex === -1) {
+            verificarFinDeJuego();
+            return;
+        }
+    }
 
-    // Animar el daño recibido por el rival
-    animarRecibirDaño(rivalIndex);
-
-    // Verificar si el juego ha terminado después del ataque (si la vida del rival llega a 0)
-    if (verificarFinDeJuego()) return;
-
-    // Cambiar el turno para que el siguiente jugador actúe
+    // Cambiar el turno
     cambiarTurno();
 }
 
 
 /**
  * Aumenta la energía de la carta del jugador en el turno actual.
- * 
- * Esta función incrementa la habilidad de la carta atacante sumando su energía. Si la habilidad supera 100, se limita a 100.
- * Cuando la habilidad llega a 100, se marca la carta como lista para ejecutar su habilidad especial. Luego, se actualizan
- * visualmente la barra de habilidad y el texto que muestra la habilidad actual. Se agrega una animación de carga a la carta
- * para representar el aumento de energía, la cual se elimina después de un breve intervalo.
- * 
- * Finalmente, se cambia el turno para el siguiente jugador.
  */
 function aumentarEnergia() {
-    const cartaAtacante = mazo.cartas[turno];
+    // Determinar qué equipo está en turno
+    const equipoAtacante = turno === 0 ? jugador.cartas : rival.cartas;
+
+    // Buscar la primera carta con vida en el equipo
+    const cartaAtacanteIndex = equipoAtacante.findIndex(carta => carta.vida > 0);
+    
+    if (cartaAtacanteIndex === -1) {
+        console.log("No hay cartas disponibles para aumentar energía.");
+        return;
+    }
+
+    const cartaAtacante = equipoAtacante[cartaAtacanteIndex];
+
+    // Aumentar energía
     cartaAtacante.habilidad += cartaAtacante.energia;
 
     // Limitar la habilidad a un máximo de 100
@@ -430,97 +588,53 @@ function aumentarEnergia() {
         cartaAtacante.habilidad = 100;
     }
 
-    // Marcar la carta como lista para usar su habilidad especial si la habilidad llega a 100
+    // Si la habilidad llega al máximo, activar habilidad especial
     if (cartaAtacante.habilidad === 100) {
         cartaAtacante.habilidadLista = true;
     }
 
-    // Obtener el contenedor de la carta actual
-    const cartaContainer = document.querySelectorAll('.carta-container')[turno];
+    // Seleccionamos el contenedor de la carta activa
+    const cartaContainer = document.querySelectorAll(`.contenedor-${turno === 0 ? 'jugador' : 'rival'} .carta-container`)[cartaAtacanteIndex];
 
-    // Actualizar el número de la habilidad
-    const habilidadElement = cartaContainer.querySelector('.habilidad-texto'); // Seleccionar el párrafo correcto
+    // Actualizar texto de la habilidad
+    const habilidadElement = cartaContainer.querySelector('.habilidad-texto');
     if (habilidadElement) {
         habilidadElement.innerText = `Habilidad: ${cartaAtacante.habilidad}`;
     }
 
-    // Actualizar la barra de habilidad
-    const barraHabilidad = cartaContainer.querySelector('.barra-habilidad'); // Seleccionar la barra de habilidad
+    // Actualizar barra de habilidad visualmente
+    const barraHabilidad = cartaContainer.querySelector('.barra-habilidad');
     if (barraHabilidad) {
         barraHabilidad.style.width = `${cartaAtacante.habilidad}%`;
     }
 
-    // Obtener la carta específica dentro del contenedor
-    const carta = cartaContainer.querySelector('.carta');
+    // Animar el aumento de energía
+    const cartaElemento = cartaContainer.querySelector('.carta');
+    cartaElemento.classList.add('cargando-energia', 'resplandor');
 
-    // Agregar animaciones solo a la carta
-    carta.classList.add('cargando-energia', 'resplandor');
-
-    // Quitar animaciones después de 1.5 segundos (cuando la energía ha cargado)
+    // Eliminar animación después de 1.5 segundos
     setTimeout(() => {
-        carta.classList.remove('cargando-energia', 'resplandor');
+        cartaElemento.classList.remove('cargando-energia', 'resplandor');
     }, 1500);
 
-    // Cambiar el turno para el siguiente jugador
+    // Cambiar turno
     cambiarTurno();
 }
 
 
 /**
- * Cambia el turno entre los jugadores, alternando entre 0 y 1.
- * 
- * Esta función incrementa el contador de turnos, alterna el turno entre los dos jugadores (de 0 a 1 o viceversa), 
- * actualiza la interfaz de usuario para reflejar los cambios en los botones disponibles, y finalmente, anuncia 
- * de quién es el turno actual, ya sea mostrando un mensaje o resaltando la carta activa del jugador correspondiente.
+ * Cambia el turno entre los jugadores.
  */
 function cambiarTurno() {
-    // Alternar el turno entre los jugadores (si turno es 0, pasa a 1; si es 1, pasa a 0)
     turno = turno === 0 ? 1 : 0;
-
-    // Incrementar el contador de turnos
     turnos++;
 
-    // Actualizar la interfaz de usuario para reflejar los cambios en los botones disponibles
     actualizarBotones();
-
-    // Anunciar de quién es el turno actual (puede mostrar un mensaje o resaltar visualmente la carta activa)
     anunciarTurno();
 }
 
-
-
 /**
- * Actualiza los botones de la interfaz de usuario según el turno actual.
- * 
- * Esta función recorre todos los contenedores de cartas y, para cada uno, actualiza el estado de los botones 
- * que contiene. Si no es el turno del jugador correspondiente a una carta, los botones de esa carta se 
- * deshabilitan y se reduce su opacidad para indicar que no están disponibles. Si es el turno de la carta, 
- * los botones se habilitan y se les devuelve su opacidad completa.
- */
-function actualizarBotones() {
-    // Seleccionar todos los contenedores de cartas
-    document.querySelectorAll('.carta-container').forEach((container, index) => {
-        // Seleccionar todos los botones dentro del contenedor actual
-        const botones = container.querySelectorAll('button');
-        
-        botones.forEach(boton => {
-            // Deshabilitar los botones si no es el turno de la carta correspondiente
-            boton.disabled = index !== turno;
-            
-            // Reducir la opacidad de los botones deshabilitados para indicar que no pueden usarse
-            boton.style.opacity = index !== turno ? "0.5" : "1";
-        });
-    });
-}
-
-
-
-/**
- * Reinicia la partida, restableciendo las cartas, el turno y la interfaz de usuario.
- * 
- * Esta función elimina cualquier mensaje de fin de juego, restablece el estado de todas las cartas a sus valores 
- * iniciales, limpia el tapete y vuelve a colocar las cartas. También reinicia el contador de turnos, actualiza los 
- * botones disponibles y crea un nuevo botón de reinicio para volver a jugar.
+ * Reinicia la partida, restableciendo las cartas del jugador y el rival, el turno y la interfaz de usuario.
  */
 function reiniciarJuego() {
     // Eliminar mensaje de fin de juego si existe
@@ -529,9 +643,16 @@ function reiniciarJuego() {
         mensajeFinJuego.remove();
     }
 
-    // Resetear las cartas
-    mazo.cartas.forEach(carta => {
-        carta.vida = 100;
+    // Reiniciar estado del equipo del jugador
+    jugador.cartas.forEach(carta => {
+        carta.vida = carta.vidaOriginal;
+        carta.habilidad = 0;
+        carta.habilidadLista = false;
+    });
+
+    // Reiniciar estado del rival (Vegeta siempre será el rival)
+    rival.cartas.forEach(carta => {
+        carta.vida = carta.vidaOriginal;
         carta.habilidad = 0;
         carta.habilidadLista = false;
     });
@@ -540,14 +661,14 @@ function reiniciarJuego() {
     tapete.innerHTML = '';
 
     // Volver a colocar las cartas en el tapete
-    colocar(mazo, tapete, atacar, turno);
+    colocar(jugador, rival, tapete);
 
     // Resetear turno y actualizar botones
     turno = Math.random() < 0.5 ? 0 : 1;
     actualizarBotones();
     anunciarTurno();
 
-    // Eliminar botones previos antes de crear uno nuevo
+    // Eliminar botón de reinicio si existe previamente
     const botonReiniciarPrevio = document.getElementById('boton-reiniciar');
     if (botonReiniciarPrevio) {
         botonReiniciarPrevio.remove();
@@ -564,11 +685,11 @@ function reiniciarJuego() {
     turnos = 0;
 }
 
-// Colocar cartas en el tapete
+// Llamar a reiniciarJuego() al inicio para establecer todo correctamente
 reiniciarJuego();
 
 // Exporta las funciones de ataque, aumento de energía y activación de la técnica especial
-export { atacar, aumentarEnergia, activarTecnicaEspecial };
+export { atacar, turno, aumentarEnergia, activarTecnicaEspecial };
 
 /**
  * Función para actualizar las estadísticas del jugador tras una partida.

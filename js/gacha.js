@@ -3,63 +3,74 @@ document.addEventListener("DOMContentLoaded", () => {
     const resultadoDiv = document.getElementById("resultado");
     const monedasSpan = document.getElementById("monedas");
 
-    // Obtener monedas del localStorage o inicializar con 100
-    let monedas = localStorage.getItem("monedas") ? parseInt(localStorage.getItem("monedas")) : 100;
-    monedasSpan.innerText = monedas;
+    // Obtener el token del usuario autenticado
+    const token = localStorage.getItem("token");
 
-    const personajes = [
-        { nombre: "Goku", rareza: "Común", probabilidad: 40, vida: 100, daño: 20, energia: 30, tecnicaEspecial: "Kamehameha", dañoEspecial: 50, imagen: "Goku.webp" },
-        { nombre: "Vegeta", rareza: "Raro", probabilidad: 25, vida: 110, daño: 25, energia: 35, tecnicaEspecial: "Final Flash", dañoEspecial: 60, imagen: "Vegeta.webp" },
-        { nombre: "Gohan", rareza: "Épico", probabilidad: 15, vida: 120, daño: 30, energia: 40, tecnicaEspecial: "Masenko", dañoEspecial: 70, imagen: "Gohan.png" },
-        { nombre: "Piccolo", rareza: "Épico", probabilidad: 15, vida: 120, daño: 35, energia: 20, tecnicaEspecial: "Makankosappo", dañoEspecial: 80, imagen: "Piccolo.png" },
-        { nombre: "Future Trunks", rareza: "Legendario", probabilidad: 5, vida: 130, daño: 40, energia: 50, tecnicaEspecial: "Burning Attack", dañoEspecial: 90, imagen: "Future Trunks.png" },
-    ];
-
-    function invocarPersonaje() {
-        let random = Math.random() * 100;
-        let acumulado = 0;
-
-        for (let personaje of personajes) {
-            acumulado += personaje.probabilidad;
-            if (random < acumulado) {
-                return personaje;
-            }
-        }
+    if (!token) {
+        alert("Debes iniciar sesión para jugar al gacha.");
+        window.location.href = "index.html";
+        return;
     }
 
-    botonTirar.addEventListener("click", () => {
-        /*if (monedas < 10) {
+    // Obtener monedas del backend
+    async function actualizarMonedas() {
+        const respuesta = await fetch("http://127.0.0.1:8000/api/perfil", {
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        const datos = await respuesta.json();
+        monedasSpan.innerText = datos.monedas ?? 100; // Si no hay monedas en la BD, empieza con 100
+    }
+
+    actualizarMonedas(); // Cargar las monedas al iniciar
+
+    botonTirar.addEventListener("click", async () => {
+        let monedas = parseInt(monedasSpan.innerText);
+
+        if (monedas < 10) {
             alert("No tienes suficientes monedas.");
             return;
-        }*/
+        }
+
+        // Restar 10 monedas y actualizar en el servidor
+        const actualizarMonedas = await fetch("http://127.0.0.1:8000/api/monedas/gastar", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ cantidad: 10 })
+        });
+
+        if (!actualizarMonedas.ok) {
+            alert("Error al actualizar monedas.");
+            return;
+        }
 
         monedas -= 10;
-        localStorage.setItem("monedas", monedas);
         monedasSpan.innerText = monedas;
 
-        // Animación de la invocación
+        // Mostrar animación de invocación
         resultadoDiv.innerHTML = "<p>Tirando...</p>";
         resultadoDiv.classList.add("animacion");
 
-        setTimeout(() => {
-            const personajeObtenido = invocarPersonaje();
-            resultadoDiv.classList.remove("animacion");
-            resultadoDiv.innerHTML = `<p>¡Obtuviste a ${personajeObtenido.nombre} (${personajeObtenido.rareza})!</p>
-                                      <img src="cartas/${personajeObtenido.imagen}" alt="${personajeObtenido.nombre}" style="width: 150px;">`;
+        setTimeout(async () => {
+            // Obtener un personaje desde la API
+            const respuesta = await fetch("http://127.0.0.1:8000/api/gacha", {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
 
-            // Guardar el personaje en localStorage sin duplicados
-            let personajesObtenidos = JSON.parse(localStorage.getItem("personajesObtenidos")) || [];
-            
-            // Evitar que se guarden duplicados
-            if (!personajesObtenidos.some(p => p.nombre === personajeObtenido.nombre)) {
-                personajesObtenidos.push(personajeObtenido);
-                localStorage.setItem("personajesObtenidos", JSON.stringify(personajesObtenidos));
-            } else {
-                alert(`¡Ya tienes a ${personajeObtenido.nombre}! Se convirtió en monedas extra.`);
-                monedas += 5; // Dar monedas extra por duplicado
-                localStorage.setItem("monedas", monedas);
-                monedasSpan.innerText = monedas;
+            const personajeObtenido = await respuesta.json();
+            resultadoDiv.classList.remove("animacion");
+
+            if (!personajeObtenido || !personajeObtenido.nombre) {
+                resultadoDiv.innerHTML = `<p>Error al obtener personaje.</p>`;
+                return;
             }
+
+            resultadoDiv.innerHTML = `<p>¡Obtuviste a ${personajeObtenido.nombre} (${personajeObtenido.rareza})!</p>
+                                      <img src="${personajeObtenido.imagen_url}" alt="${personajeObtenido.nombre}" style="width: 150px;">`;
+
         }, 2000);
     });
 });

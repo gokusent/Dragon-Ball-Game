@@ -290,23 +290,22 @@ button:hover {
     }
 }
 
-/* Animación para simular un ataque */
-@keyframes ataqueAnimacion {
-    0% { 
-        transform: scale(1) translateX(0); /* Estado inicial: tamaño normal y sin desplazamiento */
+.ataque {
+    animation: ataqueAnim 0.3s ease-out;
+}
+
+@keyframes ataqueAnim {
+    0% {
+        transform: translateX(0); 
     }
-    50% { 
-        transform: scale(1.1) translateX(10px); /* A mitad de la animación: aumenta el tamaño y se desplaza ligeramente a la derecha */
+    50% {
+        transform: translateX(10px); 
     }
-    100% { 
-        transform: scale(1) translateX(0); /* Finaliza con el tamaño original y vuelve a la posición inicial */
+    100% {
+        transform: translateX(0);
     }
 }
 
-/* Clase para aplicar la animación de ataque */
-.ataque {
-    animation: ataqueAnimacion 0.3s ease-out; /* Aplica la animación 'ataqueAnimacion' con duración de 0.3 segundos */
-}
 
 /* Estilo para la nueva imagen que aparece sobre la pantalla */
 .nueva-imagen {

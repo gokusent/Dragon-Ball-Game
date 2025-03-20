@@ -11,39 +11,19 @@ class InventarioController extends Controller
 {
     // 📌 VER INVENTARIO DEL USUARIO
     public function verInventario()
-    {
-        $usuario_id = Auth::id();
-        $inventario = Inventario::where('usuario_id', $usuario_id)->with('carta')->get();
-        
-        return response()->json($inventario);
-    }
+{
+    $usuario_id = Auth::id();
+    $inventario = Inventario::where('usuario_id', $usuario_id)->with('carta')->get();
 
-    // 📌 AGREGAR UNA CARTA AL INVENTARIO
-    public function agregarCarta(Request $request)
-    {
-        $usuario_id = Auth::id();
-        $carta_id = $request->carta_id;
-
-        $carta = Carta::find($carta_id);
-
-        if (!$carta) {
-            return response()->json(["error" => "Carta no encontrada"], 404);
-        }
-
-        $inventario = Inventario::where('usuario_id', $usuario_id)
-                                ->where('carta_id', $carta_id)
-                                ->first();
-
-        if ($inventario) {
-            $inventario->increment('cantidad');
-        } else {
-            Inventario::create([
-                'usuario_id' => $usuario_id,
-                'carta_id' => $carta_id,
-                'cantidad' => 1
-            ]);
-        }
-
-        return response()->json(["mensaje" => "Carta agregada al inventario"]);
-    }
+    return response()->json($inventario->map(function ($item) {
+        return [
+            'id' => $item->id, // ID del inventario
+            'carta_id' => $item->carta->id, // ✅ ID real de la carta en la tabla `cartas`
+            'cantidad' => $item->cantidad,
+            'nombre' => $item->carta->nombre,
+            'rareza' => $item->carta->rareza,
+            'imagen_url' => $item->carta->imagen_url
+        ];
+    }));
+}
 }
