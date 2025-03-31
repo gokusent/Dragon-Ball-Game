@@ -75,4 +75,23 @@ class CartasController extends Controller
 
     return response()->json($carta);
 }
+
+public function obtenerCartasPorID(Request $request)
+{
+    // Validar que la solicitud contenga un array de IDs
+    if (!isset($request->ids) || !is_array($request->ids)) {
+        return response()->json(["error" => "Formato incorrecto. Se esperaba un array de IDs."], 400);
+    }
+
+    // Buscar cartas en la base de datos
+    $cartas = Carta::whereIn('id', $request->ids)->get();
+
+    // Si no se encuentran todas las cartas, devolver un error
+    if ($cartas->isEmpty()) {
+        return response()->json(["error" => "No se encontraron cartas con los IDs proporcionados."], 404);
+    }
+
+    return response()->json($cartas);
+}
+
 }

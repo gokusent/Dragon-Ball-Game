@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sala PVP</title>
+    <link rel="stylesheet" href="css/pantalla-titulo.css">
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+    <script src="js/sala.js" defer></script>
+</head>
+<body>
+    <h1>Sala de Espera</h1>
+    <p id="estado-partida">Esperando jugadores...</p>
+    
+    <div id="jugadores">
+        <p id="jugador1">Jugador 1: Esperando...</p>
+        <p id="jugador2">Jugador 2: Esperando...</p>
+    </div>
+
+    <button id="btn-listo" disabled>Estoy listo</button>
+</body>
+</html>

@@ -73,22 +73,27 @@ function colocar(jugador, rival, tapete) {
         botonesContainer.classList.add('botones');
 
         // Botón para aumentar energía (con identificación del jugador o rival)
-const botonDefender = document.createElement('button');
-botonDefender.classList.add('boton-defender');
-botonDefender.innerText = 'Energía';
-botonDefender.addEventListener('click', () => {
-    console.log("Botón Energía clickeado");
-    aumentarEnergia(jugador);  // Pasamos el jugador al que pertenece este botón
-});
+        const botonDefender = document.createElement('button');
+        botonDefender.classList.add('boton-defender');
+        botonDefender.innerText = 'Energía';
+        botonDefender.addEventListener('click', () => {
+            console.log("Botón Energía clickeado");
+            aumentarEnergia(jugador);  // Pasamos el jugador al que pertenece este botón
+        });
         // Botón para activar la técnica especial
         const botonHabilidad = document.createElement("button");
         botonHabilidad.classList.add("btn-ataque-especial");
         botonHabilidad.innerText = carta.tecnicaEspecial ? carta.tecnicaEspecial : "Habilidad Desconocida";
-        botonHabilidad.addEventListener('click', () => {
+        if (jugador.energia < 100) {
+            botonHabilidad.disabled = true;
+        } else {
+            botonHabilidad.disabled = false;
+            botonHabilidad.addEventListener('click', () => {
             if (turno === 0) {
                 activarTecnicaEspecial(jugador, turno);      
             }
         }); 
+    }
 
         // Botón para atacar
         const botonAtacar = document.createElement('button');

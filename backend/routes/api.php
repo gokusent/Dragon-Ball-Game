@@ -17,7 +17,10 @@ Route::get('/user', function (Request $request) {
 
 Route::post('/registrar', [UsuarioController::class, 'registrar']);
 Route::post('/login', [UsuarioController::class, 'login']);
-
+Route::middleware('auth:sanctum')->post('/logout', function (Request $request) {
+    $request->user()->currentAccessToken()->delete();
+    return response()->json(["mensaje" => "Sesión cerrada correctamente"], 200);
+});
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/perfil', [UsuarioController::class, 'perfil']);
 });
@@ -27,8 +30,11 @@ Route::post('/cartas/agregar', [CartasController::class, 'agregarCarta']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/gacha', [CartasController::class, 'gacha']);
 });
+Route::post('/cartas/obtener', [CartasController::class, 'obtenerCartasPorID']);
 
 Route::middleware('auth:sanctum')->post('/monedas/gastar', [MonedasController::class, 'gastar']);
+Route::middleware('auth:sanctum')->get('/usuario', [UsuarioController::class, 'obtenerUsuario']);
+Route::middleware('auth:sanctum')->put('/usuario/monedas', [UsuarioController::class, 'actualizarMonedas']);
 
 // Ruta protegida con Sanctum
 Route::middleware('auth:sanctum')->group(function () {

@@ -53,4 +53,40 @@ class UsuarioController extends Controller
         return response()->json($request->user());
 
     }
+
+    /**
+     * Obtener los datos del usuario autenticado (incluyendo monedas)
+     */
+    public function obtenerUsuario()
+    {
+        $usuario = Auth::user();
+        
+        return response()->json([
+            'id' => $usuario->id,
+            'nombre' => $usuario->nombre,
+            'monedas' => $usuario->monedas
+        ]);
+    }
+
+    /**
+ * Actualizar las monedas del usuario después de una pelea
+ */
+public function actualizarMonedas(Request $request)
+{
+    $usuario = Auth::user();
+
+    // Validar que se envíe un número válido de monedas
+    $request->validate([
+        'monedas' => 'required|integer|min:0'
+    ]);
+
+    // Actualizar las monedas del usuario
+    $usuario->monedas = $request->monedas;
+    $usuario->save();
+
+    return response()->json([
+        'mensaje' => 'Monedas actualizadas correctamente',
+        'monedas' => $usuario->monedas
+    ]);
+}
 }

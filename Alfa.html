@@ -8,6 +8,8 @@
     <!-- Enlace a la hoja de estilos principal -->
     <link rel="stylesheet" href="css/Alfa.css">
 
+    <script src="https://cdn.socket.io/4.7.2/socket.io.min.js"></script>
+
     <!-- Carga el archivo JavaScript principal del juego -->
     <script defer type="module" src="js/main.js"></script>
 
@@ -41,11 +43,11 @@
     </button>   
 
     <!-- Botón para volver al menú principal -->
-    <button id="volverMenu">Volver al Menú</button>
+    <button id="volver">Volver</button>
 
     <script>
-        document.getElementById("volverMenu").addEventListener("click", () => {
-            window.location.href = "index.html"; // Regresar al menú
+        document.getElementById("volver").addEventListener("click", () => {
+            window.location.href = "seleccion.html"; // Regresar al menú
         });
     </script>
 </body>

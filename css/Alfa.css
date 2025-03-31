@@ -183,6 +183,11 @@ button:hover {
     background-color: #ffaa00; /* Color naranja al pasar el mouse para resaltar la acción */
 }
 
+.carta-container.seleccionada {
+    border: 2px solid #00ff00; /* Borde verde brillante */
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.6); /* Sombra para resaltar */
+}
+
 /* Estilos para el marcador "VS" en el centro del juego */
 .vs-placeholder {
     font-size: 2rem; /* Tamaño grande del texto */

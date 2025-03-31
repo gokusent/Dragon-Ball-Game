@@ -8,7 +8,7 @@ return new class extends Migration {
     public function up()
     {
         Schema::table('usuarios', function (Blueprint $table) {
-            $table->integer('monedas')->default(100); // Todos empiezan con 100 monedas
+            $table->integer('monedas')->default(0)->after('password'); // Agregar monedas con un valor inicial de 0
         });
     }
 

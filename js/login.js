@@ -14,7 +14,7 @@ document.getElementById("btnLogin").addEventListener("click", async () => {
 
     if (respuesta.ok) {
         localStorage.setItem("token", datos.token); // Guardar el token
-        window.location.href = "index.html"; // Redirigir al menú principal
+        window.location.href = "menu.html"; // Redirigir al menú principal
     } else {
         mensajeError.innerText = datos.error || "Error en el inicio de sesión";
         mensajeError.style.display = "block";

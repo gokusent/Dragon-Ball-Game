@@ -95,7 +95,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-// Definir el token al inicio del archivo
+// 📌 **Obtener el token del usuario**
 const token = localStorage.getItem("token");
 
 if (!token) {
@@ -103,53 +103,79 @@ if (!token) {
     window.location.href = "index.html";
 }
 
-// Objeto que representa los mazos del jugador y del rival
+// 📌 **Definir los mazos del jugador y del rival**
 const jugador = { cartas: [] };
 const rival = { cartas: [] };
 
+// 📌 **Obtener el modo de juego de la URL**
+const urlParams = new URLSearchParams(window.location.search);
+const modoJuego = urlParams.get("modo") || "cpu";  // Por defecto CPU
+console.log("Modo de juego:", modoJuego);
+
 async function cargarEquipo() {
     try {
-        const respuesta = await fetch("http://127.0.0.1:8000/api/equipo", {
-            method: "GET",
-            headers: { "Authorization": `Bearer ${token}` }
-        });
+        if (modoJuego === "local") {
+            // 🔹 **Modo Local: Cada jugador elige su equipo**
+            const equipoJ1 = JSON.parse(localStorage.getItem("equipoJ1")) || [];
+            const equipoJ2 = JSON.parse(localStorage.getItem("equipoJ2")) || [];
 
-        if (!respuesta.ok) throw new Error("Error al obtener los personajes seleccionados");
+            if (equipoJ1.length === 0 || equipoJ2.length === 0) {
+                alert("Error al cargar los equipos. Volviendo a la selección.");
+                window.location.href = "seleccion.html?modo=local";
+                return;
+            }
 
-        const personajesJugador = await respuesta.json();
-        console.log("Personajes obtenidos para el combate:", personajesJugador);
+            console.log("Equipo Jugador 1:", equipoJ1);
+            console.log("Equipo Jugador 2:", equipoJ2);
 
-        if (!personajesJugador.length) {
-            alert("No has seleccionado personajes. Vuelve a la selección.");
-            window.location.href = "seleccion.html";
-            return;
+            // 🔹 **Cargar personajes de ambos jugadores**
+            await cargarCartasDesdeIDs(equipoJ1, jugador);
+            await cargarCartasDesdeIDs(equipoJ2, rival);
+
+        } else {
+            // 🔹 **Modo CPU o PVP: Cargar desde la API**
+            const respuesta = await fetch("http://127.0.0.1:8000/api/equipo", {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+
+            if (!respuesta.ok) throw new Error("Error al obtener los personajes seleccionados");
+
+            const personajesJugador = await respuesta.json();
+            console.log("Personajes obtenidos de la API:", personajesJugador);
+
+            if (!personajesJugador.length) {
+                alert("No has seleccionado personajes. Volviendo a la selección.");
+                window.location.href = "seleccion.html";
+                return;
+            }
+
+            // 📌 **Asignamos los personajes al jugador**
+            personajesJugador.forEach(personaje => {
+                const cartaJugador = new Carta(
+                    personaje.nombre,
+                    personaje.vida || 100,
+                    personaje.daño || 20,
+                    personaje.energia || 30,
+                    personaje.tecnicaEspecial || "Ataque básico",
+                    personaje.dañoEspecial !== null ? personaje.dañoEspecial : 50,
+                    personaje.imagen_url || "cartas/default.jpg"
+                );
+                cartaJugador.vidaOriginal = personaje.vida || 100; // Guardar vida original
+                jugador.cartas.push(cartaJugador);
+            });
+
+            if (modoJuego === "cpu") {
+                // 🔹 **El rival en modo CPU es Vegeta**
+                const cartaRival = new Carta("Vegeta", 100, 20, 40, "Big Bang Attack", 60, "cartas/Vegeta.webp");
+                cartaRival.vidaOriginal = 100;
+                rival.cartas.push(cartaRival);
+            }
         }
 
-        // 📌 **Agregar cartas solo al jugador**
-        personajesJugador.forEach(personaje => {
-            const cartaJugador = new Carta(
-                personaje.nombre,
-                personaje.vida || 100,
-                personaje.daño || 20,
-                personaje.energia || 30,
-                personaje.tecnicaEspecial || "Ataque básico",
-                personaje.dañoEspecial !== null ? personaje.dañoEspecial : 50,
-                personaje.imagen_url || "cartas/default.jpg"
-            );
-
-            cartaJugador.vidaOriginal = personaje.vida || 100; // Guardar la vida original para reiniciar
-            jugador.cartas.push(cartaJugador);
-        });
-        
-        // 📌 **El rival siempre será Vegeta**
-        const cartaRival = new Carta("Vegeta", 100, 20, 40, "Big Bang Attack", 60, "cartas/Vegeta.webp");
-        cartaRival.vidaOriginal = 100; // Guardar la vida original para reiniciar
-        rival.cartas.push(cartaRival);
-
+        // 📌 **Colocar las cartas en el tapete**
         console.log("Cartas del jugador:", jugador.cartas);
-        console.log("Carta del rival:", rival.cartas);
+        console.log("Cartas del rival:", rival.cartas);
 
-        // 📌 **Colocar cartas solo si las cartas están disponibles**
         if (jugador.cartas.length > 0 && rival.cartas.length > 0) {
             const tapete = document.getElementById("tapete");
             colocar(jugador, rival, tapete);
@@ -163,9 +189,43 @@ async function cargarEquipo() {
     }
 }
 
-// Cargar el equipo al iniciar la página
-actualizarBotones();
+/**
+ * 🔹 **Función para cargar personajes por ID en modo Local**
+ */
+async function cargarCartasDesdeIDs(ids, destino) {
+    try {
+        const respuesta = await fetch("http://127.0.0.1:8000/api/cartas/obtener", {
+            method: "POST",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ ids: ids })
+        });
+
+        if (!respuesta.ok) throw new Error("Error al obtener los personajes por ID");
+
+        const personajes = await respuesta.json();
+        personajes.forEach(personaje => {
+            destino.cartas.push(new Carta(
+                personaje.nombre,
+                personaje.vida || 100,
+                personaje.daño || 20,
+                personaje.energia || 30,
+                personaje.tecnica_especial || "Ataque básico",
+                personaje.daño_especial !== null ? personaje.daño_especial : 50,
+                personaje.imagen_url || "cartas/default.jpg"
+            ));
+        });
+
+    } catch (error) {
+        console.error("Error al cargar personajes por ID:", error);
+    }
+}
+
+// 📌 **Cargar el equipo al iniciar la página**
 cargarEquipo();
+
 
 /**
  * Muestra el daño infligido a la carta del jugador o del rival.
@@ -310,38 +370,114 @@ function animarRecibirDañoEspecial(atacadoIndex, esJugador) {
 
 
 /**
- * Verifica si el juego ha terminado comprobando si algún equipo ha perdido todas sus cartas.
- * Si el juego termina, muestra un mensaje y deshabilita los botones.
- * @returns {boolean} - Devuelve `true` si el juego ha terminado, `false` en caso contrario.
+ * Verifica si el juego ha terminado.
+ * Si el juego termina, otorga monedas y deshabilita los botones.
  */
 function verificarFinDeJuego() {
-    // Comprobar si todas las cartas del jugador están KO
+    // Verificar si el jugador o el rival han sido derrotados
     const jugadorDerrotado = jugador.cartas.every(carta => carta.vida <= 0);
-    // Comprobar si todas las cartas del rival están KO
     const rivalDerrotado = rival.cartas.every(carta => carta.vida <= 0);
 
     if (jugadorDerrotado || rivalDerrotado) {
+        // Determinar quién ganó y quién perdió
         const ganador = rivalDerrotado ? "Jugador" : "Vegeta";
         const perdedor = rivalDerrotado ? "Vegeta" : "Jugador";
 
+        // Determinar la cantidad de monedas ganadas
+        const monedasGanadas = ganador === "Jugador" ? 10 : 5;
+
+        // 🪙 **Actualizar las monedas en la base de datos**
+        modificarMonedas(monedasGanadas);
+
+        // Mostrar mensaje de fin de juego
         setTimeout(() => {
             const mensajeFinJuego = document.createElement('div');
             mensajeFinJuego.classList.add('mensaje-fin-juego');
-            mensajeFinJuego.innerHTML = `${ganador} ha ganado <br> ${perdedor} ha perdido`;
+            mensajeFinJuego.innerHTML = `${ganador} ha ganado <br> ${perdedor} ha perdido <br> +${monedasGanadas} monedas`;
             document.body.appendChild(mensajeFinJuego);
 
             setTimeout(() => {
-                // Deshabilitar los botones después de 1 segundo
+                // 🔒 **Deshabilitar botones**
                 document.querySelectorAll('.carta-container button').forEach(boton => {
                     boton.disabled = true;
                 });
             }, 1000);
         }, 1000);
 
-        return true; // Indica que el juego ha terminado
+        return true;
     }
-    return false; // Si no hay perdedor, el juego sigue
+
+    return false; // El juego sigue
 }
+
+/**
+ * Modifica las monedas del jugador después de una pelea.
+ * @param {number} monedasGanadas - Cantidad de monedas a agregar.
+ */
+async function modificarMonedas(monedasGanadas) {
+    const token = localStorage.getItem("token");
+
+    try {
+        // 🔹 1️⃣ Obtener los datos del jugador
+        const respuestaGet = await fetch("http://127.0.0.1:8000/api/usuario", {
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        if (!respuestaGet.ok) throw new Error("Error al obtener los datos del usuario");
+
+        const usuario = await respuestaGet.json();
+        const monedasActuales = usuario.monedas || 0;
+        const nuevasMonedas = monedasActuales + monedasGanadas;
+
+        // 🔹 2️⃣ Enviar la actualización a la API
+        const respuestaPut = await fetch("http://127.0.0.1:8000/api/usuario/monedas", {
+            method: "PUT",
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify({ monedas: nuevasMonedas })
+        });
+
+        if (!respuestaPut.ok) throw new Error("Error al actualizar las monedas");
+
+        // 🔹 3️⃣ Actualizar la UI
+        actualizarMonedasUI();
+        
+    } catch (error) {
+        console.error("Error modificando monedas:", error);
+    }
+}
+
+/**
+ * Obtiene y actualiza las monedas del jugador en la UI.
+ */
+async function actualizarMonedasUI() {
+    const token = localStorage.getItem("token");
+    if (!token) return;
+
+    try {
+        const respuesta = await fetch("http://127.0.0.1:8000/api/usuario", {
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        if (!respuesta.ok) throw new Error("No se pudieron obtener las monedas");
+
+        const usuario = await respuesta.json();
+        const monedasElemento = body.createElement("monedas-jugador");
+        document.body.appendChild(monedasElemento);
+        
+        if (monedasElemento) {
+            monedasElemento.innerText = usuario.monedas;
+        }
+
+    } catch (error) {
+        console.error("Error obteniendo monedas:", error);
+    }
+}
+
+// 🔹 Llamar a la función al cargar la página
+document.addEventListener("DOMContentLoaded", actualizarMonedasUI);
 
 /**
  * Actualiza la barra de vida de una carta en el tablero.
@@ -437,12 +573,6 @@ function activarTecnicaEspecial(jugadorActual, turno) {
     const defensor = rivalJugador.cartas[defensorIndex];
 
     console.log(`⚡ ${atacante.nombre} usa ${atacante.tecnicaEspecial} contra ${defensor.nombre}`);
-
-    // Validar turno
-    if (turno !== 0 && turno !== 1) {
-        console.error(`Turno inválido: ${turno}`);
-        return;
-    }
 
     // Obtener el contenedor de la carta atacante
     const cartaContainerAtacante = document.querySelectorAll(`.contenedor-${turno === 0 ? 'jugador' : 'rival'} .carta-container`)[atacanteIndex];
@@ -626,12 +756,51 @@ function aumentarEnergia() {
  * Cambia el turno entre los jugadores.
  */
 function cambiarTurno() {
-    turno = turno === 0 ? 1 : 0;
-    turnos++;
+    turno = turno === 0 ? 1 : 0;  // ⚡ Alternar turno
+
+    console.log(`Turno cambiado. Ahora es el turno de: ${turno === 0 ? "Jugador" : "Rival"}`);
 
     actualizarBotones();
     anunciarTurno();
+
+    // ✅ Evitar que la IA actúe más de una vez por turno
+    if (turno === 1 && modoJuego === "cpu") {
+        setTimeout(turnoIA, 500);  // ⏳ La IA espera 1.5 segundos antes de actuar
+    }
 }
+
+/**
+ * Función que hace que la IA tome decisiones en su turno
+ */
+function turnoIA() {
+    if (modoJuego !== "cpu") return;  // 🚫 Asegurar que la IA solo actúe en su turno
+
+    console.log("La IA está actuando...");
+
+    setTimeout(() => {
+        const rivalCarta = rival.cartas.find(carta => carta.vida > 0);  // 🔍 Buscar la carta con vida
+        const jugadorCarta = jugador.cartas.find(carta => carta.vida > 0);
+
+        if (!rivalCarta || !jugadorCarta) return;  // 🚫 Evitar errores si no hay cartas disponibles
+
+        if (rivalCarta.habilidad === 100) {
+            console.log("La IA usa su técnica especial.");
+            activarTecnicaEspecial(rival);
+        } else if (Math.random() < 0.5) {
+            console.log("La IA decide atacar.");
+            atacar(rival, jugador);
+        } else {
+            console.log("La IA aumenta su energía.");
+            aumentarEnergia(rival);
+        }
+
+        // ✅ Llamar a cambiarTurno() SOLO si el juego sigue
+        if (!verificarFinDeJuego()) {
+            setTimeout(500);
+        }
+    }, 1500);
+}
+
 
 /**
  * Reinicia la partida, restableciendo las cartas del jugador y el rival, el turno y la interfaz de usuario.
@@ -689,7 +858,7 @@ function reiniciarJuego() {
 reiniciarJuego();
 
 // Exporta las funciones de ataque, aumento de energía y activación de la técnica especial
-export { atacar, turno, aumentarEnergia, activarTecnicaEspecial };
+export { atacar, turno, aumentarEnergia, activarTecnicaEspecial, cambiarTurno, rival };
 
 /**
  * Función para actualizar las estadísticas del jugador tras una partida.
@@ -711,4 +880,79 @@ function actualizarEstadisticas(jugador, resultado, personaje, vidaFinal, turnos
     .then(res => res.json()) // Convierte la respuesta en un objeto JSON
     .then(data => console.log('Estadísticas actualizadas:', data)) // Muestra un mensaje en la consola si la actualización es exitosa
     .catch(error => console.error('Error al actualizar estadísticas:', error)); // Captura y muestra errores en caso de fallo
+}
+
+const socket = io("http://localhost:3000"); // Conectamos con el servidor PVP
+
+const sala = urlParams.get("sala"); // Obtenemos la sala desde la URL
+
+// Elementos de la UI
+const vidaJugador1 = document.getElementById("vida-jugador1");
+const vidaJugador2 = document.getElementById("vida-jugador2");
+const btnAtaque1 = document.getElementById("ataque1");
+const btnAtaque2 = document.getElementById("ataque2");
+const mensaje = document.getElementById("mensaje");
+
+// Variables de juego
+let miTurno = false;
+let miJugador = "";
+
+// 📌 Unirse a la partida
+socket.emit("unirse_combate", sala);
+
+// 📌 Recibir datos del servidor al iniciar
+socket.on("iniciar_combate", (data) => {
+    miJugador = data.jugador; // Saber si somos Jugador 1 o 2
+    miTurno = data.turno; // Saber si iniciamos atacando
+
+    colocar(data.jugador1, data.jugador2, tapete);
+
+    actualizarUI();
+    mensaje.textContent = `¡Empieza el combate! Turno de ${miTurno ? "Tú" : "Tu oponente"}`;
+});
+
+// 📌 Cuando el otro jugador ataca
+socket.on("actualizar_vida", (data) => {
+    if (data.jugador === "jugador1") {
+        vidaJugador2.textContent = `Vida: ${data.vida}`;
+    } else {
+        vidaJugador1.textContent = `Vida: ${data.vida}`;
+    }
+
+    miTurno = true; // Ahora es nuestro turno
+    actualizarUI();
+});
+
+// 📌 Ataques de los jugadores
+const botonesAtaque = document.querySelectorAll(".btn-ataque");
+
+botonesAtaque.forEach((boton, index) => {
+    boton.addEventListener("click", () => {
+        if (index === 0) {
+            atacar(jugador, rival);
+        } else {
+            atacar(rival, jugador);
+        }
+    });
+});
+
+
+// 📌 Función para atacar
+function ataca(jugador) {
+    if (miTurno) {
+        socket.emit("atacar", { sala, jugador });
+        miTurno = false; // Pasamos el turno al otro jugador
+        actualizarUI();
+    }
+}
+
+// 📌 Actualizar UI según el turno
+function actualizarUI() {
+    if (miJugador === "jugador1") {
+        btnAtaque1.disabled = !miTurno;
+        btnAtaque2.disabled = true;
+    } else {
+        btnAtaque1.disabled = true;
+        btnAtaque2.disabled = !miTurno;
+    }
 }
