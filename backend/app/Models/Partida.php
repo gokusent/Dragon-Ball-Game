@@ -40,14 +40,30 @@ class Partida extends Model
 	protected $fillable = [
 		'jugador1_id',
 		'jugador2_id',
+		'codigo_sala', // Añadir este campo
 		'estado',
-		'turno',
+		'turno', // Añadir este campo
 		'ganador_id'
 	];
 
-	public function usuario()
+	public function jugador1()
+	{
+		return $this->belongsTo(Usuario::class, 'jugador1_id');
+	}
+
+	public function jugador2()
+	{
+		return $this->belongsTo(Usuario::class, 'jugador2_id');
+	}
+
+	public function ganador()
 	{
 		return $this->belongsTo(Usuario::class, 'ganador_id');
+	}
+
+	public function equipos()
+	{
+		return $this->hasMany(Equipo::class);
 	}
 
 	public function movimientos()

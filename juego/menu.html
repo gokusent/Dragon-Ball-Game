@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/pantalla-titulo.css">
+    <script type="module" src="js/menu.js" defer></script>
+    <title>Menú Principal</title>
+</head>
+<body>    
+    <div id="pantalla-inicio">
+        <h2>Menú Principal</h2>
+        <div id="monedas-container">
+            <img src="img/moneda.png" alt="Monedas" class="icono-moneda">
+        </div>        
+        <button id="btn-jugar">Jugar Partida</button>
+        <button id="btn-gacha">Invocación</button>
+        <button id="btn-inventario">Ver Personajes</button>
+        <button id="btn-foro">Foro</button>
+        <button id="btn-perfil">Perfil</button>
+        <button id="btn-ajustes">Ajustes</button>
+    </div>
+
+    <!-- Pantalla de Jugar Partida - Oculta al principio -->
+    <div id="pantalla-jugar" class="oculto">
+        <h3>Selecciona un modo de juego</h3>
+        <button id="btn-jugar-cpu">Jugar vs CPU</button>
+        <button id="btn-jugar-local">Jugar modo local</button>
+        <button id="btn-jugar-pvp">Jugar PVP</button>
+        <button id="btn-volver-menu">Volver</button>
+    </div>
+</body>
+</html>

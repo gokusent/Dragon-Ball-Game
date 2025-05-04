@@ -1,0 +1,73 @@
+body {
+    font-family: Arial, sans-serif;
+    text-align: center;
+    background-color: black;
+    color: white;
+}
+
+#perfil {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+}
+
+#datos-usuario {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+}
+
+#info-usuario {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+#info-usuario img {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 3px solid orange;
+}
+
+#info-usuario h2 {
+    font-size: 28px;
+    margin: 0;
+}
+
+#botones-usuario {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+#logout-container {
+    margin-bottom: 20px;
+}
+
+button {
+    background-color: orange;
+    color: white;
+    border: none;
+    padding: 15px 30px;
+    margin: 10px;
+    font-size: 20px;
+    cursor: pointer;
+    border-radius: 5px;
+    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+button:hover {
+    background-color: red;
+    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.5);
+}
+
+button:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(255, 165, 0, 0.6);
+}

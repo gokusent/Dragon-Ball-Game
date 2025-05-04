@@ -17,22 +17,27 @@ class CartasController extends Controller
     }
 
     public function agregarCarta(Request $request)
-    {
-        $validatedData = $request->validate([
-            'nombre' => 'required|string|unique:cartas',
-            'rareza' => 'required|in:Común,Raro,Épico,Legendario',
-            'vida' => 'required|integer|min:1',
-            'daño' => 'required|integer|min:1',
-            'energia' => 'required|integer|min:1',
-            'tecnica_especial' => 'required|string',
-            'daño_especial' => 'required|integer|min:1',
-            'imagen_url' => 'required|string'
-        ]);
+{
+    $validator = Validator::make($request->all(), [
+        'nombre' => 'required|string|unique:cartas',
+        'rareza' => 'required|in:Común,Raro,Épico,Legendario',
+        'vida' => 'required|integer|min:1',
+        'daño' => 'required|integer|min:1',
+        'energia' => 'required|integer|min:1',
+        'tecnica_especial' => 'required|string',
+        'daño_especial' => 'required|integer|min:1',
+        'imagen_url' => 'required|string'
+    ]);
 
-        $carta = Carta::create($validatedData);
-
-        return response()->json(["mensaje" => "Carta añadida correctamente", "carta" => $carta]);
+    if ($validator->fails()) {
+        return response()->json(['errors' => $validator->errors()], 400);
     }
+
+    $carta = Carta::create($request->all());
+
+    return response()->json(["mensaje" => "Carta añadida correctamente", "carta" => $carta]);
+}
+
     
     public function gacha()
 {

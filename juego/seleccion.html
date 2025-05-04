@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seleccionar Personaje</title>
+    <link rel="stylesheet" href="css/seleccion.css">
+    <script defer type="module" src="js/seleccion.js"></script>
+</head>
+<body>
+
+    <h1>Selecciona tu personaje</h1>
+
+    <div id="seleccion-container"></div>
+
+    <button id="confirmarBtn" disabled>Iniciar Combate</button>
+
+    <button id="volverMenu">Volver al menú</button>
+
+    <script>
+        document.getElementById("volverMenu").addEventListener("click", () => {
+            window.location.href = "menu.html";
+        });
+    </script>
+</body>
+</html>

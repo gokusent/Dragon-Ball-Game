@@ -22,6 +22,11 @@ class Equipo extends Model
 
     public function carta()
     {
-        return $this->belongsTo(Carta::class, 'carta_id');
+        return $this->belongsTo(Carta::class);
+    }
+
+    public function partida()
+    {
+        return $this->belongsTo(Partida::class);
     }
 }

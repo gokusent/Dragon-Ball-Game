@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <title>Foro</title>
+    <link rel="stylesheet" href="css/pantalla-titulo.css">
+    <script src="/socket.io/socket.io.js"></script>
+    <script defer type="module" src="./js/foro.js"></script> 
+</head>
+<body>
+    <h1>Foro del Juego</h1>
+
+    <div id="crear-post">
+        <input type="text" id="titulo-post" placeholder="Título del post">
+        <textarea id="contenido-post" placeholder="Escribe tu post..."></textarea>
+        <button id="publicar-post">Publicar</button>
+    </div>
+
+    <h2>Publicaciones recientes</h2>
+    <div id="lista-posts">
+        <!-- Aquí se cargarán los posts -->
+    </div>
+
+    <button id="btn-volver-menu">Volver al Menú</button>
+</body>
+</html>
