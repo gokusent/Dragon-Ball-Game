@@ -6,6 +6,7 @@ use App\Models\Carta;
 use Illuminate\Http\Request;
 use App\Models\Inventario;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
 class CartasController extends Controller
@@ -14,6 +15,17 @@ class CartasController extends Controller
     public function index()
     {
         return response()->json(Carta::all());
+    }
+
+    // Obtener cartas por id
+    public function CartasPorID($id)
+    {
+        $carta = Carta::find($id);
+        if ($carta) {
+            return response()->json($carta);
+        } else {
+            return response()->json(["error" => "Carta no encontrada"], 404);
+        }
     }
 
     public function agregarCarta(Request $request)
@@ -26,19 +38,45 @@ class CartasController extends Controller
         'energia' => 'required|integer|min:1',
         'tecnica_especial' => 'required|string',
         'daño_especial' => 'required|integer|min:1',
-        'imagen_url' => 'required|string'
+        'imagen_url' => 'required|image|mimes:jpeg,png,jpg,webp|max:5048'
     ]);
 
     if ($validator->fails()) {
         return response()->json(['errors' => $validator->errors()], 400);
     }
 
-    $carta = Carta::create($request->all());
+    if (!$request->hasFile('imagen_url')) {
+        return response()->json(['error' => 'No se subió ninguna imagen.']);
+    }
+    
+    $imagen = $request->file('imagen_url');
+    
+    // Validar tipo de archivo si hace falta
+    if (!$imagen->isValid()) {
+        return response()->json(['error' => 'Imagen no válida.']);
+    }
+    
+    // Guardar imagen
+    $path = $imagen->store('cartas', 'public');
+    
+    $url = asset(Storage::url($path));
+    
+    // Guardar en base de datos
+    $carta = Carta::create([
+        'nombre' => $request->nombre,
+        'rareza' => $request->rareza,
+        'vida' => $request->vida,
+        'daño' => $request->daño,
+        'energia' => $request->energia,
+        'tecnica_especial' => $request->tecnica_especial,
+        'daño_especial' => $request->daño_especial,
+        'imagen_url' => $url
+    ]);
+    
 
     return response()->json(["mensaje" => "Carta añadida correctamente", "carta" => $carta]);
 }
-
-    
+  
     public function gacha()
 {
     $usuario_id = Auth::id();

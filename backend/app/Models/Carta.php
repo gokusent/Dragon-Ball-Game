@@ -48,7 +48,8 @@ class Carta extends Model
 		'energia',
 		'tecnica_especial',
 		'daño_especial',
-		'imagen_url'
+		'imagen_url',
+		'imagen_url2'
 	];
 
 	public function inventarios()
@@ -71,7 +72,7 @@ class Carta extends Model
     // Si la carta tiene una técnica especial
     if ($this->tecnica_especial) {
         // Ejecutar lógica para técnica especial
-        $jugador->vida -= $this->daño_especial; // O lo que corresponda
+        $jugador->vida -= $this->daño_especial; 
     }
 }
 

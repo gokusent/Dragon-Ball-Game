@@ -75,11 +75,11 @@ document.addEventListener("DOMContentLoaded", async () => {
                     if (personajesSeleccionados.includes(personaje.carta_id)) {
                         personajesSeleccionados = personajesSeleccionados.filter(id => id !== personaje.carta_id);
                         card.classList.remove("seleccionado");
-                    } else if (personajesSeleccionados.length < 5) {
+                    } else if (personajesSeleccionados.length < 3) {
                         personajesSeleccionados.push(personaje.carta_id);
                         card.classList.add("seleccionado");
                     } else {
-                        alert("Máximo 5 personajes.");
+                        alert("Máximo 3 personajes.");
                     }
                     confirmarBtn.disabled = personajesSeleccionados.length === 0;
                 });

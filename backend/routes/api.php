@@ -37,6 +37,7 @@ Route::get('/sanctum/csrf-cookie', function () {
 
 
 Route::get('/cartas', [CartasController::class, 'index']);
+Route::get('/cartas/{id}', [CartasController::class, 'CartasPorID']);
 Route::post('/cartas/agregar', [CartasController::class, 'agregarCarta']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/gacha', [CartasController::class, 'gacha']);

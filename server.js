@@ -13,7 +13,7 @@ const db = mysql.createPool({
   user: 'root',    // tu usuario de MySQL
   password: '', // tu contraseña
   database: 'juego', // nombre de la base de datos que vas a usar
-  port: 3307, // puerto de MySQL (por defecto es 3307)
+  port: 3306, // puerto de MySQL (por defecto es 3306)
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
