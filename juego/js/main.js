@@ -8,18 +8,60 @@ const urlParams = new URLSearchParams(window.location.search);
 const modoJuego = urlParams.get("modo") || "cpu";  // Por defecto CPU
 console.log("Modo de juego:", modoJuego);
 
-// 🔌 Socket.io ya conectado con el servidor
-const socket = io();
+// 1. Conectar el socket
+const socket = io("http://localhost:3000");
+
+// 2. Obtener el ID del jugador y la sala desde localStorage
+const jugadorId = localStorage.getItem("jugadorId");
+const salaId = localStorage.getItem("salaPvp");
+
+// 3. Esperar a que se conecte el socket
+socket.on("connect", () => {
+  console.log("🔌 Reconectado al servidor con ID:", socket.id);
+
+  // 4. Verificar que haya datos para volver a unirse
+  if (jugadorId && salaId) {
+    console.log(`🎮 Reuniéndose a la sala ${salaId} como ${jugadorId}`);
+
+    // 5. Emitir evento para volver a unirse a la sala PvP
+    socket.emit("unirse_sala_pvp", {
+      sala: salaId,
+      jugadorId: jugadorId,
+    });
+
+    // 6. Emitir jugador_listo si corresponde
+    socket.emit("jugador_listo", {
+      sala: salaId,
+      jugadorId: jugadorId,
+    });
+  } else {
+    console.warn("⚠️ No se encontraron datos de jugador o sala en localStorage");
+  }
+});
+
+// 7. Aquí puedes agregar más listeners de combate:
+socket.on("iniciar_turno", (data) => {
+  console.log("🔁 Turno iniciado:", data);
+  // Actualiza la UI según el jugador que deba jugar
+});
+
 
 const anuncioTurno = document.createElement('div');
 anuncioTurno.classList.add('turno-anuncio');
 document.body.appendChild(anuncioTurno);
 
-let soyHost = false; // Este lo definís al entrar a la sala
+let soyHost = localStorage.getItem("soyHost") === "true"; // Verifica si el jugador es el host
 let jugadorID = null; // Este lo recibís desde el servidor
 let estadoSala = {};  // Recibís los datos de la sala y jugadores
 let turno = 0; // 0: jugador1, 1: jugador2
 let turnos = 0;
+
+// 🧠 Emitir solicitud para iniciar partida si sos host
+if (modoJuego === "pvp" && soyHost) {
+    console.log("Esperando a que ambos jugadores estén listos...");
+    socket.emit("solicitar_inicio_partida");  // El servidor elige el turno y emite a ambos
+    console.log("Partida iniciada.");
+}
 
 // 🎧 Esperar a que el servidor indique el inicio y el turno inicial
 socket.on("iniciar_partida", ({ turnoInicial, jugador1, jugador2 }) => {
@@ -33,19 +75,6 @@ socket.on("iniciar_partida", ({ turnoInicial, jugador1, jugador2 }) => {
     anunciarTurno();
     actualizarBotones();
 });
-
-// 🔄 También escuchamos cambios de turno durante el juego
-socket.on("cambiar_turno", (nuevoTurno) => {
-    turno = nuevoTurno;
-    turnos++; // Aumentamos el contador de turnos
-    anunciarTurno();
-    actualizarBotones();
-});
-
-// 🧠 Emitir solicitud para iniciar partida si sos host
-if (modoJuego === "pvp" && soyHost) {
-    socket.emit("solicitar_inicio_partida");  // El servidor elige el turno y emite a ambos
-}
 
 // 📢 Mostrar quién juega
 // Función para mostrar un mensaje que indique el turno actual
@@ -84,6 +113,13 @@ function verificarTurnoPropio() {
     return false;
 }
 
+socket.on("cambiar_turno", ({ nuevoTurno }) => {
+    turno = nuevoTurno;
+    anunciarTurno();
+    actualizarBotones();
+}
+);
+
 /**
  * Función que hace que la IA tome decisiones en su turno
  */
@@ -115,13 +151,6 @@ function turnoIA() {
         }
     }, 1500);
 }
-
-// 🧠 Escuchar cambio de turno desde el rival
-socket.on("cambiar_turno", (nuevoTurno) => {
-    turno = nuevoTurno;
-    anunciarTurno();
-    actualizarBotones();
-});
 
 /**
  * Actualiza los botones según el turno.

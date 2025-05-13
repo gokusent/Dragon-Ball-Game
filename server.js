@@ -5,19 +5,22 @@ const path = require("path");
 const fs = require("fs");
 const cors = require("cors");
 const mysql = require('mysql2/promise');
-const multer = require("multer");
+require('dotenv').config(); // Cargar variables desde .env
 
-// Crear conexión a la base de datos
 const db = mysql.createPool({
-  host: 'localhost',    // o tu host de MySQL
-  user: 'root',    // tu usuario de MySQL
-  password: '', // tu contraseña
-  database: 'juego', // nombre de la base de datos que vas a usar
-  port: 3306, // puerto de MySQL (por defecto es 3306)
+  host: process.env.DB_HOST || 'localhost',
+  user: process.env.DB_USER || 'root',
+  password: process.env.DB_PASSWORD || '',
+  database: process.env.DB_NAME || 'juego',
+  port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 3306,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
 });
+
+module.exports = db;
+
+const multer = require("multer");
 
 const app = express();
 const server = http.createServer(app);
@@ -273,8 +276,25 @@ io.on("connection", (socket) => {
         jugador2: salas[salaLibre].jugador2
       };
 
-      io.to(salaLibre).emit("estado_sala", estado);
-      io.to(salaLibre).emit("jugador_unido", estado);
+      const { jugador1, jugador2 } = salas[salaLibre];
+
+      if (jugador1) {
+        io.to(jugador1.socket_id).emit("estado_sala", {
+          jugador1,
+          jugador2,
+          soyHost: true,
+          turno: salas[salaLibre].turno
+        });
+      }
+      if (jugador2) {
+        io.to(jugador2.socket_id).emit("estado_sala", {
+          jugador1,
+          jugador2,
+          soyHost: false,
+          turno: salas[salaLibre].turno
+        });
+      }
+            io.to(salaLibre).emit("jugador_unido", estado);
     } else {
       const nuevaSala = generarToken();
       salas[nuevaSala] = {
@@ -295,30 +315,59 @@ io.on("connection", (socket) => {
   });
 
   socket.on("unirse_sala_pvp", ({ sala, jugador_id, nombre }) => {
-    let soyHost = false;
     if (!salas[sala]) {
       salas[sala] = {
-        jugador1: { socket_id: socket.id, jugador_id, nombre },
+        jugador1: { socket_id: socket.id, jugador_id, nombre, conectado: true },
         jugador2: null,
         jugadores: {},
         turno: "jugador1"
       };
-      soyHost = true;
-    } else if (!salas[sala].jugador2 && salas[sala].jugador1.socket_id !== socket.id) {
-      salas[sala].jugador2 = { socket_id: socket.id, jugador_id, nombre };
+    } else {
+      const salaActual = salas[sala];
+  
+      // Reasignar si ya estaba
+      if (salaActual.jugador1?.jugador_id === jugador_id) {
+        salaActual.jugador1.socket_id = socket.id;
+        salaActual.jugador1.conectado = true;
+      } else if (salaActual.jugador2?.jugador_id === jugador_id) {
+        salaActual.jugador2.socket_id = socket.id;
+        salaActual.jugador2.conectado = true;
+      } else if (!salaActual.jugador2) {
+        salaActual.jugador2 = { socket_id: socket.id, jugador_id, nombre, conectado: true };
+      }
     }
-
+  
     socket.join(sala);
-
-    const estado = {
-      jugador1: salas[sala].jugador1,
-      jugador2: salas[sala].jugador2,
-      soyHost: soyHost,
-      turno: salas[sala].turno
-    };
-
-    io.to(sala).emit("estado_sala", estado);
+  
+    const { jugador1, jugador2, turno } = salas[sala];
+  
+    // Enviar estado actualizado
+    if (jugador1) {
+      io.to(jugador1.socket_id).emit("estado_sala", {
+        jugador1,
+        jugador2,
+        soyHost: true,
+        turno
+      });
+    }
+  
+    if (jugador2) {
+      io.to(jugador2.socket_id).emit("estado_sala", {
+        jugador1,
+        jugador2,
+        soyHost: false,
+        turno
+      });
+    }
+  
+    // Avisar si el oponente volvió
+    if (jugador1?.conectado && jugador2?.conectado) {
+      io.to(sala).emit("oponente_reconectado");
+    }
   });
+  
+  
+  
 
   function obtenerSalaDelJugador(socketId) {
     for (const [sala, datos] of Object.entries(salas)) {
@@ -359,9 +408,11 @@ io.on("connection", (socket) => {
         jugador2: salas[sala].jugador2,
         turno: salas[sala].turno
       };
+      console.log(`📦 [ESTADO SOLICITADO] Sala: ${sala}`, estado);
       io.to(sala).emit("estado_sala", estado);
     }
   });
+  
 
   socket.on("confirmar_equipo", ({ sala, idJugador, equipo }) => {
     if (!salas[sala]) return;
@@ -387,51 +438,99 @@ io.on("connection", (socket) => {
   });
 
   socket.on("solicitar_inicio_partida", () => {
+    console.log("🕹️ [INICIO PARTIDA] Solicitud de inicio recibida:", socket.id);
     const sala = obtenerSalaDelJugador(socket.id);
-    if (!sala || !salas[sala].jugador1 || !salas[sala].jugador2) return;
-
-    const turnoInicial = Math.random() < 0.5 ? 0 : 1;
-
+    if (!sala || !salas[sala].jugador1 || !salas[sala].jugador2) {
+      console.log("❌ [INICIO PARTIDA] Faltan jugadores");
+      return;
+    }
+  
+    const turnoInicial = Math.random() < 0.5 ? "jugador1" : "jugador2";
+    salas[sala].turno = turnoInicial;
+  
+    console.log(`🚀 [INICIO PARTIDA] Sala: ${sala}, Turno inicial: ${turnoInicial}`);
+  
     io.to(sala).emit("iniciar_partida", {
       turnoInicial,
       jugador1: salas[sala].jugador1,
       jugador2: salas[sala].jugador2
     });
   });
+  
 
   socket.on("cambiar_turno", (nuevoTurno) => {
     const sala = obtenerSalaDelJugador(socket.id);
     if (sala && salas[sala]) {
+      console.log(`🌀 [CAMBIO DE TURNO] Jugador: ${socket.id}, Sala: ${sala}, Nuevo Turno: ${nuevoTurno}`);
       salas[sala].turno = nuevoTurno;
-      console.log(`🔄 Turno actualizado en sala ${sala}:`, nuevoTurno);
       io.to(sala).emit("cambiar_turno", nuevoTurno);
+    } else {
+      console.log(`⚠️ [CAMBIO DE TURNO] Sala no encontrada para el jugador ${socket.id}`);
+    }
+  });
+  
+
+  socket.on("atacar", ({ sala, jugador_id, ataque }) => {
+    if (!salas[sala]) return;
+  
+    const turnoActual = salas[sala].turno;
+    const atacanteEsJugador1 = salas[sala].jugador1?.jugador_id === jugador_id;
+    const jugadorTurno = turnoActual === "jugador1" ? salas[sala].jugador1?.jugador_id : salas[sala].jugador2?.jugador_id;
+  
+    console.log(`⚔️ [ATAQUE] Jugador ${jugador_id} ataca. Turno actual: ${turnoActual}, Jugador del turno: ${jugadorTurno}`);
+  
+    if (jugador_id !== jugadorTurno) {
+      console.log(`❌ ATAQUE BLOQUEADO: No es el turno del jugador ${jugador_id}`);
+      return; // Bloqueamos el ataque si no es su turno
+    }
+  
+    const salaActual = salas[sala];
+  
+    if (atacanteEsJugador1) {
+      salaActual.jugador2.vida -= ataque.daño;
+      io.to(sala).emit("ataque_recibido", { jugador: "jugador2", ataque });
+    } else {
+      salaActual.jugador1.vida -= ataque.daño;
+      io.to(sala).emit("ataque_recibido", { jugador: "jugador1", ataque });
+    }
+  });
+  
+
+  socket.on("salir_sala", () => {
+    const sala = obtenerSalaDelJugador(socket.id);
+    if (sala) {
+      socket.leave(sala);
+      console.log(`👤 Jugador ${socket.id} salió de la sala ${sala}`);
+      delete salas[sala].jugadores[socket.id];
+      if (Object.keys(salas[sala].jugadores).length === 0) {
+        delete salas[sala];
+        console.log(`🧹 Sala ${sala} eliminada por estar vacía`);
+      }
     }
   });
 
   socket.on("disconnect", () => {
     console.log("❌ Jugador o usuario desconectado:", socket.id);
+  
     for (const [sala, datos] of Object.entries(salas)) {
       let cambiado = false;
-
+  
       if (datos.jugador1?.socket_id === socket.id) {
-        datos.jugador1 = null;
+        datos.jugador1.conectado = false;
         cambiado = true;
       }
       if (datos.jugador2?.socket_id === socket.id) {
-        datos.jugador2 = null;
+        datos.jugador2.conectado = false;
         cambiado = true;
       }
-
+  
       if (cambiado) {
-        const estado = {
-          jugador1: datos.jugador1,
-          jugador2: datos.jugador2
-        };
-        io.to(sala).emit("estado_sala", estado);
         io.to(sala).emit("oponente_desconectado");
+        console.log(`👤 Jugador ${socket.id} desconectado de la sala ${sala}`);
       }
     }
   });
+  
 });
 
 // ==========================
@@ -528,14 +627,7 @@ app.get('/api/estadisticas/usuario/:id', async (req, res) => {
 // ==========================
 // INICIAR SERVIDOR
 // ==========================
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
   console.log(`✅ Servidor iniciado en http://localhost:${PORT}`);
 });
-
-// ==========================
-// Función auxiliar para ID único de post
-// ==========================
-function generarId() {
-  return Math.random().toString(36).substr(2, 9);
-}

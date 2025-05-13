@@ -9,11 +9,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     let soyHost = false;  // Variable que indicará si el jugador es el host de la sala
 
     try {
-        // Primero, obtené la cookie CSRF si usás Sanctum:
-        await fetch("http://localhost:8000/sanctum/csrf-cookie", {
-            credentials: "include"
-        });
-
         // Obtener perfil del jugador con credentials para enviar las cookies
         const perfilRes = await fetch("http://localhost:8000/api/perfil", {
             headers: { Authorization: `Bearer ${token}` },
@@ -79,33 +74,33 @@ document.addEventListener("DOMContentLoaded", async () => {
         };
 
         // Escuchar el estado de la sala (para actualizar la interfaz)
-// Escuchar el estado de la sala (para actualizar la interfaz)
-socket.on("estado_sala", async (data) => {
-    console.log("📥 Estado de la sala recibido:", data);
+        socket.on("estado_sala", async (data) => {
+            console.log("📥 Estado de la sala recibido:", data);
 
-    // Verificar si este jugador es el host según el campo 'soyHost' recibido
-    soyHost = data.soyHost;
+            // Verificar si este jugador es el host según el campo 'soyHost' recibido
+            soyHost = data.soyHost;
 
-    if (soyHost) {
-        // Lógica para el host (ejemplo: permitir iniciar la partida)
-        console.log("¡Eres el host!");
-    } else {
-        // Lógica para el jugador invitado
-        console.log("Eres el invitado.");
-    }
+            if (soyHost) {
+                // Lógica para el host (ejemplo: permitir iniciar la partida)
+                console.log("¡Eres el host!");
+                localStorage.setItem("soyHost", soyHost ? "true" : "false");
+            } else {
+                // Lógica para el jugador invitado
+                console.log("Eres el invitado.");
+            }
 
-    // Obtener nombres de los jugadores o establecer "Esperando..." si no están definidos
-    const nombreJugador1 = data.jugador1 ? data.jugador1.nombre || await obtenerNombreJugador(data.jugador1.jugador_id) : "Esperando...";
-    const nombreJugador2 = data.jugador2 ? data.jugador2.nombre || await obtenerNombreJugador(data.jugador2.jugador_id) : "Esperando...";
+            // Obtener nombres de los jugadores o establecer "Esperando..." si no están definidos
+            const nombreJugador1 = data.jugador1 ? data.jugador1.nombre || await obtenerNombreJugador(data.jugador1.jugador_id) : "Esperando...";
+            const nombreJugador2 = data.jugador2 ? data.jugador2.nombre || await obtenerNombreJugador(data.jugador2.jugador_id) : "Esperando...";
 
-    // Actualizar los textos de los jugadores en la interfaz
-    jugador1.textContent = `Jugador 1: ${nombreJugador1}`;
-    jugador2.textContent = `Jugador 2: ${nombreJugador2}`;
-    estadoPartida.textContent = data.jugador2 ? "¡Ambos jugadores están conectados!" : "Esperando a un oponente...";
+            // Actualizar los textos de los jugadores en la interfaz
+            jugador1.textContent = `Jugador 1: ${nombreJugador1}`;
+            jugador2.textContent = `Jugador 2: ${nombreJugador2}`;
+            estadoPartida.textContent = data.jugador2 ? "¡Ambos jugadores están conectados!" : "Esperando a un oponente...";
 
-    // Habilitar/deshabilitar el botón "Listo" dependiendo de si hay dos jugadores
-    btnListo.disabled = !data.jugador1 || !data.jugador2;
-});
+            // Habilitar/deshabilitar el botón "Listo" dependiendo de si hay dos jugadores
+            btnListo.disabled = !data.jugador1 || !data.jugador2;
+        });
 
 
         // Cuando un jugador se une
@@ -148,7 +143,8 @@ socket.on("estado_sala", async (data) => {
     }
 
     // Volver al menú
-    document.getElementById("btn-volver-menu").addEventListener("click", () => {
+    document.getElementById("btn-salir").addEventListener("click", () => {
+        socket.emit("salir_sala", { sala });
         window.location.href = "menu.html";
     });
 });

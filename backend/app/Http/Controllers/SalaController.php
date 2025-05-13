@@ -4,22 +4,12 @@ namespace App\Http\Controllers;
 
 use App\Models\Sala;
 use Illuminate\Http\Request;
-use App\Events\MensajeEnviado;
-use App\Events\JugadorSeUnio;
-// use App\Http\Resources\SalaResource; // Commented out as SalaResource is not defined
-
 use Illuminate\Support\Facades\Validator;
 
 
 class SalaController extends Controller
 {
-public function enviarMensaje(Request $request)
-{
-    broadcast(new MensajeEnviado($request->mensaje));
-    return response()->json(['status' => 'Mensaje enviado']);
-}
-
-    // Obtener todas las salas
+   // Obtener todas las salas
     public function index()
     {
         $salas = Sala::all();
@@ -27,7 +17,6 @@ public function enviarMensaje(Request $request)
     }
 
     // Crear una nueva sala
-// En tu controlador:
 public function store(Request $request)
 {
     $user = $request->user(); // usuario autenticado
@@ -36,17 +25,18 @@ public function store(Request $request)
     $sala->jugador1_id = $user->id;
     $sala->estado = 'esperando';
     $sala->turno = 1;
+    $sala->sala = $request->sala; // Generar un ID único para la sala
     $sala->save();
     
     // Usamos un recurso para convertir la sala
     return response()->json([
         'message' => 'Sala creada correctamente',
-        'sala' => $sala, // Directly returning the Sala model instance
-        'jugador1_nombre' => $user->name
-    ]);
+            'id' => $sala->id,
+            'sala' => $sala->sala
+        ]);
+        
+        
 }
-
-
     
     // Obtener los detalles de una sala específica
     public function show($id)
@@ -83,47 +73,22 @@ public function buscarDisponibles(Request $request)
 
     // Actualizar el estado o los detalles de una sala
     public function update(Request $request, $id)
-    {
-        $sala = Sala::find($id);
+{
+    $sala = Sala::findOrFail($id);
 
-        if (!$sala) {
-            return response()->json(['message' => 'Sala no encontrada'], 404);
-        }
+    $sala->jugador2_id = $request->jugador2_id;
+    $sala->estado = 'llena';
+    $sala->save();
 
-        $validated = $request->validate([
-            'jugador1_id' => 'nullable|exists:usuarios,id',
-            'jugador2_id' => 'nullable|exists:usuarios,id',
-            'estado' => 'nullable|string',
-            'turno' => 'nullable|integer',
-        ]);
+    return response()->json([
+        'id' => $sala->id,
+        'sala' => $sala->sala, // 👈 NECESARIO para el frontend
+        'jugador1_id' => $sala->jugador1_id,
+        'jugador2_id' => $sala->jugador2_id,
+        'estado' => $sala->estado,
+    ]);
+}
 
-        $sala->update($validated);
-        return response()->json($sala);
-    }
-
-    // Unirse a una sala
-    public function unirse(Request $request, $id)
-    {
-        $sala = Sala::find($id);
-
-        if (!$sala) {
-            return response()->json(['message' => 'Sala no encontrada'], 404);
-        }
-
-        $jugador2_id = $request->input('jugador2_id');
-
-        if (!$jugador2_id) {
-            return response()->json(['message' => 'Faltan datos para unirse a la sala'], 400);
-        }
-
-        $sala->jugador2_id = $jugador2_id;
-        $sala->estado = 'en juego';
-        $sala->save();
-
-        broadcast(new JugadorSeUnio($sala->sala, $jugador2_id));
-
-        return response()->json(['message' => 'Jugador se unió a la sala', 'sala' => $sala]);
-    }
     // Eliminar una sala
     public function destroy($id)
     {

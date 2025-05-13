@@ -44,39 +44,88 @@ document.addEventListener("DOMContentLoaded", () => {
         if (elementosUI.btnJugarPVP) {
             elementosUI.btnJugarPVP.addEventListener("click", async () => {
                 const token = localStorage.getItem("token");
-        
-                // Genera un nombre de sala aleatorio
-                const nombreSala = `pvp_${Date.now()}`;
-        
+            
                 try {
-                    const response = await fetch("http://localhost:8000/api/crear-sala", {
-                        method: "POST",
+                    // Obtener perfil del usuario autenticado (para el ID)
+                    const perfilRes = await fetch("http://localhost:8000/api/perfil", {
+                        method: "GET",
                         headers: {
-                            "Content-Type": "application/json",
-                            "Authorization": `Bearer ${token}`
-                        },
-                        body: JSON.stringify({
-                            sala: nombreSala,
-                            jugador1_id: 1 // ⚠️ Aquí debes poner el ID real del jugador autenticado
-                        })
+                            Authorization: `Bearer ${token}`
+                        }
                     });
-        
-                    if (!response.ok) {
-                        throw new Error(`Error al crear la sala: ${response.statusText}`);
-                    }
-        
-                    const data = await response.json();
-        
-                    console.log("✅ Sala creada:", data);
-                    console.log("Respuesta de la API:", data); // Verifica el valor completo de la respuesta
+            
+                    if (!perfilRes.ok) throw new Error("No se pudo obtener el perfil");
+            
+                    const perfil = await perfilRes.json();
+                    const jugador_id = perfil.id;
+            
+                    // Buscar salas disponibles
+                    const disponiblesRes = await fetch("http://localhost:8000/api/salas-disponibles", {
+                        headers: { Authorization: `Bearer ${token}` }
+                    });
+            
+                    const salas = await disponiblesRes.json();
+            
+                    let nombreSala;
+            
+                    if (salas.length > 0) {
+                        // Hay una sala disponible: unirse como jugador2
+                        const sala = salas[0];
+                        nombreSala = sala.sala;
+            
+                        const joinRes = await fetch(`http://localhost:8000/api/salas/${sala.id}`, {
+                            method: "PUT",
+                            headers: {
+                                "Content-Type": "application/json",
+                                Authorization: `Bearer ${token}`
+                            },
+                            body: JSON.stringify({ jugador2_id: jugador_id })
+                        });
+            
+                        if (!joinRes.ok) throw new Error("Error al unirse a la sala existente");
+            
+                        const data = await joinRes.json();
 
-                    if (data.sala) {
+                        // Guarda antes de cambiar a la página de combate
+                        localStorage.setItem("jugador_id", jugador_id);
+                        localStorage.setItem("salaPvp", nombreSala);
+                        console.log(`✅ Te uniste a la sala de ${data.jugador1_id} (ID: ${data.id})`);
                         window.location.href = `sala.html?sala=${encodeURIComponent(data.sala)}`;
+
+                    } else {
+                        // No hay salas → crear una nueva
+                        nombreSala = `pvp_${Date.now()}`;
+            
+                        const crearRes = await fetch("http://localhost:8000/api/crear-sala", {
+                            method: "POST",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Authorization": `Bearer ${token}`
+                            },
+                            body: JSON.stringify({
+                                sala: nombreSala,
+                                jugador1_id: jugador_id
+                            })
+                        });
+            
+                        if (!crearRes.ok) throw new Error("Error al crear la sala");
+            
+                        const crearData = await crearRes.json();
+                        console.log("✅ Sala creada:", crearData);
                     }
+            
+                    // Redirigir al HTML de la sala
+                    if (nombreSala) {
+                        // Guarda antes de cambiar a la página de combate
+                        localStorage.setItem("jugador_id", jugador_id);
+                        localStorage.setItem("salaPvp", nombreSala);
+                        window.location.href = `sala.html?sala=${encodeURIComponent(nombreSala)}`;
+                    }
+            
                 } catch (error) {
-                    console.error("Error al crear la sala:", error);
+                    console.error("Error en el flujo de PvP:", error);
                 }
-            });
+            });            
         }
         
         if (elementosUI.btnForo) elementosUI.btnForo.addEventListener("click", () => window.location.href = "foro.html");

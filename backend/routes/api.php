@@ -95,6 +95,7 @@ Route::get('/equipo/mostrar', [EquipoController::class, 'mostrarEquipo']);
     Route::get('/salas/{id}', [SalaController::class, 'show'])->where('id', '.*');
     Route::put('/salas/{id}', [SalaController::class, 'update'])->where('id', '.*');
     Route::get('/salas-disponibles', [SalaController::class, 'buscarDisponibles']);
+    Route::put('/salas/eliminar/{id}', [SalaController::class, 'destroy'])->where('id', '.*');
     });
 // Rutas para los movimientos
 Route::prefix('movimientos')->group(function () {

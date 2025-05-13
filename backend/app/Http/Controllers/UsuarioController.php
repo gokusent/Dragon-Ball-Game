@@ -34,7 +34,8 @@ class UsuarioController extends Controller
         $usuario = Usuario::create([
             'nombre' => $request->nombre,
             'email' => $request->email,
-            'password' => Hash::make($request->password)
+            'password' => Hash::make($request->password),
+            'monedas' => 50
         ]);
 
         return response()->json([
