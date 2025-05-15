@@ -3,7 +3,6 @@ import socket from "./socket.js";
 document.addEventListener("DOMContentLoaded", async () => {
     const seleccionContainer = document.getElementById("seleccion-container");
     const confirmarBtn = document.getElementById("confirmarBtn");
-    const tituloSeleccion = document.createElement("titulo-seleccion");
     const token = localStorage.getItem("token");
 
     const urlParams = new URLSearchParams(window.location.search);
@@ -60,8 +59,6 @@ document.addEventListener("DOMContentLoaded", async () => {
             }
 
             seleccionContainer.innerHTML = "";
-            tituloSeleccion.innerText = `Jugador ${jugadorActual}: Elige tus personajes`;
-            seleccionContainer.appendChild(tituloSeleccion);
 
             personajes.forEach(personaje => {
                 const card = document.createElement("div");

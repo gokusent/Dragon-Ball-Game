@@ -38,7 +38,8 @@ class CartasController extends Controller
         'energia' => 'required|integer|min:1',
         'tecnica_especial' => 'required|string',
         'daño_especial' => 'required|integer|min:1',
-        'imagen_url' => 'required|image|mimes:jpeg,png,jpg,webp|max:5048'
+        'imagen_url' => 'required|image|mimes:jpeg,png,jpg,webp|max:5048',
+        'imagen_url2' => 'required|image|mimes:jpeg,png,jpg,webp|max:5048'
     ]);
 
     if ($validator->fails()) {
@@ -49,7 +50,7 @@ class CartasController extends Controller
         return response()->json(['error' => 'No se subió ninguna imagen.']);
     }
     
-    $imagen = $request->file('imagen_url');
+    $imagen = $request->file('imagen_url', 'imagen_url2');
     
     // Validar tipo de archivo si hace falta
     if (!$imagen->isValid()) {
@@ -70,7 +71,8 @@ class CartasController extends Controller
         'energia' => $request->energia,
         'tecnica_especial' => $request->tecnica_especial,
         'daño_especial' => $request->daño_especial,
-        'imagen_url' => $url
+        'imagen_url' => $url,
+        'imagen_url2' => $url
     ]);
     
 
