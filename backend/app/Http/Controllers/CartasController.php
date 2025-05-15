@@ -50,18 +50,23 @@ class CartasController extends Controller
         return response()->json(['error' => 'No se subió ninguna imagen.']);
     }
     
-    $imagen = $request->file('imagen_url', 'imagen_url2');
+    $imagen = $request->file('imagen_url');
+    $imagen2 = $request->file('imagen_url2');
     
     // Validar tipo de archivo si hace falta
     if (!$imagen->isValid()) {
         return response()->json(['error' => 'Imagen no válida.']);
     }
     
+    if (!$imagen2->isValid()) {
+        return response()->json(['error' => 'Imagen no válida']);
+    }
     // Guardar imagen
     $path = $imagen->store('cartas', 'public');
+    $path2 = $imagen2->store('cartas', 'public');
     
     $url = asset(Storage::url($path));
-    
+    $url2 = asset(Storage::url($path2));
     // Guardar en base de datos
     $carta = Carta::create([
         'nombre' => $request->nombre,
@@ -72,7 +77,7 @@ class CartasController extends Controller
         'tecnica_especial' => $request->tecnica_especial,
         'daño_especial' => $request->daño_especial,
         'imagen_url' => $url,
-        'imagen_url2' => $url
+        'imagen_url2' => $url2
     ]);
     
 
