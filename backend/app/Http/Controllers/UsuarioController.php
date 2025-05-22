@@ -80,7 +80,12 @@ class UsuarioController extends Controller
             ], 422);
         }
 
-        $usuario = Auth::user();
+        $usuario = Usuario::find(Auth::id());
+        if (!$usuario) {
+            return response()->json([
+                'error' => 'Usuario no encontrado'
+            ], 404);
+        }
         $usuario->nombre = $request->nombre;
         $usuario->save();
 
@@ -101,7 +106,7 @@ class UsuarioController extends Controller
                 ], 422);
             }
             
-            $usuario = Auth::user();
+            $usuario = Usuario::find(Auth::id());
 
             // Guardar el avatar
         if ($request->hasFile('avatar')) {
@@ -123,9 +128,9 @@ class UsuarioController extends Controller
     public function borrarAvatar(Request $request)
     {
 
-        $usuario = Auth::user();
+        $usuario = Usuario::find(Auth::id());
         // Verificamos si el avatar actual no es el predeterminado
-        if ($usuario->avatar != '/storage/avatars/default.jpg') {
+        if ($usuario && $usuario->avatar != '/storage/avatars/default.jpg') {
             // Eliminamos el archivo del avatar actual en el servidor
             $avatarPath = public_path($usuario->avatar); // Ruta completa del archivo en el servidor
             if (file_exists($avatarPath)) {
@@ -134,8 +139,10 @@ class UsuarioController extends Controller
         }
 
         // Restablecer el avatar a la imagen por defecto
-        $usuario->avatar = '/storage/avatars/default.jpg';
-        $usuario->save();
+        if ($usuario) {
+            $usuario->avatar = '/storage/avatars/default.jpg';
+            $usuario->save();
+        }
 
         return response()->json([
             'message' => 'Avatar borrado y restablecido correctamente',
@@ -155,7 +162,7 @@ class UsuarioController extends Controller
             ], 422);
         }
 
-        $usuario = Auth::user();
+        $usuario = Usuario::find(Auth::id());
 
         if (!Hash::check($request->contraseña_actual, $usuario->password)) {
             return response()->json([
@@ -210,31 +217,33 @@ class UsuarioController extends Controller
         return response()->json($usuarios);
     }
 
-    /**
-     * Actualizar las monedas del usuario después de una pelea
-     */
-    public function actualizarMonedas(Request $request)
+    public function finalizarPelea(Request $request)
     {
-        $usuario = Auth::user();
+        $usuario = Usuario::find(Auth::id());
 
-        // Validar que se envíe un número válido de monedas
-        $request->validate([
-            'monedas' => 'required|integer|min:0'
+        $validador = Validator::make($request->all(), [
+            'resultado' => 'required|in:victoria,derrota'
         ]);
 
-        // Actualizar las monedas del usuario
-        $usuario->monedas = $request->monedas;
+        if ($validador->fails()) {
+            return response()->json(['error' => $validador->errors()], 422);
+        }
+
+        $recompensa = $request->resultado === 'victoria' ? 5 : 1;
+
+        $usuario->monedas += $recompensa;
         $usuario->save();
 
         return response()->json([
-            'mensaje' => 'Monedas actualizadas correctamente',
-            'monedas' => $usuario->monedas
+            'mensaje' => 'Recompensa aplicada',
+            'monedas' => $usuario->monedas,
+            'ganadas' => $recompensa
         ]);
     }
 
     public function solicitarAmistad(Request $request)
     {
-        $solicitanteId = auth()->id(); // ID autenticado por token
+        $solicitanteId = Auth::user()->id; // ID autenticado por token
         $solicitadoId = $request->input('solicitado_id');
 
         if (!$solicitanteId || !$solicitadoId) {
@@ -285,7 +294,7 @@ class UsuarioController extends Controller
             return response()->json(['message' => 'Error en la validación', 'errors' => $validator->errors()], 400);
         }
 
-            $usuario = auth()->user();
+            $usuario = Auth::user();
             $solicitud = SolicitudAmistad::where('id', $request->input('solicitud_id'))
                                         ->where('solicitado_id', $usuario->id)
                                         ->first();
@@ -323,7 +332,7 @@ class UsuarioController extends Controller
 
     public function listarSolicitudesPendientes()
     {
-        $usuario = auth()->user();
+        $usuario = Auth::user();
 
         $solicitudes = SolicitudAmistad::where('solicitado_id', $usuario->id)
                                         ->where('estado', 'pendiente')
@@ -340,7 +349,7 @@ class UsuarioController extends Controller
             'amigo_id' => 'required|exists:usuarios,id',  // Validar que el amigo exista
         ]);
 
-        $usuario = auth()->user(); // Obtener el usuario autenticado
+        $usuario = Auth::user(); // Obtener el usuario autenticado
         $amigoId = $request->input('amigo_id');
 
         // Verificar si ya son amigos

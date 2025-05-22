@@ -101,7 +101,7 @@ function cambiarTurno(esPvp) {
     anunciarTurno();
 
     if (turno === 1 && modoJuego === "cpu") {
-        setTimeout(turnoIA, 500);
+        setTimeout(turnoIA, 700);
     }
 }
 
@@ -223,7 +223,7 @@ async function cargarEquipo() {
 
             if (equipoJ1.length === 0 || equipoJ2.length === 0) {
                 alert("Error al cargar los equipos. Volviendo a la selección.");
-                window.location.href = "seleccion.html?modo=local";  // Asegúrate de pasar correctamente el modo
+                window.location.href = "seleccion.html?modo=local";
                 return;
             }
 
@@ -513,7 +513,6 @@ function animarRecibirDañoEspecial(atacadoIndex, esJugador) {
     }, 600);
 }
 
-
 /**
  * Verifica si el juego ha terminado.
  * Si el juego termina, otorga monedas y deshabilita los botones.
@@ -543,7 +542,7 @@ async function verificarFinDeJuego() {
             const ganador = rivalDerrotado ? "Jugador" : "Vegeta";
             const perdedor = rivalDerrotado ? "Vegeta" : "Jugador";
 
-            const monedasGanadas = ganador === "Jugador" ? 10 : 5;
+            const monedasGanadas = ganador === "Jugador" ? 5 : 1;
             modificarMonedas(monedasGanadas);
 
             // 🔽 Definimos correctamente todas las variables necesarias
@@ -552,8 +551,7 @@ async function verificarFinDeJuego() {
             const vidaFinal = cartaJugador.vida;
             turnos = turnos + 1; // Aumentamos el contador de turnos
 
-            const user = JSON.parse(localStorage.getItem("usuario"));
-            const usuario_id = user?.id;
+            const usuario_id = localStorage.getItem("jugadorId");
 
             if (usuario_id) {
                 actualizarEstadisticas(
@@ -577,24 +575,56 @@ async function verificarFinDeJuego() {
                     });
                 }, 1000);
             }, 1000);
+        } else if (modoJuego === "pvp") {
+            const ganador = rivalDerrotado ? "Jugador 1" : "Jugador 2";
+            const perdedor = rivalDerrotado ? "Jugador 2" : "Jugador 1";
+            const monedasGanadas = rivalDerrotado ? 5 : 1;
+            modificarMonedas(monedasGanadas);
+            const resultado = rivalDerrotado ? "victoria" : "derrota";
+            const personaje = rivalDerrotado ? cartaJugador.nombre : cartaRival.nombre;
+            const vidaFinal = rivalDerrotado ? cartaJugador.vida : cartaRival.vida; 
+            turnos = turnos + 1; // Aumentamos el contador de turnos
+            const user = JSON.parse(localStorage.getItem("usuario"));
+            const usuario_id = user?.id;
+            if (usuario_id) {
+                actualizarEstadisticas(
+                    usuario_id,
+                    resultado,
+                    personaje,
+                    vidaFinal,
+                    turnos
+                );
+            }
+            setTimeout(() => {
+                const mensajeFinJuego = document.createElement('div');
+                mensajeFinJuego.classList.add('mensaje-fin-juego');
+                mensajeFinJuego.innerHTML = `${ganador} ha ganado <br> ${perdedor} ha perdido <br> +${monedasGanadas} monedas`;
+                document.body.appendChild(mensajeFinJuego);
+
+                setTimeout(() => {
+                    document.querySelectorAll('.carta-container button').forEach(boton => {
+                        boton.disabled = true;
+                    });
+                }, 1000);
+            }, 1000);
         }
         return true;
     }
     return false;
 }
 
-
-
 /**
- * Modifica las monedas del jugador después de una pelea.
- * @param {number} monedasGanadas - Cantidad de monedas a agregar.
+ * Actualiza las monedas del jugador en la base de datos tras cada partida.
+ * 
+ * @param {number} usuario_id - ID del jugador.
+ * @param {string} resultado - Resultado de la partida ("victoria" o "derrota").
  */
 async function modificarMonedas(monedasGanadas) {
     const token = localStorage.getItem("token");
+    const id = localStorage.getItem("jugadorId");
 
     try {
-        // 🔹 1️⃣ Obtener los datos del jugador
-        const respuestaGet = await fetch("http://127.0.0.1:8000/api/usuario", {
+        const respuestaGet = await fetch(`http://127.0.0.1:8000/api/usuario/${id}`, {
             headers: { "Authorization": `Bearer ${token}` }
         });
 
@@ -604,55 +634,27 @@ async function modificarMonedas(monedasGanadas) {
         const monedasActuales = usuario.monedas || 0;
         const nuevasMonedas = monedasActuales + monedasGanadas;
 
-        // 🔹 2️⃣ Enviar la actualización a la API
+        const resultado = monedasGanadas > 1 ? "victoria" : "derrota";
+
         const respuestaPut = await fetch("http://127.0.0.1:8000/api/usuario/monedas", {
             method: "PUT",
             headers: {
                 "Authorization": `Bearer ${token}`,
                 "Content-Type": "application/json"
             },
-            body: JSON.stringify({ monedas: nuevasMonedas })
+            body: JSON.stringify({
+                usuario_id: id,
+                monedas: nuevasMonedas,
+                resultado: resultado
+            })
         });
 
         if (!respuestaPut.ok) throw new Error("Error al actualizar las monedas");
 
-        // 🔹 3️⃣ Actualizar la UI
-        actualizarMonedasUI();
-        
     } catch (error) {
         console.error("Error modificando monedas:", error);
     }
 }
-
-/**
- * Obtiene y actualiza las monedas del jugador en la UI.
- */
-async function actualizarMonedasUI() {
-    const token = localStorage.getItem("token");
-    if (!token) return;
-
-    try {
-        const respuesta = await fetch("http://127.0.0.1:8000/api/usuario", {
-            headers: { "Authorization": `Bearer ${token}` }
-        });
-
-        if (!respuesta.ok) throw new Error("No se pudieron obtener las monedas");
-
-        const usuario = await respuesta.json();
-        const monedasElemento = body.createElement("monedas-jugador");
-        document.body.appendChild(monedasElemento);
-        
-        if (monedasElemento) {
-            monedasElemento.innerText = usuario.monedas;
-        }
-
-    } catch (error) {
-        console.error("Error obteniendo monedas:", error);
-    }
-}
-
-// 🔹 Llamar a la función al cargar la página
-document.addEventListener("DOMContentLoaded", actualizarMonedasUI);
 
 /**
  * Actualiza la barra de vida de una carta en el tablero.
@@ -718,7 +720,13 @@ function actualizarBarraHabilidad(tipo, index) {
     }
 }
 
-
+/** 
+ * Función para activar la técnica especial de un jugador.
+ * @param {Object} jugadorActual - El jugador que está activando la técnica especial.
+ * @param {number} turno - El turno actual (0 o 1).
+ * @returns {void}
+ * @throws {Error} Si no hay cartas activas o si la habilidad no está cargada al 100%.
+ */
 function activarTecnicaEspecial(jugadorActual, turno) {
     // Determinar el rival
     const rivalJugador = jugadorActual === jugador ? rival : jugador;
@@ -799,7 +807,7 @@ function activarTecnicaEspecial(jugadorActual, turno) {
         actualizarBarraHabilidad(turno);
 
         // Mostrar animaciones adicionales
-        animarAtaque(turno);
+        animarAtaque(turno === 0 ? "jugador" : "rival", atacanteIndex);
         
         // Aplicar animación de daño especial
         animarRecibirDañoEspecial(defensorIndex, turno === 0 ? false : true);
@@ -810,15 +818,16 @@ function activarTecnicaEspecial(jugadorActual, turno) {
             return;
         }
 
-        // Cambiar turno
-        cambiarTurno();
-
         // Limpiar elementos de animación
         nuevaImagen.remove();
         capaOscura.remove();
-    });
-}
 
+    });
+    
+    // Cambiar turno
+    cambiarTurno();
+    console.log("Turno cambiado");
+}
 
 function atacar() {
     // Determinar qué equipo ataca y cuál defiende
@@ -866,7 +875,6 @@ function atacar() {
     // Cambiar el turno
     cambiarTurno();
 }
-
 
 /**
  * Aumenta la energía de la carta del jugador en el turno actual.

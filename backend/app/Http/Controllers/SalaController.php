@@ -82,7 +82,7 @@ public function buscarDisponibles(Request $request)
 
     return response()->json([
         'id' => $sala->id,
-        'sala' => $sala->sala, // 👈 NECESARIO para el frontend
+        'sala' => $sala->sala,
         'jugador1_id' => $sala->jugador1_id,
         'jugador2_id' => $sala->jugador2_id,
         'estado' => $sala->estado,
@@ -100,25 +100,5 @@ public function buscarDisponibles(Request $request)
 
         $sala->delete();
         return response()->json(['message' => 'Sala eliminada correctamente']);
-    }
-
-    public function verificarJugador($salaId, $jugadorId){
-        $sala = Sala::with('jugadores')->find($salaId);
-
-        if (!$sala) {
-            return response()->json(['error' => 'Sala no encontrada'],404);
-        }
-
-        $jugador = $sala->jugadores->firstWhere('id', $jugadorId);
-
-        if (!$jugadorId) {
-            return response()->json(['error' => 'Jugador no pertenece a esta sala'], 404);
-        }
-
-        return response()->json([
-            'id' => $jugador->id,
-            'nombre' => $jugador->nombre,
-            'sala_id' => $sala->id
-        ]);
     }
 }

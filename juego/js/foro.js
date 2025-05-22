@@ -119,59 +119,116 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // Agregar comentario al DOM
         function agregarComentario(postId, comentario) {
+            console.log('Agregar comentario:', comentario);
+
             const cDiv = document.getElementById(`comentarios-${postId}`);
-            if (!cDiv) return;
+            if (!cDiv) {
+                console.warn(`No se encontró el contenedor comentarios-${postId}`);
+                return;
+            }
+
             const avatarUrl = normalizeAvatarUrl(comentario.avatar);
+            console.log('Avatar URL:', avatarUrl);
+
             const div = document.createElement('div');
             div.classList.add('comentario');
+
             div.innerHTML = `
-                <a href="perfil.html?id=${comentario.usuario_id}">
-                  <img src="${avatarUrl}" alt="avatar" class="avatar-comentario">
-                </a>
-                <div class="contenido-comentario">
-                    <strong>${comentario.nombre}</strong>: ${comentario.contenido}
-                </div>
-            `;
+                <div class="autor">
+                    <a href="perfil.html?id=${comentario.usuario_id}">
+                    <img src="${avatarUrl}" alt="avatar" class="avatar-comentario">
+                    </a>
+                    <div class="contenido-comentario">
+                    <strong>${comentario.nombre}</strong>
+                    ${comentario.fecha ? `- <span>${new Date(comentario.fecha).toLocaleString()}</span>` : ''}
+                    </div>
+                    <div class="contenido-comentario">
+                    <p>${comentario.contenido}</p>
+                    </div>
+                    `;
+
+            if (comentario.imagen) {
+                console.log('Imagen base64 recibida:', comentario.imagen.substring(0, 30) + '...');
+
+                const img = document.createElement('img');
+                img.src = comentario.imagen;
+                img.classList.add('imagen-comentario');
+                div.querySelector('.contenido-comentario').appendChild(img);
+            } else {
+                console.log('No hay imagen para este comentario.');
+            }
+
             cDiv.appendChild(div);
         }
 
-        // Comentario en vivo
+        // Comentario en vivo (unificado con agregarComentario)
         socket.on('mensaje_en_post', ({ postId, mensaje }) => {
-            agregarComentario(postId, {
-                usuario_id: mensaje.usuario_id, // asegúrate de incluirlo al emitir
-                nombre: mensaje.autor,
-                avatar: mensaje.avatar,
-                contenido: mensaje.contenido
-            });
+            agregarComentario(postId, mensaje);
         });
 
-        // Formulario de comentario
+        // Mostrar formulario de comentario
         function mostrarFormularioComentario(postId) {
             const fDiv = document.getElementById(`formulario-${postId}`);
-            if (!fDiv) return;
+            if (!fDiv || fDiv.querySelector('form')) return;
+
             const form = document.createElement('form');
             const input = document.createElement('input');
             input.type = 'text';
             input.placeholder = 'Escribe un comentario';
             input.required = true;
+
+            const fileInput = document.createElement('input');
+            fileInput.type = 'file';
+            fileInput.accept = 'image/*';
+
             const btn = document.createElement('button');
             btn.type = 'submit';
             btn.textContent = 'Enviar';
+
             form.appendChild(input);
+            form.appendChild(fileInput);
             form.appendChild(btn);
             fDiv.appendChild(form);
-            form.addEventListener('submit', e => {
+
+            form.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const contenido = input.value.trim();
-                if (!contenido) return;
+
+                let imagenBase64 = null;
+                if (fileInput.files.length > 0) {
+                    const file = fileInput.files[0];
+
+                    if (file.size > 2 * 1024 * 1024) {
+                        alert('La imagen es demasiado grande (máx. 2MB)');
+                        return;
+                    }
+
+                    imagenBase64 = await toBase64(file);
+                }
+
+                if (!contenido && !imagenBase64) return;
+
                 socket.emit('nuevo_comentario', {
                     foro_id: postId,
                     contenido,
+                    imagen: imagenBase64,
                     autor: nombre,
                     avatar,
-                    usuario_id: jugador_id  // importante para luego linkear
+                    usuario_id: jugador_id
                 });
+
                 input.value = '';
+                fileInput.value = '';
+            });
+        }
+
+        // Convertir imagen a base64
+        function toBase64(file) {
+            return new Promise((resolve, reject) => {
+                const reader = new FileReader();
+                reader.readAsDataURL(file);
+                reader.onload = () => resolve(reader.result);
+                reader.onerror = reject;
             });
         }
 

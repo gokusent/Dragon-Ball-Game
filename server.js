@@ -101,7 +101,7 @@ const fileFilter = (req, file, cb) => {
 const upload = multer({ storage, fileFilter });
 
 app.post('/api/perfil/avatar', upload.single('avatar'), (req, res) => {
-    // Aquí procesas el archivo cargado
+    // Aquí se procesa el archivo cargado
     res.json({ nuevo_avatar_url: `/storage/avatars/${req.file.filename}` });
 });
 
@@ -110,7 +110,7 @@ app.post('/api/perfil/avatar', upload.single('avatar'), (req, res) => {
 app.post('/api/cambiar-avatar', upload.single('avatar'), async (req, res) => {
   const avatarUrl = `/storage/avatars/${req.file.filename}`;
   
-  // Aquí actualizamos la base de datos con la nueva URL del avatar (asegúrate de tener un campo para esto)
+  // Aquí actualizamos la base de datos con la nueva URL del avatar
   try {
     const [result] = await db.execute(
       'UPDATE usuarios SET avatar = ? WHERE id = ?',
@@ -204,50 +204,52 @@ io.on("connection", (socket) => {
 });
 
 
-  socket.on('nuevo_comentario', async (comentarioData) => {
+socket.on('nuevo_comentario', async (comentarioData) => {
     const usuario = usuarios[socket.id];
-  
-    // 1. Depuración: sabemos que llegó el evento
+
     console.log('Recibiendo nuevo comentario:', comentarioData);
-  
-    // 2. Creamos el objeto de comentario sin tocar la base de datos
+
+    // Verificación opcional: limitar tamaño de imagen base64 (500 KB aprox)
+    if (comentarioData.imagen && comentarioData.imagen.length > 500000) {
+        return socket.emit('error', 'La imagen es demasiado grande.');
+    }
+
     const nuevoComentario = {
-      foro_id: comentarioData.foro_id,
-      usuario_id: usuario.jugador_id, // o usuario.id si lo nombraste así
-      nombre: usuario.nombre,
-      avatar: usuario.avatar,
-      contenido: comentarioData.contenido,
-      fecha: new Date().toISOString()
+        foro_id: comentarioData.foro_id,
+        usuario_id: usuario.jugador_id,
+        nombre: usuario.nombre,
+        avatar: usuario.avatar,
+        contenido: comentarioData.contenido,
+        imagen: comentarioData.imagen || null,
+        fecha: new Date().toISOString()
     };
 
-    // 3. Intentamos insertar el comentario en la base de datos
     try {
         const [result] = await db.execute(
-            'INSERT INTO comentarios_foro (foro_id, usuario_id, contenido) VALUES (?, ?, ?)',
-            [nuevoComentario.foro_id, nuevoComentario.usuario_id, nuevoComentario.contenido]
+            'INSERT INTO comentarios_foro (foro_id, usuario_id, contenido, imagen) VALUES (?, ?, ?, ?)',
+            [nuevoComentario.foro_id, nuevoComentario.usuario_id, nuevoComentario.contenido, nuevoComentario.imagen]
         );
-        
-        // Asignamos el ID generado por la base de datos al nuevo comentario
+
         nuevoComentario.id = result.insertId;
 
-        // 4. Depuración: vemos qué vamos a emitir
         console.log('Emitiendo comentario:', {
-          postId: nuevoComentario.foro_id,
-          mensaje: {
-            autor: nuevoComentario.nombre,
-            avatar: nuevoComentario.avatar,
-            contenido: nuevoComentario.contenido,
-            fecha: nuevoComentario.fecha
-          }
+            postId: nuevoComentario.foro_id,
+            mensaje: {
+                autor: nuevoComentario.nombre,
+                avatar: nuevoComentario.avatar,
+                contenido: nuevoComentario.contenido,
+                imagen: nuevoComentario.imagen,
+                fecha: nuevoComentario.fecha
+            }
         });
-  
-        // 5. Emitimos el evento al resto de clientes
+
         io.emit('mensaje_en_post', {
             postId: nuevoComentario.foro_id,
             mensaje: {
                 autor: nuevoComentario.nombre,
                 avatar: nuevoComentario.avatar,
                 contenido: nuevoComentario.contenido,
+                imagen: nuevoComentario.imagen,
                 fecha: nuevoComentario.fecha
             }
         });
@@ -256,6 +258,7 @@ io.on("connection", (socket) => {
         console.error('Error al insertar comentario en la base de datos:', error);
     }
 });
+
 
   
   socket.on('disconnect', () => {
@@ -601,8 +604,6 @@ app.post('/actualizar', async (req, res) => {
   }
 });
 
-
-// Cambia este endpoint si lo deseas para ser consistente
 app.get('/api/estadisticas/usuario/:id', async (req, res) => {
   const usuarioId = req.params.id;
 
