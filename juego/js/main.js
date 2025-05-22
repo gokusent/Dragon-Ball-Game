@@ -551,7 +551,14 @@ async function verificarFinDeJuego() {
             const vidaFinal = cartaJugador.vida;
             turnos = turnos + 1; // Aumentamos el contador de turnos
 
-            const usuario_id = localStorage.getItem("jugadorId");
+            const resp = await fetch("http://localhost:8000/api/perfil", {
+                method: "GET",
+                headers: { "Authorization": `Bearer ${token}` }
+            })
+
+            if (!resp.ok) throw new Error("Error al obtener el perfil del usuario");
+            const usuario = await resp.json();
+            const usuario_id = usuario.id;
 
             if (usuario_id) {
                 actualizarEstadisticas(
