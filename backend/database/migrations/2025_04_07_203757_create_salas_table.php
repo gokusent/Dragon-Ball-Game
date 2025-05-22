@@ -12,17 +12,17 @@ return new class extends Migration
     public function up()
     {
         Schema::create('salas', function (Blueprint $table) {
-            $table->id();  // Esto crea una columna 'id' de tipo BIGINT
-            $table->foreignId('jugador1_id')->constrained('usuarios')->onDelete('cascade');
-            $table->foreignId('jugador2_id')->nullable()->constrained('usuarios')->onDelete('cascade');
+            $table->increments('id'); // INT UNSIGNED
+            $table->integer('jugador1_id');
+            $table->integer('jugador2_id')->nullable();
             $table->string('estado')->default('esperando');
             $table->integer('turno')->default(1);
             $table->timestamps();
-        
-            // Definir las claves foráneas
+
             $table->foreign('jugador1_id')->references('id')->on('usuarios')->onDelete('cascade');
             $table->foreign('jugador2_id')->references('id')->on('usuarios')->onDelete('cascade');
         });
+
     }
 
     /**
