@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('salas', function (Blueprint $table) {
             $table->id();  // Esto crea una columna 'id' de tipo BIGINT
-            $table->unsignedInteger('jugador1_id');  // Asegúrate de que sea del tipo INT sin signo
-            $table->unsignedInteger('jugador2_id')->nullable();  // Del mismo tipo para la segunda columna de jugador
+            $table->foreignId('jugador1_id')->constrained('usuarios')->onDelete('cascade');
+            $table->foreignId('jugador2_id')->nullable()->constrained('usuarios')->onDelete('cascade');
             $table->string('estado')->default('esperando');
             $table->integer('turno')->default(1);
             $table->timestamps();
