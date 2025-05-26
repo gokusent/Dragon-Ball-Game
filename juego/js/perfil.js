@@ -91,6 +91,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         const data = await res.json();
         avatar.src = `http://127.0.0.1:8000${data.avatar || '/storage/avatars/default.jpg'}`;
         nombre.textContent = data.nombre;
+
+        mostrarBotonAgregarAmigo(id);
+
         btnEditar.style.display = 'none';
         formularioEditarPerfil.classList.remove("visible");
     }
@@ -127,6 +130,38 @@ document.addEventListener("DOMContentLoaded", async () => {
     function obtenerParametroId() {
         const params = new URLSearchParams(window.location.search);
         return params.get('id');
+    }
+    
+    // Cargar estadísticas del usuario (victorias, derrotas, partidas)
+    async function cargarEstadisticas(userId) {
+        const statsContainer = document.getElementById("seccion-estadisticas");
+        statsContainer.innerHTML = "<h3>Estadísticas</h3>";
+
+        try {
+            const res = await fetch(`http://localhost:3000/api/estadisticas/usuario/${userId}`, {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+
+            if (!res.ok && res.status !== 404) {
+                throw new Error("No se pudieron cargar las estadísticas.");
+            }
+
+            const stats = await res.json();
+
+            const p1 = document.createElement("p");
+            p1.textContent = `Partidas jugadas: ${stats.numeroPartida}`;
+            const p2 = document.createElement("p");
+            p2.textContent = `Victorias: ${stats.victorias}`;
+            const p3 = document.createElement("p");
+            p3.textContent = `Derrotas: ${stats.derrotas}`;
+
+            statsContainer.append(p1, p2, p3);
+        } catch (error) {
+            console.error("Error cargando estadísticas:", error);
+            const p = document.createElement("p");
+            p.textContent = "No hay partidas registradas.";
+            statsContainer.appendChild(p);
+        }
     }
 
     // Cargar amigos del usuario
@@ -308,9 +343,11 @@ document.addEventListener("DOMContentLoaded", async () => {
                     ? usuario.avatar
                     : `http://127.0.0.1:8000${usuario.avatar || '/storage/avatars/default.jpg'}`;
                 img.onerror = () => img.src = '/storage/avatars/default.jpg';
+                img.onclick = () => window.location.href = `perfil.html?id=${usuario.id}`;
 
                 const span = document.createElement("span");
                 span.textContent = usuario.nombre;
+                span.onclick = () => window.location.href = `perfil.html?id=${usuario.id}`;
 
                 const boton = document.createElement("button");
                 boton.textContent = "Agregar";
@@ -354,6 +391,62 @@ document.addEventListener("DOMContentLoaded", async () => {
             console.error("Error buscando usuarios:", e);
         }
     });
+
+    // Mostrar botón "Agregar amigo" si no es amigo
+    async function mostrarBotonAgregarAmigo(idPerfilVisitado) {
+        if (idPerfilVisitado === currentUserId) return; // No mostrar si es el mismo usuario
+
+        let contenedorBoton = document.getElementById("contenedor-boton-agregar");
+        if (!contenedorBoton) {
+            contenedorBoton = document.createElement("div");
+            contenedorBoton.id = "contenedor-boton-agregar";
+            document.querySelector(".perfil-info")?.appendChild(contenedorBoton); // Asegúrate de que .perfil-info exista
+        } else {
+            contenedorBoton.innerHTML = ""; // Limpiar si ya existe
+        }
+
+        try {
+            const res = await fetch(`http://localhost:8000/api/estado-amistad?id=${idPerfilVisitado}`, {
+                headers: {
+                    "Authorization": `Bearer ${token}`
+                }
+            });
+
+            const estado = await res.json();
+            const boton = document.createElement("button");
+
+            if (estado.estado === "aceptada") {
+                boton.textContent = "Amigo";
+                boton.disabled = true;
+            } else if (estado.estado === "pendiente") {
+                boton.textContent = "Solicitud pendiente";
+                boton.disabled = true;
+            } else {
+                boton.textContent = "Agregar amigo";
+                boton.addEventListener("click", async () => {
+                    const r = await fetch("http://localhost:8000/api/solicitar-amistad", {
+                        method: "POST",
+                        headers: {
+                            "Authorization": `Bearer ${token}`,
+                            "Content-Type": "application/json"
+                        },
+                        body: JSON.stringify({ solicitado_id: idPerfilVisitado })
+                    });
+                    if (r.ok) {
+                        boton.textContent = "Solicitud enviada";
+                        boton.disabled = true;
+                    } else {
+                        alert("Error al enviar solicitud.");
+                    }
+                });
+            }
+
+            contenedorBoton.appendChild(boton);
+
+        } catch (error) {
+            console.error("Error verificando estado de amistad:", error);
+        }
+    }
 
     // ==== EVENTOS DE BOTONES ====
 
@@ -441,38 +534,6 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (!res.ok) return alert(data.error || "Error al cambiar contraseña.");
         alert(data.mensaje);
     });
-
-    // Cargar estadísticas del usuario (victorias, derrotas, partidas)
-    async function cargarEstadisticas(userId) {
-        const statsContainer = document.getElementById("seccion-estadisticas");
-        statsContainer.innerHTML = "<h3>Estadísticas</h3>";
-
-        try {
-            const res = await fetch(`http://localhost:3000/api/estadisticas/usuario/${userId}`, {
-                headers: { "Authorization": `Bearer ${token}` }
-            });
-
-            if (!res.ok && res.status !== 404) {
-                throw new Error("No se pudieron cargar las estadísticas.");
-            }
-
-            const stats = await res.json();
-
-            const p1 = document.createElement("p");
-            p1.textContent = `Partidas jugadas: ${stats.numeroPartida}`;
-            const p2 = document.createElement("p");
-            p2.textContent = `Victorias: ${stats.victorias}`;
-            const p3 = document.createElement("p");
-            p3.textContent = `Derrotas: ${stats.derrotas}`;
-
-            statsContainer.append(p1, p2, p3);
-        } catch (error) {
-            console.error("Error cargando estadísticas:", error);
-            const p = document.createElement("p");
-            p.textContent = "No hay partidas registradas.";
-            statsContainer.appendChild(p);
-        }
-    }
 
     // ==== INICIALIZACIÓN ====
     await cargarPerfil();
