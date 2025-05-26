@@ -133,12 +133,29 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
     
     // Cargar estadísticas del usuario (victorias, derrotas, partidas)
-    async function cargarEstadisticas(userId) {
+    async function cargarEstadisticas(currentUserId) {
+        const params = new URLSearchParams(window.location.search);
+        const viewId = params.get('id') || currentUserId;
+
         const statsContainer = document.getElementById("seccion-estadisticas");
         statsContainer.innerHTML = "<h3>Estadísticas</h3>";
 
         try {
-            const res = await fetch(`http://localhost:3000/api/estadisticas/usuario/${userId}`, {
+            const perfilRes = await fetch(`http://localhost:8000/api/perfil/${viewId}`, {
+                headers: { "Authorization": `Bearer ${token}` }
+            });
+
+            if (!perfilRes.ok) throw new Error("Error al cargar perfil");
+            const perfil = await perfilRes.json();
+            currentUserId = String(perfil.id);
+        } catch (error) {
+            console.error("Error cargando perfil:", error);
+            statsContainer.innerHTML = "<p>Error al cargar perfil.</p>";
+            return;
+        }
+
+        try {
+            const res = await fetch(`http://localhost:3000/api/estadisticas/usuario/${currentUserId}`, {
                 headers: { "Authorization": `Bearer ${token}` }
             });
 
@@ -165,23 +182,48 @@ document.addEventListener("DOMContentLoaded", async () => {
     }
 
     // Cargar amigos del usuario
-    async function cargarAmigos() {
-        contenedorAmigos.innerHTML = '';
+    async function cargarAmigos(currentUserId) {
+        const params = new URLSearchParams(window.location.search);
+        const viewId = params.get('id') || currentUserId;
+
+        const statsContainer = document.getElementById("seccion-estadisticas");
+        statsContainer.innerHTML = "<h3>Estadísticas</h3>";
 
         try {
-            const res = await fetch("http://localhost:8000/api/mis-amigos", {
+            const perfilRes = await fetch(`http://localhost:8000/api/perfil/${viewId}`, {
                 headers: { "Authorization": `Bearer ${token}` }
             });
 
-            if (!res.ok) {
-                contenedorAmigos.textContent = "No se pudo cargar la lista de amigos.";
-                return;
-            }
+            if (!perfilRes.ok) throw new Error("Error al cargar perfil");
+            const perfil = await perfilRes.json();
+            currentUserId = String(perfil.id);
+        } catch (error) {
+            console.error("Error cargando perfil:", error);
+            statsContainer.innerHTML = "<p>Error al cargar perfil.</p>";
+            return;
+        }
 
-            const data = await res.json();
-            const amigos = data.amigos;
+    contenedorAmigos.innerHTML = '';
 
-            if (amigos.length === 0) {
+    const endpoint = currentUserId === viewId
+        ? `http://localhost:8000/api/amigos/${currentUserId}`
+        : 'http://localhost:8000/api/mis-amigos';
+
+    try {
+        const res = await fetch(endpoint, {
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+
+        if (!res.ok) {
+            contenedorAmigos.textContent = "No se pudo cargar la lista de amigos.";
+            return;
+        }
+
+        const data = await res.json();
+        const amigos = data.amigos;
+;
+
+            if (!amigos.length) {
                 contenedorAmigos.innerHTML = "<p>No tienes amigos.</p>";
                 return;
             }
@@ -297,7 +339,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             const data = await response.json();
             alert('Solicitud ' + respuesta);
             cargarSolicitudes();
-            cargarAmigos();
+            cargarAmigos(currentUserId);
 
         } catch (error) {
             console.error('Error respondiendo solicitud:', error);
@@ -469,6 +511,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     btnSalir.addEventListener("click", () => {
         localStorage.removeItem("token");
+        alert("Sesión cerrada correctamente.");
         window.location.href = "index.html";
     });
 
@@ -509,6 +552,23 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (!res.ok) return alert("Error al subir avatar");
         const data = await res.json();
         avatar.src = `http://127.0.0.1:8000${data.nuevo_avatar_url}`;
+        alert("Avatar actualizado correctamente.");
+        window.location.reload();
+    });
+
+    // Borrar avatar
+    document.getElementById("borrar-avatar").addEventListener("click", async () => {
+        const res = await fetch("http://127.0.0.1:8000/api/perfil/borrar-avatar", {
+                method: "PUT",
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json"
+                }
+        });
+        if (!res.ok) return alert("Error al borrar avatar");
+        const data = await res.json();
+        avatar.src = `http://127.0.1:8000${data.nuevo_avatar_url || '/storage/avatars/default.jpg'}`;
+        alert("Avatar eliminado correctamente.");
     });
 
     // Cambiar contraseña
@@ -538,6 +598,6 @@ document.addEventListener("DOMContentLoaded", async () => {
     // ==== INICIALIZACIÓN ====
     await cargarPerfil();
     actualizarVistaSegunPerfil();
-    await cargarAmigos();
+    await cargarAmigos(currentUserId);
     await cargarEstadisticas(currentUserId);
 });

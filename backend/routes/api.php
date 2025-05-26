@@ -58,7 +58,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/estado-amistad', [UsuarioController::class, 'estadoAmistad']);
     Route::get('/buscar-usuarios', [UsuarioController::class, 'buscarUsuarios']);
     Route::get('/mis-amigos', [UsuarioController::class, 'misAmigos']);
-
+    Route::get('/amigos/{id}', [UsuarioController::class, 'amigosPorId']);
 });
 
 // Rutas para el inventario

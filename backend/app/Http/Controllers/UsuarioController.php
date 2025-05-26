@@ -465,4 +465,25 @@ class UsuarioController extends Controller
 
             return response()->json(['amigos' => $amigos]); // Cambiado para que sea un objeto con propiedad 'amigos'
         }
+
+        public function amigosPorId($id)
+        {
+            $amigos = DB::table('amigos')
+                ->join('usuarios', function($join) use ($id) {
+                    $join->on(function ($query) use ($id) {
+                        $query->on('usuarios.id', '=', 'amigos.usuario_id')
+                            ->orOn('usuarios.id', '=', 'amigos.amigo_id');
+                    });
+                })
+                ->where(function ($query) use ($id) {
+                    $query->where('amigos.usuario_id', $id)
+                        ->orWhere('amigos.amigo_id', $id);
+                })
+                ->where('usuarios.id', '!=', $id)
+                ->select('usuarios.id', 'usuarios.nombre', 'usuarios.avatar')
+                ->distinct()
+                ->get();
+
+            return response()->json(['amigos' => $amigos]);
+    }
     }
