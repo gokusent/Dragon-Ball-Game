@@ -1,19 +1,21 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>Gacha - Dragon Ball</title>
-    <link rel="stylesheet" href="css/gacha.css">
+    <link rel="stylesheet" href="css/gacha.css" />
     <script defer src="js/gacha.js"></script>
 </head>
 <body>
-
     <h1>Gacha de Dragon Ball</h1>
     <p>Monedas: <span id="monedas">100</span></p>
 
     <!-- Botón para tirar del Gacha -->
     <button id="tirarGacha">Tirar (Coste: 10 Monedas)</button>
+
+    <!-- Contenedor para la ruleta -->
+    <div id="ruleta" class="ruleta-container"></div>
 
     <!-- Contenedor donde se mostrará el resultado -->
     <div id="resultado"></div>
@@ -26,6 +28,5 @@
             window.location.href = "menu.html";
         });
     </script>
-
 </body>
 </html>

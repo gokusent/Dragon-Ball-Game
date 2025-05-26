@@ -4,35 +4,32 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dragon Ball Game</title>
-    <link rel="stylesheet" href="css/pantalla-titulo.css">
-    <script src="js/pantalla-titulo.js" defer></script>
-    <script src="js/login.js" defer></script>
+    <link rel="stylesheet" href="css/log-reg.css">
 </head>
 <body>
-
-    <!-- Pantalla de título -->
-    <div id="pantalla-titulo">
-        <img src="fondo/logo.webp">
-        <button id="btn-iniciar">Iniciar</button>
-
-        <!-- Formulario de Inicio de sesión - Oculto inicialmente -->
-        <div id="formulario-login" class="oculto">
-            <h3>Iniciar sesión</h3>
-            <input type="email" id="email" placeholder="Correo electrónico" required>
-            <input type="password" id="password" placeholder="Contraseña" required>
-            <button id="btnLogin">Iniciar sesión</button>
-            <p id="mensajeError" style="color: red; display: none;"></p>
-            <button id="btnRegistrar">Registrarse</button>
+    <div class="container">
+        <!-- Formulario de Login -->
+        <div id="loginForm" class="form active">
+        <h2>Iniciar Sesión</h2>
+        <input type="email" id="loginEmail" placeholder="Correo Electrónico" required />
+        <input type="password" id="loginPassword" placeholder="Contraseña" required />
+        <button id="btnLogin">Iniciar Sesión</button>
+        <p>¿No tienes una cuenta? <span id="showRegister">Regístrate</span></p>
+        <p id="loginError" class="error-msg oculto"></p>
         </div>
 
-        <!-- Formulario de Registro - Oculto inicialmente -->
-        <div id="formulario-registro" class="oculto">
-            <h3>Registrarse</h3>
-            <input type="text" id="usuario" placeholder="Nombre de usuario" required>
-            <input type="email" id="emailRegistro" placeholder="Correo electrónico" required>
-            <input type="password" id="passwordRegistro" placeholder="Contraseña" required>
-            <button id="btnRegistrarCuenta">Crear cuenta</button>
+        <!-- Formulario de Registro -->
+        <div id="registerForm" class="form">
+        <h2>Registro</h2>
+        <input type="text" id="usuario" placeholder="Nombre de usuario" required />
+        <input type="email" id="emailRegistro" placeholder="Correo Electrónico" required />
+        <input type="password" id="passwordRegistro" placeholder="Contraseña" required />
+        <button id="btnRegister">Registrarse</button>
+        <p>¿Ya tienes una cuenta? <span id="showLogin">Iniciar sesión</span></p>
+        <p id="registerError" class="error-msg oculto"></p>
         </div>
     </div>
+
+    <script src="js/pantalla-titulo.js"></script>
 </body>
 </html>

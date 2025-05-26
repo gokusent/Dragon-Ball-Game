@@ -1,73 +1,254 @@
 body {
-    font-family: Arial, sans-serif;
-    text-align: center;
-    background-color: black;
+    margin: 0;
+    padding: 0;
+    height: 100vh;
+    background-image: url(/images/bg/bgPerfil.png);
+    background-size: cover;
+    background-position: center;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    color: #fff;
+}
+
+.perfil-container {
+    width: 70%;
+    height: 90%;
+    background-color: rgba(0, 0, 0, 0.85);
+    border-radius: 10px;
+    box-shadow: 0 0 20px rgba(0, 0, 0, 0.7);
+    display: flex;
+    flex-direction: column;
+    padding: 20px;
+    gap: 20px;
+    overflow: hidden;
+}
+
+/* Barra superior */
+.top-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.top-bar button {
+    background-color: #1b2838;
+    color: #c7d5e0;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+}
+
+.top-bar button:hover {
+    background-color: #2a475e;
+}
+
+/* Contenedor de dos columnas */
+.contenido-principal {
+    margin-top: 20px;
+    display: grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 20px;
+    height: 100%;
+    overflow: hidden;
+}
+
+/* Columna izquierda */
+.columna-izquierda {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+
+/* Columna derecha */
+.columna-derecha {
+    overflow-y: hidden;
+}
+
+/* Info del perfil */
+.perfil-info {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.avatar {
+    width: 110px;
+    height: 110px;
+    border-radius: 50%;
+    border: 3px solid #66c0f4;
+    object-fit: cover;
+}
+
+.perfil-info h2 {
+    margin: 0;
+    font-size: 2em;
+    flex-grow: 1;
+}
+
+.perfil-info button {
+    background-color: #66c0f4;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    color: #000;
+    font-weight: bold;
+}
+
+.perfil-info button:hover {
+    background-color: #417a9b;
     color: white;
 }
 
-#perfil {
-    display: flex;
-    flex-direction: column;
-    min-height: 100vh;
-    justify-content: space-between;
-    align-items: center;
-    padding: 20px;
-}
-
-#datos-usuario {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 20px;
-}
-
-#info-usuario {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-}
-
-#info-usuario img {
-    width: 100px;
-    height: 100px;
-    border-radius: 50%;
-    object-fit: cover;
-    border: 3px solid orange;
-}
-
-#info-usuario h2 {
-    font-size: 28px;
-    margin: 0;
-}
-
-#botones-usuario {
+/* Formulario de edición */
+.formulario {
+    background-color: #16202d;
+    padding: 15px;
+    border-radius: 8px;
     display: flex;
     flex-direction: column;
     gap: 10px;
 }
 
-#logout-container {
-    margin-bottom: 20px;
+#separacion {
+    margin: 0;
 }
 
-button {
-    background-color: orange;
-    color: white;
+.formulario label {
+    font-weight: bold;
+}
+
+.formulario input,
+.formulario input[type="file"] {
+    padding: 6px;
+    border-radius: 4px;
     border: none;
-    padding: 15px 30px;
-    margin: 10px;
-    font-size: 20px;
+    background-color: #1b2838;
+    color: #c7d5e0;
+    margin-bottom: 5px;
+    margin-top: 5px;
+}
+
+.formulario button {
+    align-self: flex-start;
+    background-color: #66c0f4;
+    border: none;
+    padding: 6px 12px;
+    border-radius: 4px;
     cursor: pointer;
-    border-radius: 5px;
-    transition: background-color 0.3s ease, box-shadow 0.3s ease;
+    font-weight: bold;
 }
 
-button:hover {
-    background-color: red;
-    box-shadow: 0 6px 10px rgba(0, 0, 0, 0.5);
+.formulario button:hover {
+    background-color: #417a9b;
 }
 
-button:focus {
-    outline: none;
-    box-shadow: 0 0 0 3px rgba(255, 165, 0, 0.6);
+/* Acciones */
+.acciones {
+    margin-top: 40px;
+    display: flex;
+    gap: 10px;
+}
+
+.acciones button {
+    background-color: #1b2838;
+    color: #c7d5e0;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+    flex: 1;
+    height: auto;
+}
+
+.acciones button:hover {
+    background-color: #2a475e;
+}
+
+/* Secciones */
+.seccion {
+    background-color: #1b2838;
+    padding: 15px;
+    border-radius: 8px;
+    overflow-y: auto;
+    max-height: 250px;
+}
+
+.seccion h3 {
+    margin-top: 10px;
+}
+
+/* Sección de amigos */
+.amigos {
+    background-color: #0e141b;
+    padding: 15px;
+    border-radius: 8px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.amigos h3 {
+    margin-top: 0;
+}
+
+#contenedor-amigos {
+    flex-grow: 1;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.usuario-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background-color: #2a475e;
+    padding: 10px;
+    border-radius: 4px;
+}
+
+.usuario-item img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    object-fit: cover;
+    cursor: pointer;
+}
+
+.usuario-item span {
+    cursor: pointer;
+}
+
+.usuario-item button {
+    margin-left: auto;
+    background-color: #66c0f4;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.usuario-item button:hover {
+    background-color: #417a9b;
+    color: #fff;
+}
+
+/* Estados de visibilidad */
+.oculto {
+    display: none !important;
+}
+
+.visible {
+    display: block !important;
 }

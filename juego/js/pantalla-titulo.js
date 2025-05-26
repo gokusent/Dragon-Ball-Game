@@ -1,127 +1,113 @@
 document.addEventListener("DOMContentLoaded", () => {
-    const enter = document.querySelector("body");
-    const btnIniciar = document.getElementById("btn-iniciar");
-    
-    const formularioLogin = document.getElementById("formulario-login");
-    const formularioRegistro = document.getElementById("formulario-registro");
+  // Obtener referencias a los formularios de login y registro
+  const loginForm = document.getElementById("loginForm");
+  const registerForm = document.getElementById("registerForm");
 
-    const btnLogin = document.getElementById("btnLogin");
-    const btnRegistrar = document.getElementById("btnRegistrar");
-    const btnRegistrarCuenta = document.getElementById("btnRegistrarCuenta");
+  // Obtener referencias a los enlaces que alternan entre formularios
+  const showRegister = document.getElementById("showRegister");
+  const showLogin = document.getElementById("showLogin");
 
-    const email = document.getElementById("email");
-    const password = document.getElementById("password");
-    const usuario = document.getElementById("usuario");
-    const emailRegistro = document.getElementById("emailRegistro");
-    const passwordRegistro = document.getElementById("passwordRegistro");
+  // Obtener referencias a los botones de login y registro
+  const btnLogin = document.getElementById("btnLogin");
+  const btnRegister = document.getElementById("btnRegister");
 
-    const mensajeError = document.getElementById("mensajeError");
+  // Inputs del formulario de login
+  const loginEmail = document.getElementById("loginEmail");
+  const loginPassword = document.getElementById("loginPassword");
 
-    let usuarioLogueado = false;
+  // Inputs del formulario de registro
+  const usuario = document.getElementById("usuario");
+  const emailRegistro = document.getElementById("emailRegistro");
+  const passwordRegistro = document.getElementById("passwordRegistro");
 
-    enter.addEventListener("keydown", () => {
-        if (usuarioLogueado) {
-            window.location.href = "menu.html";
+  // Elementos donde mostrar mensajes de error para cada formulario
+  const loginError = document.getElementById("loginError");
+  const registerError = document.getElementById("registerError");
+
+  // Evento para mostrar el formulario de registro y ocultar el de login
+  showRegister.addEventListener("click", () => {
+    loginForm.classList.remove("active");   // Ocultar login
+    registerForm.classList.add("active");   // Mostrar registro
+    loginError.classList.add("oculto");     // Ocultar mensaje de error de login si está visible
+  });
+
+  // Evento para mostrar el formulario de login y ocultar el de registro
+  showLogin.addEventListener("click", () => {
+    registerForm.classList.remove("active");  // Ocultar registro
+    loginForm.classList.add("active");         // Mostrar login
+    registerError.classList.add("oculto");     // Ocultar mensaje de error de registro si está visible
+  });
+
+  // Evento para procesar el inicio de sesión cuando se hace click en btnLogin
+  btnLogin.addEventListener("click", async () => {
+    try {
+      // Obtener y limpiar los valores de los inputs de login
+      const email = loginEmail.value.trim();
+      const password = loginPassword.value.trim();
+
+      // Enviar petición POST al backend con las credenciales
+      const response = await fetch("http://127.0.0.1:8000/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, password }),
+      });
+
+      // Parsear respuesta JSON
+      const data = await response.json();
+
+      // Si la respuesta es correcta y se recibió token
+      if (response.ok && data.token) {
+        localStorage.setItem("token", data.token); // Guardar token en localStorage
+        if (data.usuario) {
+          // Guardar información del usuario en localStorage (opcional)
+          localStorage.setItem("jugador", JSON.stringify(data.usuario));
+          console.log("Usuario guardado:", data.usuario);
         } else {
-            formularioLogin.classList.remove("oculto");
-            btnIniciar.classList.add("oculto");
+            console.warn("No se recibió el objeto usuario.");
         }
-    });
-    
-    // Mostrar formulario de inicio de sesión
-    btnIniciar.addEventListener("click", () => {
-        if (usuarioLogueado) {
-            window.location.href = "menu.html";
-        } else {
-            formularioLogin.classList.remove("oculto");
-            btnIniciar.classList.add("oculto");
-        }
-    });
-
-    // Iniciar sesión
-    btnLogin.addEventListener("click", () => {
-        const userEmail = email.value;
-        const userPassword = password.value;
-    
-        fetch("http://127.0.0.1:8000/api/login", {  // ✅ URL corregida
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                email: userEmail,
-                password: userPassword
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.token) {
-                // Guarda el token
-                localStorage.setItem("authToken", data.token);
-        
-                // Guarda todo el objeto usuario como string
-                if (data.usuario) {
-                    localStorage.setItem("jugador", JSON.stringify(data.usuario));
-                    console.log("Usuario guardado:", data.usuario);
-                } else {
-                    console.warn("No se recibió el objeto usuario.");
-                }
-        
-                formularioLogin.classList.add("oculto");
-                window.location.href = "menu.html";
-            } else {
-                mostrarMensajeError("Correo o contraseña incorrectos.");
-            }
-        })
-             
-        .catch(error => {
-            mostrarMensajeError("Error al conectar con el servidor.");
-        });
-    });
-
-    // Mostrar formulario de registro
-    btnRegistrar.addEventListener("click", () => {
-        formularioLogin.classList.add("oculto");
-        formularioRegistro.classList.remove("oculto");
-    });
-
-    // Crear cuenta
-    btnRegistrarCuenta.addEventListener("click", () => {
-        const newUsuario = usuario.value;
-        const newEmail = emailRegistro.value;
-        const newPassword = passwordRegistro.value;
-    
-        fetch("http://127.0.0.1:8000/api/registrar", {  // ✅ URL corregida
-            method: "POST",
-            headers: {
-                "Content-Type": "application/json"
-            },
-            body: JSON.stringify({
-                nombre: newUsuario,
-                email: newEmail,
-                password: newPassword
-            })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.message === "Usuario registrado con éxito") {
-                formularioRegistro.classList.add("oculto");
-                window.location.href = "index.html";  // Redirige tras registrarse
-            } else {
-                mostrarMensajeError(data.error || "Hubo un error al crear la cuenta.");
-            }
-        })
-        .catch(error => {
-            mostrarMensajeError("Error al conectar con el servidor.");
-        });
-    });
-
-    function mostrarMensajeError(mensaje) {
-        if (mensajeError) {
-            mensajeError.style.display = "block";
-            mensajeError.textContent = mensaje;
-        } else {
-            alert(mensaje);
-        }
+        // Redirigir al menú principal
+        window.location.href = "menu.html";
+      } else {
+        // Mostrar error recibido o mensaje por defecto
+        mostrarError(loginError, data.error || "Correo o contraseña incorrectos.");
+      }
+    } catch (error) {
+      // Capturar errores de red u otros
+      mostrarError(loginError, "Error al conectar con el servidor.");
     }
+  });
+
+  // Evento para procesar el registro cuando se hace click en btnRegister
+  btnRegister.addEventListener("click", () => {
+    // Obtener y limpiar valores del formulario de registro
+    const nombre = usuario.value.trim();
+    const email = emailRegistro.value.trim();
+    const password = passwordRegistro.value.trim();
+
+    // Enviar petición POST para crear nuevo usuario
+    fetch("http://127.0.0.1:8000/api/registrar", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ nombre, email, password })
+    })
+    .then(res => res.json())
+    .then(data => {
+      if (data.message === "Usuario registrado con éxito") {
+        // Si el registro fue exitoso, mostrar alerta y volver al login
+        alert("¡Registro exitoso!");
+        registerForm.classList.remove("active");  // Ocultar registro
+        loginForm.classList.add("active");        // Mostrar login
+      } else {
+        // Mostrar error recibido o mensaje por defecto
+        mostrarError(registerError, data.error || "Error al registrar.");
+      }
+    })
+    .catch(() => mostrarError(registerError, "Error al conectar con el servidor."));
+  });
+
+  // Función auxiliar para mostrar mensajes de error en un elemento dado
+  function mostrarError(element, mensaje) {
+    element.textContent = mensaje;    // Poner texto del error
+    element.classList.remove("oculto"); // Hacer visible el mensaje
+  }
 });

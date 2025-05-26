@@ -1,16 +1,90 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="css/perfil.css">
-    <script defer src="js/perfil.js"></script>
-    <title>Perfil</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Perfil de Usuario</title>
+  <link rel="stylesheet" href="css/perfil.css" />
 </head>
 <body>
-    <h1>Perfil</h1>
-    <body>
-        <div id="perfil"></div> <!-- Aquí metemos todo dinámicamente -->
-    </body>
+  <div class="perfil-container">
+    <div class="top-bar">
+      <button id="btn-menu">Volver al Menú</button>
+      <button id="btn-salir">Cerrar Sesión</button>
+    </div>
+
+    <div class="contenido-principal">
+        <div class="columna-izquierda">
+            <div class="perfil-info">
+                <img id="avatar" src="" alt="Avatar del usuario" class="avatar" />
+                <h2 id="nombre-usuario"></h2>
+                <button id="btn-editar-perfil">Editar Perfil</button>
+            </div>
+
+             <!-- Formulario editar perfil -->
+            <div id="formulario-editar-perfil" class="formulario oculto">
+                <form id="form-nombre">
+                    <label>Nuevo Nombre:</label>
+                    <input type="text" id="nuevo-nombre" required />
+                    <button type="submit">Actualizar Nombre</button>
+                </form>
+
+                <label>Cambiar Avatar:</label>
+                <input type="file" id="input-avatar" accept="image/*" />
+                <h2 id="separacion">----------------------------------------</h2>
+                <form id="form-password">
+                    <label>Contraseña Actual:</label>
+                    <input type="password" id="password-actual" required />
+                    <br>
+                    <label>Nueva Contraseña:</label>
+                    <input type="password" id="nueva-password" required />
+                    <br>
+                    <label>Confirmar Nueva Contraseña:</label>
+                    <input type="password" id="confirmar-password" required />
+
+                    <button type="submit">Cambiar Contraseña</button>
+                </form>
+            </div>
+
+            <div class="acciones">
+                <button id="btn-buscar">Buscar Usuarios</button>
+                <button id="btn-solicitudes">Solicitudes</button>
+            </div>
+
+            <!-- Sección de estadísticas -->
+            <div id="seccion-estadisticas" class="seccion visible">
+                <h3>Estadísticas</h3>
+                <p>Partidas jugadas: 0</p>
+                <p>Victorias: 0</p>
+                <p>Derrotas: 0</p>
+            <!-- Aquí puedes insertar dinámicamente estadísticas reales -->
+            </div>
+
+            <!-- Buscar usuarios -->
+            <div id="seccion-buscar" class="seccion oculto">
+                <h3>Buscar Usuarios</h3>
+                <input type="text" id="input-buscar-usuario" placeholder="Escribe el nombre..." />
+                <div id="resultados-busqueda"></div>
+            </div>
+
+            <!-- Solicitudes de amistad -->
+            <div id="seccion-solicitudes" class="seccion oculto">
+                <div id="contenedor-solicitudes"></div>
+            </div>
+        </div>
+
+        <div class="columna-derecha">
+             <!-- Lista de amigos (carga directa, sin botón) -->
+            <div class="amigos">
+                <h3>Amigos</h3>
+                <div id="contenedor-amigos">
+                    <!-- Aquí se mostrarán los amigos (opcional si lo manejas desde JS) -->
+                </div>
+            </div>
+        </div>
+    </div>
+  </div>
+
+  <script src="js/perfil.js"></script>
 </body>
 </html>

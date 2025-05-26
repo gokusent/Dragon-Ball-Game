@@ -8,15 +8,32 @@
     <script defer src="js/inventario.js"></script>
 </head>
 <body>
+    <div id="controles">
+        <input type="text" id="buscador" placeholder="Buscar por nombre...">
+        <select id="filtro">
+            <option value="">Ordenar por...</option>
+            <option value="daño-desc">Daño</option>
+            <option value="vida-desc">Vida</option>
+        </select>
+        <select id="filtro-rareza">
+            <option value="">Filtrar por rareza</option>
+            <option value="común">Común</option>
+            <option value="raro">Raro</option>
+            <option value="épico">Épico</option>
+            <option value="legendario">Legendario</option>
+        </select>
+    </div>
 
-    <h1>Inventario de Personajes</h1>
     <div id="inventario-container"></div>
 
-    <div id="personaje-modal" class="modal">
-        <div id="modal-content" class="modal-content"></div>
-        <span id="cerrar-modal" class="cerrar-btn">×</span>
+    <!-- Modal para detalles del personaje -->
+    <div id="personaje-modal" class="modal" style="display:none;">
+        <div id="modal-content">
+            <button id="cerrar-modal">Cerrar</button>
+            <div id="img-content"></div>
+            <div id="info"></div>
+        </div>
     </div>
-    <!-- Botón para volver al menú -->
     <button id="volverMenu">Volver al Menú</button>
 
     <script>
@@ -24,6 +41,7 @@
             window.location.href = "menu.html";
         });
     </script>
-
+    
+    <script src="js/inventario.js"></script>
 </body>
 </html>

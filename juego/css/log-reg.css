@@ -1,0 +1,97 @@
+@import url('https://fonts.googleapis.com/css2?family=Lexend:wght@100..900&display=swap');
+
+body {
+  background-image: url('../images/bg/BgInicio.gif');
+  background-size: 100% 110%;
+  background-repeat: no-repeat;
+  background-position: center;
+  height: 100vh;
+  margin: 0;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-family: 'Lexend', sans-serif;
+}
+
+.container {
+  width: 33%;
+  background-color: #00000079;
+  border: 1px solid #ffffff77;
+  border-radius: 10px;
+  box-shadow: 0 8px 8px #0000007c;
+  backdrop-filter: blur(15px);
+  padding: 40px 20px;
+  text-align: center;
+}
+
+.form {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+}
+
+.form.active {
+  display: flex;
+}
+
+h2 {
+  font-size: 2.5rem;
+  color: #fff;
+  margin-bottom: 30px;
+}
+
+input {
+  background: none;
+  border: none;
+  border-bottom: 1px solid #fff;
+  margin-bottom: 30px;
+  padding: 10px;
+  font-size: 1rem;
+  color: #ffcc23;
+  width: 70%;
+}
+
+input::placeholder {
+  color: #fff;
+}
+
+button {
+  width: 75%;
+  padding: 15px;
+  font-size: 1rem;
+  font-family: 'Lexend', sans-serif;
+  border-radius: 7px;
+  border: none;
+  cursor: pointer;
+  background-color: #ffcc23;
+  margin-bottom: 20px;
+  transition: transform 0.1s ease;
+}
+
+button:hover {
+  background-color: #e6b820;
+}
+
+button:active {
+  transform: scale(0.95);
+}
+
+p {
+  font-size: 0.95rem;
+  color: #fff;
+}
+
+span {
+  color: #ff0000da;
+  cursor: pointer;
+}
+
+.error-msg {
+  color: red;
+  font-size: 0.9rem;
+  margin-top: -10px;
+}
+
+.oculto {
+  display: none;
+}
