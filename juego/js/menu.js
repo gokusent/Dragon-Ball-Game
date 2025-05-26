@@ -1,150 +1,251 @@
-document.addEventListener("DOMContentLoaded", () => {
-    const elementosUI = {
-        pantallaInicio: document.getElementById("pantalla-inicio"),
-        pantallaJugar: document.getElementById("pantalla-jugar"),
-        btnJugar: document.getElementById("btn-jugar"),
-        btnGacha: document.getElementById("btn-gacha"),
-        btnInventario: document.getElementById("btn-inventario"),
-        btnPerfil: document.getElementById("btn-perfil"),
-        btnAjustes: document.getElementById("btn-ajustes"),
-        btnVolver: document.getElementById("btn-volver-menu"),
-        btnJugarCPU: document.getElementById("btn-jugar-cpu"),
-        btnJugarLocal: document.getElementById("btn-jugar-local"),
-        btnJugarPVP: document.getElementById("btn-jugar-pvp"),
-        btnForo : document.getElementById("btn-foro"),
-    };
+// ==== ELEMENTOS DEL DOM ====
+const menuContainer = document.querySelector(".menu");
+const menuItems = document.querySelectorAll(".menu-item");
+const mainSection = document.querySelector(".main");
+let selectedIndex = 0;
+let submenuVisible = false;
+let submenuIndex = 0;
 
-    function mostrarPantalla(pantallaMostrar, pantallaOcultar) {
-        if (pantallaMostrar && pantallaOcultar) {
-            pantallaOcultar.classList.add("oculto");
-            pantallaMostrar.classList.remove("oculto");
-        }
+// ==== Fondos y Descripciones ====
+const backgrounds = ["bg1", "bg2", "bg3", "bg4", "bg5"];
+
+const descripciones = [
+    "Elige entre distintos modos de duelo: CPU, local u online.",
+    "Gira el gachapon y consigue nuevos personajes.",
+    "Consulta y administra tus personajes.",
+    "Visualiza tu perfil, estadísticas y configuraciones.",
+    "Entra al foro y comparte ideas o dudas con otros jugadores."
+];
+
+// ==== Sonidos ====
+const moveSound = new Audio("sounds/move.mp3");
+const selectSound = new Audio("sounds/select.mp3");
+
+// ==== Actualizar selección principal ====
+function updateSelection() {
+    menuItems.forEach((item, index) => {
+        item.classList.toggle("selected", index === selectedIndex);
+    });
+
+    // Cambiar fondo
+    mainSection.className = "main " + backgrounds[selectedIndex];
+
+    // Cambiar descripción
+    const infoText = document.querySelector(".info h3");
+    infoText.textContent = descripciones[selectedIndex];
+
+    // Hacer scroll a la opción visible
+    menuItems[selectedIndex].scrollIntoView({ behavior: "smooth", block: "center" });
+}
+
+// ==== Movimiento entre opciones ====
+function moveSelection(direction) {
+    let prevIndex = selectedIndex;
+    if (direction === "down" && selectedIndex < menuItems.length - 1) {
+        selectedIndex++;
+    } else if (direction === "up" && selectedIndex > 0) {
+        selectedIndex--;
     }
 
-    function setupEventListeners() {
-        if (elementosUI.btnJugar) {
-            elementosUI.btnJugar.addEventListener("click", () => {
-                mostrarPantalla(elementosUI.pantallaJugar, elementosUI.pantallaInicio);
-            });
-        }
-
-        if (elementosUI.btnVolver) {
-            elementosUI.btnVolver.addEventListener("click", () => {
-                mostrarPantalla(elementosUI.pantallaInicio, elementosUI.pantallaJugar);
-            });
-        }
-
-        if (elementosUI.btnGacha) elementosUI.btnGacha.addEventListener("click", () => window.location.href = "gacha.html");
-        if (elementosUI.btnInventario) elementosUI.btnInventario.addEventListener("click", () => window.location.href = "inventario.html");
-        if (elementosUI.btnPerfil) elementosUI.btnPerfil.addEventListener("click", () => window.location.href = "perfil.html");
-
-        if (elementosUI.btnJugarCPU) elementosUI.btnJugarCPU.addEventListener("click", () => window.location.href = "seleccion.html?modo=cpu");
-        if (elementosUI.btnJugarLocal) elementosUI.btnJugarLocal.addEventListener("click", () => window.location.href = "seleccion.html?modo=local");
-
-        if (elementosUI.btnJugarPVP) {
-            elementosUI.btnJugarPVP.addEventListener("click", async () => {
-                const token = localStorage.getItem("token");
-            
-                try {
-                    // Obtener perfil del usuario autenticado (para el ID)
-                    const perfilRes = await fetch("http://localhost:8000/api/perfil", {
-                        method: "GET",
-                        headers: {
-                            Authorization: `Bearer ${token}`
-                        }
-                    });
-            
-                    if (!perfilRes.ok) throw new Error("No se pudo obtener el perfil");
-            
-                    const perfil = await perfilRes.json();
-                    const jugador_id = perfil.id;
-            
-                    // Buscar salas disponibles
-                    const disponiblesRes = await fetch("http://localhost:8000/api/salas-disponibles", {
-                        headers: { Authorization: `Bearer ${token}` }
-                    });
-            
-                    const salas = await disponiblesRes.json();
-            
-                    let nombreSala;
-            
-                    if (salas.length > 0) {
-                        // Hay una sala disponible: unirse como jugador2
-                        const sala = salas[0];
-                        nombreSala = sala.sala;
-            
-                        const joinRes = await fetch(`http://localhost:8000/api/salas/${sala.id}`, {
-                            method: "PUT",
-                            headers: {
-                                "Content-Type": "application/json",
-                                Authorization: `Bearer ${token}`
-                            },
-                            body: JSON.stringify({ jugador2_id: jugador_id })
-                        });
-            
-                        if (!joinRes.ok) throw new Error("Error al unirse a la sala existente");
-            
-                        const data = await joinRes.json();
-
-                        // Guarda antes de cambiar a la página de combate
-                        localStorage.setItem("jugador_id", jugador_id);
-                        localStorage.setItem("salaPvp", nombreSala);
-                        console.log(`✅ Te uniste a la sala de ${data.jugador1_id} (ID: ${data.id})`);
-                        window.location.href = `sala.html?sala=${encodeURIComponent(data.sala)}`;
-
-                    } else {
-                        // No hay salas → crear una nueva
-                        nombreSala = `pvp_${Date.now()}`;
-            
-                        const crearRes = await fetch("http://localhost:8000/api/crear-sala", {
-                            method: "POST",
-                            headers: {
-                                "Content-Type": "application/json",
-                                "Authorization": `Bearer ${token}`
-                            },
-                            body: JSON.stringify({
-                                sala: nombreSala,
-                                jugador1_id: jugador_id
-                            })
-                        });
-            
-                        if (!crearRes.ok) throw new Error("Error al crear la sala");
-            
-                        const crearData = await crearRes.json();
-                        console.log("✅ Sala creada:", crearData);
-                    }
-            
-                    // Redirigir al HTML de la sala
-                    if (nombreSala) {
-                        // Guarda antes de cambiar a la página de combate
-                        localStorage.setItem("jugador_id", jugador_id);
-                        localStorage.setItem("salaPvp", nombreSala);
-                        window.location.href = `sala.html?sala=${encodeURIComponent(nombreSala)}`;
-                    }
-            
-                } catch (error) {
-                    console.error("Error en el flujo de PvP:", error);
-                }
-            });            
-        }
-        
-        if (elementosUI.btnForo) elementosUI.btnForo.addEventListener("click", () => window.location.href = "foro.html");
+    if (prevIndex !== selectedIndex) {
+        moveSound.currentTime = 0;
+        moveSound.play();
     }
 
-    function cargarModoJuego() {
-        const urlParams = new URLSearchParams(window.location.search);
-        const modo = urlParams.get("modo");
+    updateSelection();
+}
 
-        const modosValidos = ["cpu", "local", "pvp"];
-        if (modosValidos.includes(modo) && !window.modoCargado) {
-            window.modoCargado = modo;
-            import(`./modo${modo.charAt(0).toUpperCase() + modo.slice(1)}.js`)
-                .then(() => console.log(`✅ Script de modo ${modo} cargado`))
-                .catch(err => console.error(`❌ Error al cargar modo ${modo}:`, err));
+// ==== Submenú (duelo) ====
+function updateSubmenuSelection(opciones) {
+    opciones.forEach((opt, i) => {
+        opt.style.textDecoration = i === submenuIndex ? 'underline' : 'none';
+    });
+}
+
+// ==== Navegación por teclado ====
+document.addEventListener("keydown", (e) => {
+    const selectedItem = menuItems[selectedIndex];
+    const titleText = selectedItem.querySelector('h2').innerText;
+    const subMenu = selectedItem.querySelector('.duelo_opc');
+
+    // Si el submenú está visible (solo para "Duelo")
+    if (submenuVisible && titleText === 'Duelo') {
+        const opciones = subMenu.querySelectorAll('h3');
+
+        // Navegación submenu duelo
+        if (e.key === 'ArrowUp' || e.key === 'w') {
+            e.preventDefault();
+            if (submenuIndex > 0) submenuIndex--;
+            moveSound.currentTime = 0; moveSound.play();
+            updateSubmenuSelection(opciones);
+        } else if (e.key === 'ArrowDown' || e.key === 's') {
+            e.preventDefault();
+            if (submenuIndex < opciones.length - 1) submenuIndex++;
+            moveSound.currentTime = 0; moveSound.play();
+            updateSubmenuSelection(opciones);
+            // ENTER en menú principal
+        } else if (e.key === 'Enter') {
+            selectSound.currentTime = 0; selectSound.play();
+            const selectedOption = opciones[submenuIndex].innerText;
+
+            if (selectedOption === '1vs1') {
+                showLoadingAndRedirect('seleccion.html?modo=local');
+            } else if (selectedOption === 'CPU') {
+                showLoadingAndRedirect('seleccion.html?modo=cpu');
+            } else if (selectedOption === 'Online') {
+                // Nuevo flujo: crear/unir sala PVP ANTES de redirigir a sala.html?sala=...
+                createOrJoinPvpRoomAndRedirect();
+            }
+        } else if (e.key === 'Escape') {
+            // Ocultar submenú y volver al menú principal
+            subMenu.style.display = 'none';
+            submenuVisible = false;
+            submenuIndex = 0;
         }
+
+        return; // Evita que el resto del código se ejecute
     }
 
-    setupEventListeners();
-    cargarModoJuego();
+    // Navegación menú principal
+    if (e.key === "ArrowDown" || e.key === "s") moveSelection("down");
+    if (e.key === "ArrowUp" || e.key === "w") moveSelection("up");
+
+    // ENTER en menú principal
+    if (e.key === "Enter") {
+        selectSound.currentTime = 0; selectSound.play();
+
+        if (titleText === 'Duelo') {
+            // Mostrar submenú
+            subMenu.style.display = 'block';
+            submenuVisible = true;
+            submenuIndex = 0;
+            const opciones = subMenu.querySelectorAll('h3');
+            updateSubmenuSelection(opciones);
+        } else {
+            const url = selectedItem.getAttribute('data-url');
+            if (url) {
+                showLoadingAndRedirect(url);
+            }
+        }
+    }
 });
 
+// ==== Función para crear o unirse a sala PvP ANTES de redirigir ====
+async function createOrJoinPvpRoomAndRedirect() {
+    const overlay = document.getElementById('loadingOverlay');
+    overlay.style.display = 'flex';
+
+    const token = localStorage.getItem("token");
+    try {
+        // Obtener perfil del jugador
+        const perfilRes = await fetch("http://localhost:8000/api/perfil", {
+            method: "GET",
+            headers: {
+                Authorization: `Bearer ${token}`
+            }
+        });
+
+        if (!perfilRes.ok) throw new Error("No se pudo obtener el perfil");
+
+        const perfil = await perfilRes.json();
+        const jugador_id = perfil.id;
+
+        // Buscar salas disponibles
+        const disponiblesRes = await fetch("http://localhost:8000/api/salas-disponibles", {
+            headers: { Authorization: `Bearer ${token}` }
+        });
+
+        if (!disponiblesRes.ok) throw new Error("Error al obtener salas disponibles");
+
+        const salas = await disponiblesRes.json();
+
+        let nombreSala;
+
+        if (salas.length > 0) {
+            // Hay una sala disponible: unirse como jugador2
+            const sala = salas[0];
+            nombreSala = sala.sala;
+
+            const joinRes = await fetch(`http://localhost:8000/api/salas/${sala.id}`, {
+                method: "PUT",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({ jugador2_id: jugador_id })
+            });
+
+            if (!joinRes.ok) throw new Error("Error al unirse a la sala existente");
+
+            const data = await joinRes.json();
+
+            // Guarda antes de cambiar a la página de la sala
+            localStorage.setItem("jugador_id", jugador_id);
+            localStorage.setItem("salaPvp", nombreSala);
+
+            console.log(`✅ Te uniste a la sala de ${data.jugador1_id} (ID: ${data.id})`);
+
+            // Redirigir a sala con la sala ya asignada en la URL
+            window.location.href = `sala.html?sala=${encodeURIComponent(data.sala)}`;
+        } else {
+            // No hay salas → crear una nueva
+            nombreSala = `pvp_${Date.now()}`;
+
+            const crearRes = await fetch("http://localhost:8000/api/crear-sala", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    Authorization: `Bearer ${token}`
+                },
+                body: JSON.stringify({ sala: nombreSala }) // 👈 Quitamos jugador1_id
+            });
+
+            if (!crearRes.ok) throw new Error("Error al crear la sala");
+
+            const crearData = await crearRes.json();
+
+            console.log("✅ Sala creada:", crearData);
+
+            // Guarda antes de cambiar a la página de la sala
+            localStorage.setItem("jugador_id", jugador_id);
+            localStorage.setItem("salaPvp", nombreSala);
+
+            // Redirigir a sala con la sala creada en la URL
+            window.location.href = `sala.html?sala=${encodeURIComponent(nombreSala)}`;
+
+        }
+    } catch (error) {
+        console.error("Error en el flujo de PvP:", error);
+        alert("⚠ Error en PvP. Revisa conexión o login.");
+        overlay.style.display = 'none';
+    }
+}
+
+// ==== Mostrar overlay de carga y redirigir para CPU y LOCAL ====
+function showLoadingAndRedirect(url) {
+    const overlay = document.getElementById('loadingOverlay');
+    overlay.style.display = 'flex';
+
+    const token = localStorage.getItem("token");
+    const urlObj = new URL(url, window.location.origin);
+    const modo = urlObj.searchParams.get("modo");
+
+    setTimeout(() => {
+        // Redirección a modos CPU o LOCAL
+        if (modo === "cpu" || modo === "local") {
+            window.location.href = url;
+        } else {
+            // Redirección normal (para otros links que no sean PvP)
+            window.location.href = url;
+        }
+    }, 2000);
+}
+
+// ==== Inicialización ====
+window.addEventListener("load", () => {
+    updateSelection();
+    menuItems[selectedIndex].scrollIntoView({ behavior: "instant", block: "center" });
+    document.getElementById('loadingOverlay').style.display = 'none';
+});
+
+updateSelection(); // Asegura selección inicial

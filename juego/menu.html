@@ -3,28 +3,52 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" href="css/pantalla-titulo.css">
-    <script type="module" src="js/menu.js" defer></script>
+    <link rel="stylesheet" href="css/menu.css">
+    <!-- <script type="module" src="js/menu.js" defer></script> -->
     <title>Menú Principal</title>
 </head>
 <body>    
-    <div id="pantalla-inicio">
-        <h2>Menú Principal</h2>    
-        <button id="btn-jugar">Jugar Partida</button>
-        <button id="btn-gacha">Invocación</button>
-        <button id="btn-inventario">Ver Personajes</button>
-        <button id="btn-foro">Foro</button>
-        <button id="btn-perfil">Perfil</button>
-        <button id="btn-ajustes">Ajustes</button>
+    <section class="main">
+        <div class="title">
+            <img src="icons/shenroIcon.png" alt="shenroIcon">
+            <h1>Menu principal</h1>
+        </div>
+
+        <div class="menu">
+            <div class="menu-item">
+                <img class="icons" src="icons/ball1.png" alt="ball1"><h2>Duelo</h2>
+                <div class="duelo_opc">
+                    <h3>1vs1</h3>
+                    <h3>CPU</h3>
+                    <h3>Online</h3>
+                </div>
+            </div>
+            <div class="menu-item" data-url="gacha.html">
+                <img class="icons" src="/icons/ball2.png" alt="ball1"><h2>Gachapon</h2>
+            </div>
+            <div class="menu-item" data-url="inventario.html">
+                <img class="icons" src="/icons/ball3.png" alt="ball1"><h2>Inventario</h2>
+            </div>
+            <div class="menu-item" data-url="perfil.html">
+                <img class="icons" src="/icons/ball4.png" alt="ball1"><h2>Perfil</h2>
+            </div>
+            <div class="menu-item" data-url="foro.html">
+                <img class="icons" src="/icons/ball5.png" alt="ball1"><h2>Foro</h2>
+            </div>
+        </div>
+
+        <div class="info">
+            <h3>Breve Descripcion de la opcion</h3>
+        </div>
+    </section>
+
+    <div id="loadingOverlay">
+        <div class="loadingContent">
+            <img src="icons/xd.gif" alt="Loading" class="loadingIcon">
+            <p>Cargando...</p>
+        </div>
     </div>
 
-    <!-- Pantalla de Jugar Partida - Oculta al principio -->
-    <div id="pantalla-jugar" class="oculto">
-        <h3>Selecciona un modo de juego</h3>
-        <button id="btn-jugar-cpu">Jugar vs CPU</button>
-        <button id="btn-jugar-local">Jugar modo local</button>
-        <button id="btn-jugar-pvp">Jugar PVP</button>
-        <button id="btn-volver-menu">Volver</button>
-    </div>
+    <script src="js/menu.js"></script>
 </body>
 </html>
