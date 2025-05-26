@@ -6,6 +6,11 @@
     <link rel="stylesheet" href="css/pantalla-titulo.css">
     <script src="/socket.io/socket.io.js"></script>
     <script defer type="module" src="./js/foro.js"></script> 
+    <!-- Carga la API de YouTube para la integración de videos -->
+    <script defer src="https://www.youtube.com/iframe_api"></script>
+
+    <!-- Script para controlar el reproductor de YouTube -->
+    <script defer src="/js/youtubePlayer.js"></script>
 </head>
 <body>
     <h1>Foro del Juego</h1>
@@ -22,5 +27,11 @@
     </div>
 
     <button id="btn-volver-menu">Volver al Menú</button>
+
+    <div id="player" style="display:none;"></div>
+
+    <script>
+        window.paginaActual = 'foro';
+    </script>
 </body>
 </html>

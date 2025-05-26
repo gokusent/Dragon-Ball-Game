@@ -1,37 +1,41 @@
-// Declaramos una variable global para almacenar el reproductor de YouTube
 let player;
-// Variable de control para verificar si el reproductor está listo
 let isPlayerReady = false;
 
-// Lista de videos a reproducir en secuencia
-const videoIds = ['VRUMHMl4z1g', 'sb3mznAthlU', '_QSfV9Weomc', 'QrFyvuu34NU'];
+const listasPorPagina = {
+    "index": ['ptopGiouo4c'],
+    "menu": ['hI9kz9nR-G4'],
+    'seleccion': ['SKyneUmr74Y'],
+    "Alfa": ['R52Yse9lDEY'],
+    "foro": ['QrFyvuu34NU'],
+    "gacha": ['TTSId7Uwtxs'],
+    "inventario": ['sb3mznAthlU'],
+    "perfil": ['VRUMHMl4z1g'],
+    "sala": ['VRUMHMl4z1g']
+};
 
-/**
- * Función que se llama cuando la API de YouTube está lista y se puede cargar el reproductor.
- * 
- * @function
- * @returns {void} No retorna ningún valor.
- */
 function onYouTubeIframeAPIReady() {
-    player = new YT.Player('player', { 
-        height: '0', 
-        width: '0',  
-        videoId: videoIds[0], // Primer video de la lista
+    const pagina = window.paginaActual || 'index';
+    const lista = listasPorPagina[pagina] || listasPorPagina['index'];
+
+    if (window.sessionStorage.getItem('musicaIniciada') === 'true') {
+    player = new YT.Player('player', {
+        height: '0',
+        width: '0',
+        videoId: lista[0],
         playerVars: {
-            autoplay: 1,  // Reproducción automática
-            playlist: videoIds.join(','),  // Lista de videos a reproducir
-            loop: 1, // Hacer que la playlist sea un bucle
-            rel: 0 // Evita que aparezcan videos relacionados al final
+            autoplay: 1,
+            playlist: lista.join(','),
+            loop: 1,
+            rel: 0
         },
         events: {
             'onReady': (event) => {
                 isPlayerReady = true;
-                console.log("YouTube Player Ready");
-                event.target.setVolume(50); // Ajustamos el volumen al 50%
-            },
-            'onStateChange': onPlayerStateChange // Detectar cambios de estado
+                event.target.setVolume(50);
+            }
         }
     });
+}
 }
 
 /**

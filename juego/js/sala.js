@@ -147,4 +147,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         socket.emit("salir_sala", { sala });
         window.location.href = "menu.html";
     });
+
+    window.addEventListener('beforeunload', () => {
+    sessionStorage.setItem('requiereReinicioMusica', 'true');
+    sessionStorage.setItem('tiempoMusica', audio.currentTime);
+});
 });
