@@ -171,4 +171,9 @@ document.addEventListener("DOMContentLoaded", async () => {
     });
 
     cargarInventario();
+
+    window.addEventListener('beforeunload', () => {
+    sessionStorage.setItem('ReinicioMusica', 'true');
+    sessionStorage.setItem('tiempoMusica', audio.currentTime);
+});
 });

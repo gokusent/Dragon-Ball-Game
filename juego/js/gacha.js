@@ -137,4 +137,10 @@ document.addEventListener("DOMContentLoaded", () => {
             botonTirar.disabled = false;
         }, 2000); // tiempo igual al de la animación
     });
+
+    window.addEventListener('beforeunload', () => {
+    sessionStorage.setItem('ReinicioMusica', 'true');
+    sessionStorage.setItem('tiempoMusica', audio.currentTime);
+});
+
 });

@@ -241,5 +241,10 @@ document.addEventListener("DOMContentLoaded", async () => {
         alert('Hubo un problema al cargar tu perfil. Intenta volver a iniciar sesión.');
         window.location.href = 'index.html';
     }
+
+    window.addEventListener('beforeunload', () => {
+    sessionStorage.setItem('ReinicioMusica', 'true');
+    sessionStorage.setItem('tiempoMusica', audio.currentTime);
+});
 });
 

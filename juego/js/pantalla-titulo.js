@@ -1,4 +1,19 @@
 document.addEventListener("DOMContentLoaded", () => {
+    const audio = document.getElementById('musicaFondo');
+
+    window.addEventListener('DOMContentLoaded', () => {
+        audio.currentTime = 0; // Siempre reinicia en index
+        audio.volume = 0.5;
+        audio.play().catch(err => {
+            console.error("Error al reproducir la música:", err);
+        });
+    });
+
+    window.addEventListener('beforeunload', () => {
+        sessionStorage.setItem('tiempoMusica', audio.currentTime);
+        sessionStorage.removeItem('ReinicioMusica'); // No dejarlo activado
+        });
+
   // Obtener referencias a los formularios de login y registro
   const loginForm = document.getElementById("loginForm");
   const registerForm = document.getElementById("registerForm");
@@ -40,6 +55,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Evento para procesar el inicio de sesión cuando se hace click en btnLogin
   btnLogin.addEventListener("click", async () => {
+    window.sessionStorage.setItem("musicaIniciada", "true");
+
     try {
       // Obtener y limpiar los valores de los inputs de login
       const email = loginEmail.value.trim();

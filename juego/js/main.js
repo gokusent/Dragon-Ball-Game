@@ -8,6 +8,7 @@ const urlParams = new URLSearchParams(window.location.search);
 const modoJuego = urlParams.get("modo") || "cpu";  // Por defecto CPU
 console.log("Modo de juego:", modoJuego);
 
+/*
 // 1. Conectar el socket
 const socket = io("http://localhost:3000");
 
@@ -45,17 +46,18 @@ socket.on("iniciar_turno", (data) => {
   // Actualiza la UI según el jugador que deba jugar
 });
 
+let soyHost = localStorage.getItem("soyHost") === "true"; // Verifica si el jugador es el host
+let jugadorID = null; //
+let estadoSala = {};  // 
+*/
 
 const anuncioTurno = document.createElement('div');
 anuncioTurno.classList.add('turno-anuncio');
 document.body.appendChild(anuncioTurno);
-
-let soyHost = localStorage.getItem("soyHost") === "true"; // Verifica si el jugador es el host
-let jugadorID = null; // Este lo recibís desde el servidor
-let estadoSala = {};  // Recibís los datos de la sala y jugadores
 let turno = 0; // 0: jugador1, 1: jugador2
 let turnos = 0;
 
+/*
 // 🧠 Emitir solicitud para iniciar partida si sos host
 if (modoJuego === "pvp" && soyHost) {
     console.log("Esperando a que ambos jugadores estén listos...");
@@ -75,6 +77,7 @@ socket.on("iniciar_partida", ({ turnoInicial, jugador1, jugador2 }) => {
     anunciarTurno();
     actualizarBotones();
 });
+*/
 
 // 📢 Mostrar quién juega
 // Función para mostrar un mensaje que indique el turno actual
@@ -105,6 +108,7 @@ function cambiarTurno(esPvp) {
     }
 }
 
+/*
 // ✅ Verifica si es tu turno
 function verificarTurnoPropio() {
     if (!jugadorID) return false;
@@ -119,12 +123,13 @@ socket.on("cambiar_turno", ({ nuevoTurno }) => {
     actualizarBotones();
 }
 );
+*/
 
 /**
  * Función que hace que la IA tome decisiones en su turno
  */
 function turnoIA() {
-    if (modoJuego !== "cpu") return;  // 🚫 Asegurar que la IA solo actúe en su turno
+    if (modoJuego !== "cpu") return;  // Asegurar que la IA solo actúe en su turno
 
     console.log("La IA está actuando...");
 
@@ -132,7 +137,7 @@ function turnoIA() {
         const rivalCarta = rival.cartas.find(carta => carta.vida > 0);  // 🔍 Buscar la carta con vida
         const jugadorCarta = jugador.cartas.find(carta => carta.vida > 0);
 
-        if (!rivalCarta || !jugadorCarta) return;  // 🚫 Evitar errores si no hay cartas disponibles
+        if (!rivalCarta || !jugadorCarta) return;  // Evitar errores si no hay cartas disponibles
 
         if (rivalCarta.habilidad === 100) {
             console.log("La IA usa su técnica especial.");
@@ -143,11 +148,6 @@ function turnoIA() {
         } else {
             console.log("La IA aumenta su energía.");
             aumentarEnergia(rival);
-        }
-
-        // ✅ Llamar a cambiarTurno() SOLO si el juego sigue
-        if (!verificarFinDeJuego()) {
-            setTimeout(500);
         }
     }, 1500);
 }
@@ -178,6 +178,11 @@ function actualizarBotones() {
  * Espera a que el contenido de la página esté completamente cargado antes de ejecutar el código.
  */
 document.addEventListener("DOMContentLoaded", () => {
+    window.addEventListener('beforeunload', () => {
+    sessionStorage.setItem('ReinicioMusica', 'true');
+    sessionStorage.setItem('tiempoMusica', audio.currentTime);
+});
+
     /**
      * Botón para activar o desactivar la música.
      * @type {HTMLElement | null}
@@ -241,7 +246,7 @@ async function cargarEquipo() {
                 localStorage.removeItem("equipoJ1");
                 localStorage.removeItem("equipoJ2");
 
-                const token = localStorage.getItem("token");
+                const token = localStorage.getItem("authToken");
             
                 // Obtener el ID del jugador actual
                 let usuario = JSON.parse(localStorage.getItem("usuario"));
@@ -582,7 +587,8 @@ async function verificarFinDeJuego() {
                     });
                 }, 1000);
             }, 1000);
-        } else if (modoJuego === "pvp") {
+        } /* Se ha comentado el modo PvP para evitar conflictos con la lógica actual. El modo PvP se puede implementar más adelante si es necesario.
+        *else if (modoJuego === "pvp") {
             const ganador = rivalDerrotado ? "Jugador 1" : "Jugador 2";
             const perdedor = rivalDerrotado ? "Jugador 2" : "Jugador 1";
             const monedasGanadas = rivalDerrotado ? 5 : 1;
@@ -614,7 +620,7 @@ async function verificarFinDeJuego() {
                     });
                 }, 1000);
             }, 1000);
-        }
+        }*/
         return true;
     }
     return false;
@@ -628,7 +634,7 @@ async function verificarFinDeJuego() {
  */
 async function modificarMonedas(monedasGanadas) {
     const token = localStorage.getItem("token");
-    const id = localStorage.getItem("jugadorId");
+    const id = localStorage.getItem("jugador_id");
 
     try {
         const respuestaGet = await fetch(`http://127.0.0.1:8000/api/usuario/${id}`, {
