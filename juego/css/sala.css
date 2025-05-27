@@ -1,0 +1,83 @@
+@import url('https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap');
+
+body {
+    margin: 0;
+    font-family: 'Press Start 2P';
+    color: #f5f5f5;
+    text-align: center;
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background-image: url('/images/bg/salaBg.jpg'); 
+    background-size: cover;
+    background-position: center;
+    overflow: hidden;
+}
+
+h1 {
+    font-size: 2.5em;
+    color: #fcd307; 
+    text-shadow: 0 0 10px #ff7f00, 0 0 20px #ff7f00;
+    margin-bottom: 1rem;
+}
+
+#estado-partida {
+    font-size: 1.2em;
+    margin-bottom: 2rem;
+    color: #a200ff;
+    animation: parpadeo 1.5s infinite alternate;
+}
+
+#jugadores p {
+    font-size: 1em;
+    margin: 0.5em 0;
+    color: #ffffff;
+    background-color: rgba(0, 0, 0, 0.6);
+    padding: 0.8em;
+    border-radius: 10px;
+    width: 50%;
+    margin-left: auto;
+    margin-right: auto;
+}
+
+button {
+    margin: 0 auto;
+    margin-bottom: 1em;
+    margin-top: 1em;
+    width: 20vw;
+    padding: 1em 2em;
+    font-size: 1em;
+    font-family: inherit;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s ease-in-out;
+}
+
+#btn-listo {
+    background-color: #28a745;
+    color: white;
+    box-shadow: 0 0 10px #00ff00, 0 0 20px #00ff00;
+}
+
+#btn-listo:hover {
+    background-color: #218838;
+    transform: scale(1.05);
+}
+
+#btn-salir {
+    background-color: #dc3545;
+    color: white;
+    box-shadow: 0 0 10px #ff3333, 0 0 20px #ff3333;
+}
+
+#btn-salir:hover {
+    background-color: #c82333;
+    transform: scale(1.05);
+}
+
+@keyframes parpadeo {
+    0% { opacity: 1; }
+    100% { opacity: 0.5; }
+}

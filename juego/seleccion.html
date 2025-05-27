@@ -1,35 +1,66 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Seleccionar Personaje</title>
     <link rel="stylesheet" href="css/seleccion.css">
-    <script defer type="module" src="js/seleccion.js"></script>
     <!-- Carga la API de YouTube para la integración de videos -->
     <script defer src="https://www.youtube.com/iframe_api"></script>
 
     <!-- Script para controlar el reproductor de YouTube -->
     <script defer src="/js/youtubePlayer.js"></script>
 </head>
+
 <body>
 
-    <h1>Selecciona tu personaje</h1>
+    <div class="header">
+        <h1>Character Select</h1>
+        <div class="infoUso">
+            <div class="volverMenu">
+                <img src="icons/b.png" alt="volverMenu" width="40px">
+                <p>Menu</p>
+            </div>
+            <div class="comenzar">
+                <img src="icons/c.png" alt="volverMenu" width="40px">
+                <p>Comenzar Batalla</p>
+            </div>
+            <div class="flechas">
+                <img src="icons/teclas.png" alt="flechas" width="60px">
+                <p>Moverse</p>
+            </div>
+            <div class="enter">
+                <img src="icons/enter.png" alt="enter" width="40px">
+                <p>Elegir</p>
+            </div>
+        </div>
+    </div>
 
-    <div id="seleccion-container"></div>
+    <div class="main">
+        <div class="player1Title">
+            <h2>Usuario</h2>
+        </div>
+        <div class="infoPlayer1">
+            <div class="pickPhoto_player1"></div>
+            <div class="firstPick_player1"></div>
+            <div class="secondPick_player1"></div>
+            <div class="thirdPick_player1"></div>
+        </div>
+        <div class="characters"></div>
+        <div class="player2Title">
+            <h2>Player 2</h2>
+        </div>
+        <div class="infoPlayer2">
+            <div class="pickPhoto_player2"></div>
+            <div class="firstPick_player2"></div>
+            <div class="secondPick_player2"></div>
+            <div class="thirdPick_player2"></div>
+        </div>
+    </div>
 
-    <button id="confirmarBtn" disabled>Iniciar Combate</button>
+    <script type="module" src="js/seleccion.js"></script>
 
-    <button id="volverMenu">Volver al menú</button>
-
-    <div id="player" style="display:none;"></div>
-
-    <script>
-        window.paginaActual = 'seleccion';
-
-        document.getElementById("volverMenu").addEventListener("click", () => {
-            window.location.href = "menu.html";
-        });
-    </script>
 </body>
+
 </html>

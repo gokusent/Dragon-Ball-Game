@@ -242,29 +242,29 @@ function showLoadingAndRedirect(url) {
 }
 
 // ==== Inicialización ====
-    const audio = document.getElementById('musicaFondo');
-    const paginaActual = window.paginaActual || 'index';
+const audio = document.getElementById('musicaFondo');
+const paginaActual = window.paginaActual || 'index';
 
-    window.addEventListener('DOMContentLoaded', () => {
-        const tiempo = sessionStorage.getItem('tiempoMusica');
-        const reinicio = sessionStorage.getItem('ReinicioMusica') === 'true';
+window.addEventListener('DOMContentLoaded', () => {
+    const tiempo = sessionStorage.getItem('tiempoMusica');
+    const reinicio = sessionStorage.getItem('ReinicioMusica') === 'true';
 
-        if (['index', 'menu', 'perfil'].includes(paginaActual) && reinicio) {
-            audio.currentTime = 0;
-            sessionStorage.removeItem('ReinicioMusica');
-        } else if (tiempo) {
-            audio.currentTime = parseFloat(tiempo);
-        }
+    if (['index', 'menu', 'perfil'].includes(paginaActual) && reinicio) {
+        audio.currentTime = 0;
+        sessionStorage.removeItem('ReinicioMusica');
+    } else if (tiempo) {
+        audio.currentTime = parseFloat(tiempo);
+    }
 
-        audio.volume = 0.5;
-        audio.play().catch(err => {
-            console.error("Error al reproducir la música:", err);
-        });
+    audio.volume = 0.5;
+    audio.play().catch(err => {
+        console.error("Error al reproducir la música:", err);
     });
+});
 
-    window.addEventListener('beforeunload', () => {
-        sessionStorage.setItem('tiempoMusica', audio.currentTime);
-    });
+window.addEventListener('beforeunload', () => {
+    sessionStorage.setItem('tiempoMusica', audio.currentTime);
+});
 
 window.addEventListener("load", () => {
     updateSelection();
