@@ -36,7 +36,7 @@ body {
     margin-top: 40px;
     & h1 {
         font-family: 'RusticShine';
-        font-size: clamp(1rem, 5vw, 7rem); /* 7rem; */
+        font-size: clamp(1rem, 6vw, 7rem); /* 7rem; */
         background: -webkit-linear-gradient(#ffff00,#ff0000);
         -webkit-background-clip: text;
         -webkit-text-fill-color: transparent;
@@ -103,7 +103,7 @@ body {
     background-color: #19007570;
     & h3 {
         margin-left: 40px;
-        font-size: 3rem;
+        font-size: clamp(1rem, 3vw, 3rem);
         font-family: fantasy;
         color: white;
         -webkit-text-stroke: 1.2px #000000;
