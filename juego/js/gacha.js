@@ -2,7 +2,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const botonTirar = document.getElementById("tirarGacha");
     const resultadoDiv = document.getElementById("resultado");
     const monedasSpan = document.getElementById("monedas");
-    const ruleta = document.getElementById("ruleta"); // contenedor del carrusel
+    const ruleta = document.getElementById("ruleta");
 
     const token = localStorage.getItem("token");
 
@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
     }
 
-    // Cargar las monedas del usuario
+    // Obtener y mostrar monedas actuales del perfil
     async function actualizarMonedas() {
         try {
             const respuesta = await fetch("http://127.0.0.1:8000/api/perfil", {
@@ -31,7 +31,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
     botonTirar.addEventListener("click", async () => {
         let monedas = parseInt(monedasSpan.innerText);
-
         if (monedas < 10) {
             alert("No tienes suficientes monedas.");
             return;
@@ -41,7 +40,7 @@ document.addEventListener("DOMContentLoaded", () => {
         resultadoDiv.innerHTML = "";
         ruleta.innerHTML = "";
 
-        // Paso 1: Obtener carta real desde backend
+        // Paso 1: Obtener carta real desde el backend
         let cartaReal;
         try {
             const res = await fetch("http://127.0.0.1:8000/api/gacha", {
@@ -55,7 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        // Paso 2: Obtener todas las cartas disponibles para generar aleatorias
+        // Paso 2: Obtener todas las cartas para generar las aleatorias
         let cartasDisponibles;
         try {
             const resCartas = await fetch("http://127.0.0.1:8000/api/cartas", {
@@ -69,20 +68,16 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        // Paso 3: Generar carrusel con cartas aleatorias y carta real en el centro visual
-        const totalCartas = 15; // cantidad total en el carrusel
-        const cartaRealIndex = Math.floor(totalCartas / 2); // centro del carrusel
-
+        // Paso 3: Generar carrusel
+        const totalCartas = 20; // total de imágenes en la ruleta
+        const cartaRealIndex = totalCartas - 2; // penúltima carta será la real
         const carril = document.createElement("div");
         carril.className = "ruleta-carril";
 
         for (let i = 0; i < totalCartas; i++) {
-            let carta;
-            if (i === cartaRealIndex) {
-                carta = cartaReal; // insertamos la carta real en el centro
-            } else {
-                carta = cartasDisponibles[Math.floor(Math.random() * cartasDisponibles.length)];
-            }
+            let carta = (i === cartaRealIndex)
+                ? cartaReal
+                : cartasDisponibles[Math.floor(Math.random() * cartasDisponibles.length)];
 
             const img = document.createElement("img");
             img.src = carta.imagen_url;
@@ -92,15 +87,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
         ruleta.appendChild(carril);
 
-        // Paso 4: Calcular desplazamiento exacto para centrar la carta real
-        const cartaWidth = 150 + 10; // ancho imagen + margen
-        const desplazamientoFinal = cartaWidth * cartaRealIndex;
+        // Paso 4: Calcular desplazamiento para centrar la penúltima carta
+        const cartaWidth = 160 + 20; // 160 de imagen + 20px margen izquierdo y derecho
+        const contenedorWidth = ruleta.offsetWidth; // px desde el CSS
 
-        // Aplicar animación dinámica
-        carril.style.animation = `girar 2s ease-out forwards`;
+        const desplazamientoFinal = (cartaWidth * cartaRealIndex) + (cartaWidth / 2) - (contenedorWidth / 2);
+
+
+        // Aplicar animación con desplazamiento dinámico
+        carril.style.animation = `girar 4s ease-out forwards`;
         carril.style.setProperty("--distancia-final", `-${desplazamientoFinal}px`);
 
-        // Paso 5: Restar monedas en backend
+        // Paso 5: Gastar monedas en el backend
         try {
             const resGasto = await fetch("http://127.0.0.1:8000/api/monedas/gastar", {
                 method: "POST",
@@ -119,11 +117,10 @@ document.addEventListener("DOMContentLoaded", () => {
             return;
         }
 
-        // Paso 6: Mostrar resultado luego de la animación
+        // Paso 6: Mostrar resultado tras animación
         setTimeout(() => {
-            ruleta.innerHTML = ""; // limpia el carrusel
+            ruleta.innerHTML = ""; // limpia la ruleta
 
-            // Estilo visual para rarezas
             let claseRareza = "rareza-comun";
             if (cartaReal.rareza === "Raro") claseRareza = "rareza-raro";
             if (cartaReal.rareza === "Épico") claseRareza = "rareza-epica";
@@ -135,12 +132,12 @@ document.addEventListener("DOMContentLoaded", () => {
             `;
 
             botonTirar.disabled = false;
-        }, 2000); // tiempo igual al de la animación
+        }, 4000); // tiempo igual al de la animación
     });
 
+    // Música (si aplica)
     window.addEventListener('beforeunload', () => {
-    sessionStorage.setItem('ReinicioMusica', 'true');
-    sessionStorage.setItem('tiempoMusica', audio.currentTime);
-});
-
+        sessionStorage.setItem('ReinicioMusica', 'true');
+        sessionStorage.setItem('tiempoMusica', audio?.currentTime || 0);
+    });
 });

@@ -53,7 +53,8 @@ button:disabled {
 
 /* Ruleta contenedor */
 .ruleta-container {
-    width: 430px;
+    width: 100%;
+    max-width: 450px;
     height: 200px;
     margin: 30px auto;
     border: 4px solid #fff;
@@ -67,7 +68,7 @@ button:disabled {
     justify-content: flex-start;
 }
 
-/* 🏃‍♂️ Carril con animación dinámica */
+/* Carril con animación dinámica */
 .ruleta-carril {
     display: flex;
     animation: girar 2s ease-out forwards;
