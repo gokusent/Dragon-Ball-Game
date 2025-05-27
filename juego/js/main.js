@@ -174,14 +174,14 @@ function actualizarBotones() {
     });
 }
 
-/**
- * Espera a que el contenido de la página esté completamente cargado antes de ejecutar el código.
- */
-document.addEventListener("DOMContentLoaded", () => {
-    window.addEventListener('beforeunload', () => {
-    sessionStorage.setItem('ReinicioMusica', 'true');
-    sessionStorage.setItem('tiempoMusica', audio.currentTime);
-});
+    /**
+     * Espera a que el contenido de la página esté completamente cargado antes de ejecutar el código.
+     */
+    document.addEventListener("DOMContentLoaded", () => {
+        window.addEventListener('beforeunload', () => {
+        sessionStorage.setItem('ReinicioMusica', 'true');
+        sessionStorage.setItem('tiempoMusica', audio.currentTime);
+    });
 
     /**
      * Botón para activar o desactivar la música.
@@ -316,8 +316,8 @@ async function cargarEquipo() {
                     });
         
                 // 🔹 **El rival en modo CPU es Vegeta**
-                const cartaRival = new Carta("Vegeta", 100, 20, 40, "Big Bang Attack", 60, "cartas/Vegeta.webp");
-                cartaRival.vidaOriginal = 100;
+                const cartaRival = new Carta("Moro", 300, 30, 10, "Planetarian Absorbtion", 80, "cartas/Moro.webp");
+                cartaRival.vidaOriginal = cartaRival.vida; // Guardar vida original
                 rival.cartas.push(cartaRival);
             }
         }

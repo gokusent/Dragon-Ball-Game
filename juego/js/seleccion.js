@@ -149,17 +149,40 @@ document.addEventListener("DOMContentLoaded", async () => {
                     }
 
                     // Si J1 ya eligió 3 → pasar automáticamente a J2
-                    if (personajesSeleccionados.length === 3 && modo === "local" && jugadorActual === 1) {
-                        setTimeout(confirmarSeleccion, 200);
-                    }
-                } else if (
-                    ((modo === "local" && e.key === "c" && jugadorActual === 2) || modo === "cpu" || modo === "pvp")
-                    && e.key === "c" && personajesSeleccionados.length === 3) {
-                    confirmarSeleccion();
-                }
+                    } else if (e.key === "c" && personajesSeleccionados.length >= 1 && personajesSeleccionados.length <= 3) 
+                        {
+                            confirmarSeleccion();
+                        }
 
-                updateSelection();
-            };
+                        else if (e.key === "Backspace" || e.key === "Delete") {
+                            const selected = personajes[selectedIndex];
+                            if (!selected) return;
+
+                            const index = personajesSeleccionados.indexOf(selected.carta_id);
+                            if (index !== -1) {
+                                personajesSeleccionados.splice(index, 1); // eliminar de la lista
+
+                                // Limpiar visual
+                                const slotSelector = jugadorActual === 1
+                                    ? [".firstPick_player1", ".secondPick_player1", ".thirdPick_player1"]
+                                    : [".firstPick_player2", ".secondPick_player2", ".thirdPick_player2"];
+
+                                const slot = slotSelector[index];
+                                if (slot) document.querySelector(slot).innerHTML = "";
+
+                                // Desbloquear personaje si es del jugador 1
+                                if (jugadorActual === 1) {
+                                    const bloqueadoIndex = personajesBloqueados.indexOf(selected.carta_id);
+                                    if (bloqueadoIndex !== -1) {
+                                        personajesBloqueados.splice(bloqueadoIndex, 1);
+                                        characters[selectedIndex].classList.remove("bloqueado");
+                                    }
+                                }
+                            }
+                        }
+
+                        updateSelection();
+                    };
 
             document.addEventListener("keydown", handleKeydown);
             updateSelection();
