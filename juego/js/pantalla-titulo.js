@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
         setTimeout(() => {
             btnIniciar.style.display = 'none'; // Oculta el botón después de la animación
             container.style.display = 'block'; // Muestra el contenedor principal
-        }, 3000); // Espera 1 segundo para ocultar el botón
+        }, 2700); // Tiempo de la animación de desvanecimiento
 
         window.sessionStorage.setItem("musicaIniciada", "true");
         // Reiniciar y reproducir música
