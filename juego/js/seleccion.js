@@ -149,12 +149,15 @@ document.addEventListener("DOMContentLoaded", async () => {
                     }
 
                     // Si J1 ya eligió 3 → pasar automáticamente a J2
-                    } else if (e.key === "c" && personajesSeleccionados.length >= 1 && personajesSeleccionados.length <= 3) 
-                        {
-                            confirmarSeleccion();
-                        }
-
-                        else if (e.key === "Backspace" || e.key === "Delete") {
+                    } else if (e.key === "c" && personajesSeleccionados.length >= 1 && personajesSeleccionados.length <= 3) {
+                        // Si ya eligió al menos 1 personaje, confirmar selección
+                            const confirmar = confirm("¿Confirmar selección?");
+                            if (confirmar) {
+                                confirmarSeleccion();
+                            } else {
+                                return;
+                            }
+                        } else if (e.key === "Backspace" || e.key === "Delete") {
                             const selected = personajes[selectedIndex];
                             if (!selected) return;
 
@@ -213,7 +216,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                     return;
                 }
 
-                // ✅ Obtener ID del usuario
+                // Obtener ID del usuario
                 const usuarioGuardado = JSON.parse(localStorage.getItem("usuario"));
                 let idJugador = usuarioGuardado?.id;
 
@@ -225,10 +228,10 @@ document.addEventListener("DOMContentLoaded", async () => {
                     }
                 }
 
-                // ✅ Guardar el equipo en localStorage con ID único
+                // Guardar el equipo en localStorage con ID único
                 localStorage.setItem(`equipo_${idJugador}`, JSON.stringify(personajesSeleccionados));
 
-                console.log("📤 Enviando equipo PvP del jugador", idJugador, personajesSeleccionados);
+                console.log("Enviando equipo PvP del jugador", idJugador, personajesSeleccionados);
 
                 socket.emit("confirmar_equipo", {
                     sala,
@@ -242,7 +245,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                     if (redirigido) return;
                     redirigido = true;
 
-                    console.log("✅ Equipo rival recibido:", equipoRival);
+                    console.log("Equipo rival recibido:", equipoRival);
                     localStorage.setItem("equipoRival", JSON.stringify(equipoRival));
 
                     window.location.href = `Alfa.html?modo=pvp&sala=${sala}`;
