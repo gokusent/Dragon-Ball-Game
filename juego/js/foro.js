@@ -247,7 +247,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     sessionStorage.setItem('tiempoMusica', audio.currentTime);
 });
 
-// Obtener y mostrar ranking
+// Función para mostrar el ranking de jugadores
 const listaRanking = document.getElementById('lista-ranking');
 
 try {
@@ -259,8 +259,9 @@ try {
     if (!rankingRes.ok) throw new Error(`Error al obtener el ranking: ${rankingRes.statusText}`);
 
     const ranking = await rankingRes.json();
+    const jugadorId = ranking.jugador?.id;
 
-    ranking.forEach((usuario, index) => {
+    ranking.top.forEach((usuario, index) => {
         const li = document.createElement('li');
         const avatarUrl = usuario.avatar
             ? (usuario.avatar.startsWith('http')
@@ -268,19 +269,49 @@ try {
                 : `http://127.0.0.1:8000${usuario.avatar}`)
             : 'http://127.0.0.1:8000/storage/avatars/default.jpg';
 
+        if (usuario.id === jugadorId) {
+            li.classList.add('jugador-actual');
+        }
+
         li.innerHTML = `
             <span>#${index + 1}</span>
             <a href="perfil.html?id=${usuario.id}">
-            <img src="${avatarUrl}" alt="avatar" class="avatar-ranking">
+                <img src="${avatarUrl}" alt="avatar" class="avatar-ranking">
             </a>
             <strong>${usuario.nombre}</strong> 
             <small>${usuario.victorias} victorias</small>
-
         `;
         listaRanking.appendChild(li);
     });
+
+    // Si el jugador no está en el top 10, agregarlo como #11 destacado
+    const enTop = ranking.top.some(u => u.id === jugadorId);
+
+    if (!enTop && ranking.jugador) {
+        const li = document.createElement('li');
+        li.classList.add('jugador-actual');
+
+        const avatarUrl = ranking.jugador.avatar
+            ? (ranking.jugador.avatar.startsWith('http')
+                ? ranking.jugador.avatar
+                : `http://127.0.0.1:8000${ranking.jugador.avatar}`)
+            : 'http://127.0.0.1:8000/storage/avatars/default.jpg';
+
+        li.innerHTML = `
+            <span>#${ranking.jugador.posicion}</span>
+            <a href="perfil.html?id=${ranking.jugador.id}">
+                <img src="${avatarUrl}" alt="avatar" class="avatar-ranking">
+            </a>
+            <strong>${ranking.jugador.nombre}</strong>
+            <small>${ranking.jugador.victorias} victorias</small>
+        `;
+
+        listaRanking.appendChild(li);
+    }
+
 } catch (e) {
     console.error('Error mostrando el ranking:', e);
 }
+
 });
 

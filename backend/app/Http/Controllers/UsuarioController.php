@@ -489,27 +489,40 @@ class UsuarioController extends Controller
 
     public function ranking()
 {
-    $usuarios = Usuario::join('estadisticas', 'usuarios.id', '=', 'estadisticas.usuario_id')
-        ->select(
-            'usuarios.id',
-            'usuarios.nombre',
-            'usuarios.avatar',
-            'estadisticas.victorias',
-            'estadisticas.derrotas',
-            'estadisticas.numeroPartida',
-            DB::raw('
-                CASE 
-                    WHEN estadisticas.numeroPartida = 0 THEN 0
-                    ELSE estadisticas.victorias / estadisticas.numeroPartida
-                END as ratio
-            ')
-        )
-        ->orderByDesc('ratio')
-        ->limit(10)
+    $usuarioId = Auth::id();
+
+    $usuarios = DB::table('usuarios')
+        ->join('estadisticas', 'usuarios.id', '=', 'estadisticas.usuario_id')
+        ->select('usuarios.id', 'usuarios.nombre', 'usuarios.avatar', 'estadisticas.victorias', 'estadisticas.derrotas', 'estadisticas.numeroPartida')
         ->get();
 
-    return response()->json($usuarios);
+    // Calcular puntuación ponderada
+    $usuarios = $usuarios->map(function ($u) {
+        if ($u->numeroPartida > 0) {
+            $ratio = $u->victorias / $u->numeroPartida;
+            $ponderacion = log10($u->numeroPartida + 1); // +1 para evitar log(0)
+            $u->puntuacion = $ratio * $ponderacion;
+        } else {
+            $u->puntuacion = 0;
+        }
+        return $u;
+    })->sortByDesc('puntuacion')->values();
+
+    // Top 10
+    $top = $usuarios->take(10);
+
+    // Jugador actual con posición
+    $jugador = $usuarios->firstWhere('id', $usuarioId);
+    if ($jugador) {
+        $jugador->posicion = $usuarios->search(fn($u) => $u->id === $usuarioId) + 1;
+    }
+
+    return response()->json([
+        'top' => $top->values(),
+        'jugador' => $jugador,
+    ]);
 }
+
 
 
     }
