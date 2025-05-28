@@ -7,10 +7,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // Al pulsar "Iniciar" mostramos el contenido y ocultamos el botón
     btnIniciar.addEventListener('click', () => {
-        btnIniciar.style.display = 'none';  // Oculta botón
+        btnIniciar.classList.add('fade-out'); // Añade clase para animación de desvanecimiento
+        container.classList.add('expanded'); // Añade clase para animación
+
         setTimeout(() => {
-        container.style.display = 'block';  // Muestra formularios
-        }, 3000); // Espera 1 segundo antes de mostrar el contenido
+            btnIniciar.style.display = 'none'; // Oculta el botón después de la animación
+            container.style.display = 'block'; // Muestra el contenedor principal
+        }, 3000); // Espera 1 segundo para ocultar el botón
 
         window.sessionStorage.setItem("musicaIniciada", "true");
         // Reiniciar y reproducir música

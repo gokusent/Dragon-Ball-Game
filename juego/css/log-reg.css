@@ -13,6 +13,23 @@ body {
   font-family: 'Lexend', sans-serif;
 }
 
+@keyframes popScale {
+  0% {
+    transform: scale(0);
+    opacity: 0;
+  }
+  60% {
+    transform: scale(1.1); 
+    opacity: 1;
+  }
+  80% {
+    transform: scale(0.95); 
+  }
+  100% {
+    transform: scale(1); 
+  }
+}
+
 .container {
   width: 33%;
   background-color: #00000079;
@@ -22,6 +39,14 @@ body {
   backdrop-filter: blur(15px);
   padding: 40px 20px;
   text-align: center;
+  display: none;
+  transform-origin: top center;
+  transition: opacity 0.3s ease;
+}
+
+.container.expanded {
+  display: block;
+  animation: popScale .5s ease forwards;
 }
 
 .form {
@@ -99,4 +124,11 @@ span {
 #btnIniciar {
   width: 20%;
   margin-top: 270px;
+  transition: opacity 4s ease, transform 4s ease;
+}
+
+#btnIniciar.fade-out {
+  opacity: 0;
+  transform: scale(0.3);
+  pointer-events: none; 
 }
