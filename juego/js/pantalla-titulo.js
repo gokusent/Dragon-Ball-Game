@@ -1,8 +1,20 @@
 document.addEventListener("DOMContentLoaded", () => {
+    const btnIniciar = document.getElementById('btnIniciar');
+    const container = document.querySelector('.container');
     const audio = document.getElementById('musicaFondo');
 
-    window.addEventListener('DOMContentLoaded', () => {
-        audio.currentTime = 0; // Siempre reinicia en index
+    audio.volume = 0; // Iniciar volumen en 0 para evitar reproducción automática
+
+    // Al pulsar "Iniciar" mostramos el contenido y ocultamos el botón
+    btnIniciar.addEventListener('click', () => {
+        btnIniciar.style.display = 'none';  // Oculta botón
+        setTimeout(() => {
+        container.style.display = 'block';  // Muestra formularios
+        }, 3000); // Espera 1 segundo antes de mostrar el contenido
+
+        window.sessionStorage.setItem("musicaIniciada", "true");
+        // Reiniciar y reproducir música
+        audio.currentTime = 0;
         audio.volume = 0.5;
         audio.play().catch(err => {
             console.error("Error al reproducir la música:", err);
@@ -11,8 +23,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     window.addEventListener('beforeunload', () => {
         sessionStorage.setItem('tiempoMusica', audio.currentTime);
-        sessionStorage.removeItem('ReinicioMusica'); // No dejarlo activado
-        });
+        sessionStorage.removeItem('ReinicioMusica');
+    });
 
   // Obtener referencias a los formularios de login y registro
   const loginForm = document.getElementById("loginForm");
@@ -55,8 +67,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Evento para procesar el inicio de sesión cuando se hace click en btnLogin
   btnLogin.addEventListener("click", async () => {
-    window.sessionStorage.setItem("musicaIniciada", "true");
-
     try {
       // Obtener y limpiar los valores de los inputs de login
       const email = loginEmail.value.trim();

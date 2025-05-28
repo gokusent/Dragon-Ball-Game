@@ -95,3 +95,8 @@ span {
 .oculto {
   display: none;
 }
+
+#btnIniciar {
+  width: 20%;
+  margin-top: 270px;
+}

@@ -495,9 +495,6 @@ socket.on('nuevo_comentario', async (comentarioData) => {
     }
   });
   
-
-  // Suponiendo que 'io' y 'salas' están definidos y configurados correctamente
-
 socket.on("salir_sala", async ({ sala }) => {
     socket.leave(sala);
     console.log(`🔴 Socket ${socket.id} salió de la sala ${sala}`);
@@ -513,7 +510,7 @@ socket.on("salir_sala", async ({ sala }) => {
             console.log(`💥 Sala ${sala} eliminada de memoria`);
 
             try {
-                // Aquí haces la llamada a tu API para eliminar sala en BD
+                // Aquí hacemos la llamada para eliminar la sala en BD
                 await fetch(`http://localhost:8000/api/salas/${salaId}`, {
                     method: "DELETE"
                 });
