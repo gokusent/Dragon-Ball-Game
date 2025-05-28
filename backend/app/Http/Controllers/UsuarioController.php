@@ -486,4 +486,30 @@ class UsuarioController extends Controller
 
             return response()->json(['amigos' => $amigos]);
     }
+
+    public function ranking()
+{
+    $usuarios = Usuario::join('estadisticas', 'usuarios.id', '=', 'estadisticas.usuario_id')
+        ->select(
+            'usuarios.id',
+            'usuarios.nombre',
+            'usuarios.avatar',
+            'estadisticas.victorias',
+            'estadisticas.derrotas',
+            'estadisticas.numeroPartida',
+            DB::raw('
+                CASE 
+                    WHEN estadisticas.numeroPartida = 0 THEN 0
+                    ELSE estadisticas.victorias / estadisticas.numeroPartida
+                END as ratio
+            ')
+        )
+        ->orderByDesc('ratio')
+        ->limit(10)
+        ->get();
+
+    return response()->json($usuarios);
+}
+
+
     }

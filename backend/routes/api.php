@@ -83,3 +83,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/salas-disponibles', [SalaController::class, 'buscarDisponibles']);
     Route::put('/salas/eliminar/{id}', [SalaController::class, 'destroy'])->where('id', '.*');
 });
+
+Route::middleware('auth:sanctum')->get('/ranking', [UsuarioController::class, 'ranking']);

@@ -246,5 +246,41 @@ document.addEventListener("DOMContentLoaded", async () => {
     sessionStorage.setItem('ReinicioMusica', 'true');
     sessionStorage.setItem('tiempoMusica', audio.currentTime);
 });
+
+// Obtener y mostrar ranking
+const listaRanking = document.getElementById('lista-ranking');
+
+try {
+    const rankingRes = await fetch("http://127.0.0.1:8000/api/ranking", {
+        headers: { Authorization: `Bearer ${token}` },
+        credentials: "include"
+    });
+
+    if (!rankingRes.ok) throw new Error(`Error al obtener el ranking: ${rankingRes.statusText}`);
+
+    const ranking = await rankingRes.json();
+
+    ranking.forEach((usuario, index) => {
+        const li = document.createElement('li');
+        const avatarUrl = usuario.avatar
+            ? (usuario.avatar.startsWith('http')
+                ? usuario.avatar
+                : `http://127.0.0.1:8000${usuario.avatar}`)
+            : 'http://127.0.0.1:8000/storage/avatars/default.jpg';
+
+        li.innerHTML = `
+            <span>#${index + 1}</span>
+            <a href="perfil.html?id=${usuario.id}">
+            <img src="${avatarUrl}" alt="avatar" class="avatar-ranking">
+            </a>
+            <strong>${usuario.nombre}</strong> 
+            <small>${usuario.victorias} victorias</small>
+
+        `;
+        listaRanking.appendChild(li);
+    });
+} catch (e) {
+    console.error('Error mostrando el ranking:', e);
+}
 });
 
