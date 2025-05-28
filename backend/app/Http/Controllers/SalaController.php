@@ -89,16 +89,17 @@ public function buscarDisponibles(Request $request)
     ]);
 }
 
-    // Eliminar una sala
     public function destroy($id)
-    {
-        $sala = Sala::find($id);
+{
+    // Buscar por campo 'sala' que es string tipo pvp_1748432308264
+    $sala = Sala::where('sala', $id)->first();
 
-        if (!$sala) {
-            return response()->json(['message' => 'Sala no encontrada'], 404);
-        }
-
-        $sala->delete();
-        return response()->json(['message' => 'Sala eliminada correctamente']);
+    if (!$sala) {
+        return response()->json(['message' => 'Sala no encontrada'], 404);
     }
+
+    $sala->delete();
+    return response()->json(['message' => 'Sala eliminada correctamente']);
+}
+
 }

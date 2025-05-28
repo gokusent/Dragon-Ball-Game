@@ -209,6 +209,7 @@ async function createOrJoinPvpRoomAndRedirect() {
             // Guarda antes de cambiar a la página de la sala
             localStorage.setItem("jugador_id", jugador_id);
             localStorage.setItem("salaPvp", nombreSala);
+            localStorage.setItem("salaId", crearData.id);
 
             // Redirigir a sala con la sala creada en la URL
             window.location.href = `sala.html?sala=${encodeURIComponent(nombreSala)}`;

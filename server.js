@@ -369,9 +369,6 @@ socket.on('nuevo_comentario', async (comentarioData) => {
     }
   });
   
-  
-  
-
   function obtenerSalaDelJugador(socketId) {
     for (const [sala, datos] of Object.entries(salas)) {
       if (
@@ -499,18 +496,34 @@ socket.on('nuevo_comentario', async (comentarioData) => {
   });
   
 
-  socket.on("salir_sala", () => {
-    const sala = obtenerSalaDelJugador(socket.id);
-    if (sala) {
-      socket.leave(sala);
-      console.log(`👤 Jugador ${socket.id} salió de la sala ${sala}`);
-      delete salas[sala].jugadores[socket.id];
-      if (Object.keys(salas[sala].jugadores).length === 0) {
-        delete salas[sala];
-        console.log(`🧹 Sala ${sala} eliminada por estar vacía`);
-      }
+  // Suponiendo que 'io' y 'salas' están definidos y configurados correctamente
+
+socket.on("salir_sala", async ({ sala }) => {
+    socket.leave(sala);
+    console.log(`🔴 Socket ${socket.id} salió de la sala ${sala}`);
+
+    if (salas[sala] && Array.isArray(salas[sala].jugadores)) {
+        // Eliminar jugador de la lista
+        salas[sala].jugadores = salas[sala].jugadores.filter(j => j.socketId !== socket.id);
+
+        if (salas[sala].jugadores.length === 0) {
+            // Si no quedan jugadores, eliminar sala de memoria y base de datos
+            const salaId = salas[sala].id || sala;
+            delete salas[sala];
+            console.log(`💥 Sala ${sala} eliminada de memoria`);
+
+            try {
+                // Aquí haces la llamada a tu API para eliminar sala en BD
+                await fetch(`http://localhost:8000/api/salas/${salaId}`, {
+                    method: "DELETE"
+                });
+                console.log(`🗑 Sala ID ${salaId} eliminada de la base de datos`);
+            } catch (err) {
+                console.error(`⚠ Error eliminando sala ID ${salaId} de la base de datos`, err);
+            }
+        } 
     }
-  });
+});
 
   socket.on("disconnect", () => {
     console.log("❌ Jugador o usuario desconectado:", socket.id);

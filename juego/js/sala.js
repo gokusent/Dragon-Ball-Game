@@ -125,6 +125,10 @@ document.addEventListener("DOMContentLoaded", async () => {
             jugador2.textContent = `Jugador 2: Esperando...`;
             estadoPartida.textContent = "Oponente desconectado.";
             btnListo.disabled = true;
+            setTimeout(() => {
+                alert("Tu oponente se ha desconectado. Volviendo al menú principal...");
+                window.location.href = "menu.html";
+            }, 3000);
         });
 
         // Cuando el jugador se marca como listo
@@ -142,11 +146,28 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.error("Error al obtener el perfil:", error);
     }
 
-    // Volver al menú
-    document.getElementById("btn-salir").addEventListener("click", () => {
-        socket.emit("salir_sala", { sala });
-        window.location.href = "menu.html";
-    });
+    document.getElementById("btn-salir").addEventListener("click", async () => {
+    socket.emit("salir_sala", { sala });
+
+    try {
+        const response = await fetch(`http://localhost:8000/api/salas/${sala}`, {
+            method: "DELETE",
+            headers: { "Authorization": `Bearer ${token}` },
+            credentials: "include"
+        });
+
+        if (!response.ok) {
+            console.error("Error al eliminar la sala");
+        } else {
+            console.log("Sala eliminada correctamente");
+        }
+    } catch (error) {
+        console.error("Error en la petición para eliminar la sala:", error);
+    }
+
+    alert("Saliste de la sala. Volviendo al menú principal...");
+    window.location.href = "menu.html";
+});
 
     window.addEventListener('beforeunload', () => {
     sessionStorage.setItem('ReinicioMusica', 'true');
