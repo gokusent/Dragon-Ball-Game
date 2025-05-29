@@ -111,7 +111,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             // Función para encontrar índice válido más cercano en una fila específica
             function findClosestIndexInRow(targetRow, col) {
-                const cols = 8; // Número fijo de columnas por fila
+                const cols = 9; // Número fijo de columnas por fila
                 const total = characters.length; // Total de personajes disponibles
                 const start = targetRow * cols; // Índice inicial de la fila objetivo
                 const end = Math.min(start + cols, total); // Índice final (no exceder total)
