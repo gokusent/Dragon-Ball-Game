@@ -845,7 +845,7 @@ function activarTecnicaEspecial(jugadorActual, turno) {
 
         // Actualizar la interfaz gráfica
         actualizarBarraVida(turno === 0 ? 'rival' : 'jugador', defensorIndex);
-        actualizarEstadoCartas(); // 👈 AGREGA AQUÍ TAMBIÉN
+        actualizarEstadoCartas(); 
         actualizarBarraHabilidad(turno);
 
         // Mostrar animaciones adicionales
@@ -902,7 +902,7 @@ function atacar() {
     // Actualizar UI y animaciones
     actualizarBarraVida(objetivoDefensor, defensorIndex);
     mostrarDaño(objetivoDefensor, defensorIndex, daño);
-    actualizarEstadoCartas(); // 👈 AGREGA AQUÍ
+    actualizarEstadoCartas(); // 
     animarAtaque(objetivoAtacante, atacanteIndex);
     animarRecibirDaño(objetivoDefensor, defensorIndex);
 
@@ -975,7 +975,7 @@ function aumentarEnergia() {
 
     // Cambiar turno
     cambiarTurno();
-    actualizarEstadoCartas(); // 👈 AL FINAL DE aumentarEnergia()
+    actualizarEstadoCartas(); 
 }
 
 /**
