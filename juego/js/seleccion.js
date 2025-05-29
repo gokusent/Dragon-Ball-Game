@@ -122,7 +122,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                     selectedIndex += cols;
                 } else if (e.key === "ArrowUp" && selectedIndex - cols >= 0) {
                     selectedIndex -= cols; */
-                } else if (e.key === "Enter") {
+                } else if (e.key === "e") {
                     const selected = personajes[selectedIndex];
                     if (
                         !selected ||
@@ -157,7 +157,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                             } else {
                                 return;
                             }
-                        } else if (e.key === "Backspace" || e.key === "Delete") {
+                        } else if (e.key === "x") {
                             const selected = personajes[selectedIndex];
                             if (!selected) return;
 

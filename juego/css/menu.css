@@ -177,9 +177,14 @@ body {
 /* --------- Responsive para portatiles --------- */
 @media screen and (max-width: 1440px) {
     .duelo_opc {
-        margin-top: 11vw;
-        width: 12vw;
-        height: 30vh;
+        width: 20vw;
+        height: auto;
+        margin: 110px 0 0 30px;
+    }
+
+    .duelo_opc h3 {
+        margin: 0;
+        margin-left: 15px;
     }
 
     .menu {
