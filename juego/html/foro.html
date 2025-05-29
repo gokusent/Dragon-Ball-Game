@@ -4,15 +4,14 @@
 <head>
     <meta charset="UTF-8">
     <title>Foro</title>
-    <link rel="stylesheet" href="css/pantalla-titulo.css">
-    <script src="/socket.io/socket.io.js"></script>
-    <script defer type="module" src="./js/foro.js"></script>
-    <link rel="stylesheet" href="css/foro.css">
+    <script src="../socket.io/socket.io.js"></script>
+    <script defer type="module" src="../js/foro.js"></script>
+    <link rel="stylesheet" href="../css/foro.css">
     <!-- Carga la API de YouTube para la integración de videos -->
     <script defer src="https://www.youtube.com/iframe_api"></script>
 
     <!-- Script para controlar el reproductor de YouTube -->
-    <script defer src="/js/youtubePlayer.js"></script>
+    <script defer src="../js/youtubePlayer.js"></script>
 </head>
 
 <body>
@@ -27,8 +26,6 @@
             </section>
         </div>
 
-        <!-- <div id="player" style="display:none;"></div> -->
-
         <div class="parteDer">
             <div id="crear-post">
                 <input type="text" id="titulo-post" placeholder="Título del post">
@@ -42,6 +39,8 @@
             </div>
         </div>
     </div>
+
+    <div id="player" style="display:none;"></div>
 
     <button id="btn-volver-menu">Volver al Menú</button>
     <script>

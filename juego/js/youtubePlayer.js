@@ -1,41 +1,55 @@
+// Variable global para almacenar la instancia del reproductor de YouTube
 let player;
+
+// Bandera para saber si el reproductor ya está listo para usarse
 let isPlayerReady = false;
 
+// Objeto que mapea cada página del juego a una lista de IDs de videos de YouTube
 const listasPorPagina = {
-    "index": ['ptopGiouo4c'],
-    "menu": ['hI9kz9nR-G4'],
-    'seleccion': ['SKyneUmr74Y'],
-    "Alfa": ['R52Yse9lDEY'],
-    "foro": ['QrFyvuu34NU'],
-    "gacha": ['TTSId7Uwtxs'],
-    "inventario": ['sb3mznAthlU'],
-    "perfil": ['VRUMHMl4z1g'],
-    "sala": ['VRUMHMl4z1g']
+    /** En éstas páginas no usamos la API de Youtube
+     * "index": ['ptopGiouo4c'],
+     * "menu": ['hI9kz9nR-G4'],
+     * "inventario": ['sb3mznAthlU'],
+     * "perfil": ['VRUMHMl4z1g'],
+     */
+    'seleccion': ['SKyneUmr74Y'],   // Música de la pantalla de selección
+    "Alfa": ['R52Yse9lDEY'],        // Música para la pantalla de combate
+    "foro": ['QrFyvuu34NU'],        // Música para el foro
+    "gacha": ['TTSId7Uwtxs'],       // Música para la sección de gacha
+    "sala": ['zdOAOferScI']         // Música para la sala PvP
 };
 
+// Esta función es llamada automáticamente cuando la API de YouTube Iframe está lista
 function onYouTubeIframeAPIReady() {
-    const pagina = window.paginaActual || 'index';
-    const lista = listasPorPagina[pagina] || listasPorPagina['index'];
+    // Obtiene el nombre de la página actual
+    const pagina = window.paginaActual;
 
+    // Obtiene la lista de reproducción asociada a la página actual,
+    // o la lista de la página 'index' si no hay una definida
+    const lista = listasPorPagina[pagina] || listasPorPagina['seleccion'];
+
+    // Comprueba si la música ya se inició previamente en esta sesión
     if (window.sessionStorage.getItem('musicaIniciada') === 'true') {
-    player = new YT.Player('player', {
-        height: '0',
-        width: '0',
-        videoId: lista[0],
-        playerVars: {
-            autoplay: 1,
-            playlist: lista.join(','),
-            loop: 1,
-            rel: 0
-        },
-        events: {
-            'onReady': (event) => {
-                isPlayerReady = true;
-                event.target.setVolume(50);
+        // Crea una nueva instancia del reproductor de YouTube
+        player = new YT.Player('player', {
+            height: '0', // No se muestra en pantalla
+            width: '0',  // No se muestra en pantalla
+            videoId: lista[0], // Primer video de la lista como video inicial
+            playerVars: {
+                autoplay: 1,                // Reproducción automática
+                playlist: lista.join(','),  // Lista de reproducción
+                loop: 1,                    // Repetir la lista en bucle
+                rel: 0                      // No mostrar videos relacionados al final
+            },
+            events: {
+                'onReady': (event) => {
+                    // Marca el reproductor como listo y ajusta el volumen
+                    isPlayerReady = true;
+                    event.target.setVolume(50); // Volumen al 50%
+                }
             }
-        }
-    });
-}
+        });
+    }
 }
 
 /**

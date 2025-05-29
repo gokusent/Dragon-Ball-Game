@@ -22,7 +22,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const perfil = await perfilRes.json();
         const jugador_id = perfil.id;
 
-        console.log("🧾 Perfil obtenido:", perfil);
+        console.log("Perfil obtenido:", perfil);
 
         // Si no hay sala en la URL, solicitar una nueva sala
         if (!sala) {
@@ -75,7 +75,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // Escuchar el estado de la sala (para actualizar la interfaz)
         socket.on("estado_sala", async (data) => {
-            console.log("📥 Estado de la sala recibido:", data);
+            console.log("Estado de la sala recibido:", data);
 
             // Verificar si este jugador es el host según el campo 'soyHost' recibido
             soyHost = data.soyHost;
@@ -105,7 +105,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // Cuando un jugador se une
         socket.on("jugador_unido", async (data) => {
-            console.log("📥 Jugador unido recibido:", data);
+            console.log("Jugador unido recibido:", data);
             const nombreJugador1 = data.jugador1 ? data.jugador1.nombre || await obtenerNombreJugador(data.jugador1.jugador_id) : "Esperando...";
             const nombreJugador2 = data.jugador2 ? data.jugador2.nombre || await obtenerNombreJugador(data.jugador2.jugador_id) : "Esperando...";
             
@@ -146,10 +146,13 @@ document.addEventListener("DOMContentLoaded", async () => {
         console.error("Error al obtener el perfil:", error);
     }
 
+    // Borrar la sala si uno de los jugadores pulsa el botón de salir
     document.getElementById("btn-salir").addEventListener("click", async () => {
     socket.emit("salir_sala", { sala });
 
-    try {
+    const confirmar = confirm("¿Salir de la sala?");
+    if (confirmar) {
+        try {
         const response = await fetch(`http://localhost:8000/api/salas/${sala}`, {
             method: "DELETE",
             headers: { "Authorization": `Bearer ${token}` },
@@ -167,9 +170,12 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     alert("Saliste de la sala. Volviendo al menú principal...");
     window.location.href = "menu.html";
+} else {
+    return;
+}
 });
 
-    window.addEventListener('beforeunload', () => {
+window.addEventListener('beforeunload', () => {
     sessionStorage.setItem('ReinicioMusica', 'true');
     sessionStorage.setItem('tiempoMusica', audio.currentTime);
 });

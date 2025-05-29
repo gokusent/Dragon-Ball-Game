@@ -140,6 +140,17 @@ h1,h2 {
     border: 2px solid #f9c002;
 }
 
+.acciones-post {
+    font-size: 1.5rem;
+    line-height: 1.6;
+}
+.avatar-comentario{
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    border: 2px solid #f9c002;
+}
+
 .info-post h3 {
     margin: 0;
     font-size: 1.2rem;

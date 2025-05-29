@@ -18,8 +18,8 @@ const descripciones = [
 ];
 
 // ==== Sonidos ====
-const moveSound = new Audio("sounds/move.mp3");
-const selectSound = new Audio("sounds/select.mp3");
+const moveSound = new Audio("../sounds/move.mp3");
+const selectSound = new Audio("../sounds/select.mp3");
 
 // ==== Actualizar selección principal ====
 function updateSelection() {
@@ -246,10 +246,12 @@ function showLoadingAndRedirect(url) {
 const audio = document.getElementById('musicaFondo');
 const paginaActual = window.paginaActual || 'index';
 
+// Reproducir música de fondo
 window.addEventListener('DOMContentLoaded', () => {
     const tiempo = sessionStorage.getItem('tiempoMusica');
     const reinicio = sessionStorage.getItem('ReinicioMusica') === 'true';
 
+    // Si estamos en las páginas index, menu o perfil y se ha marcado reinicio, reiniciar música
     if (['index', 'menu', 'perfil'].includes(paginaActual) && reinicio) {
         audio.currentTime = 0;
         sessionStorage.removeItem('ReinicioMusica');
@@ -263,10 +265,12 @@ window.addEventListener('DOMContentLoaded', () => {
     });
 });
 
+// Guardar el tiempo de música al salir de la página
 window.addEventListener('beforeunload', () => {
     sessionStorage.setItem('tiempoMusica', audio.currentTime);
 });
 
+// Escuchar el evento de carga para actualizar la selección y ocultar el overlay
 window.addEventListener("load", () => {
     updateSelection();
     menuItems[selectedIndex].scrollIntoView({ behavior: "instant", block: "center" });

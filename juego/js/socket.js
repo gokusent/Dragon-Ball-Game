@@ -16,17 +16,17 @@ const socket = io(URL, {
 });
 
 socket.on("connect", () => {
-    console.log("🟢 Conectado al servidor de WebSockets con ID:", socket.id);
+    console.log("Conectado al servidor de WebSockets con ID:", socket.id);
 });
 
 socket.on("ping", () => {
-    console.log("⚡ Ping recibido, enviando pong...");
+    console.log("Ping recibido, enviando pong...");
     socket.emit("pong");  // Responder con pong
 });
 
 // Si la conexión se pierde por alguna razón, el cliente intentará reconectar
 socket.on("disconnect", (reason) => {
-    console.log(`⚠️ Desconectado: ${reason}`);
+    console.log(`Desconectado: ${reason}`);
     socket.connect();  // Intentar reconectar
 });
 

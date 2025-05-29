@@ -391,8 +391,12 @@ class UsuarioController extends Controller
         return response()->json($amigos);
     }
 
+    /**
+     * Verifica el estado de la amistad entre el usuario autenticado y otro usuario
+     */
     public function estadoAmistad(Request $request)
     {
+        // Verifica si el usuario está autenticado
         try {
             if (!Auth::check()) {
                 return response()->json(['error' => 'No autenticado'], 401);
@@ -402,16 +406,18 @@ class UsuarioController extends Controller
                 return response()->json(['error' => 'ID no proporcionado'], 400);
             }
 
+            // Obtiene el ID del usuario autenticado y el ID del otro usuario desde la solicitud
             $userId = Auth::id();
             $otroId = $request->query('id');
 
+            // Verifica si el ID del otro usuario es el mismo que el del usuario autenticado
             $amistad = Amigo::where(function ($q) use ($userId, $otroId) {
                 $q->where('usuario_id', $userId)->where('amigo_id', $otroId);
             })->orWhere(function ($q) use ($userId, $otroId) {
                 $q->where('usuario_id', $otroId)->where('amigo_id', $userId);
-            })->first();
+            })->first(); // Busca la relación de amistad entre los dos usuarios
             
-
+            // Si no hay amistad registrada, devuelve 'ninguno'
             if (!$amistad) {
                 return response()->json(['estado' => 'ninguno']);
             }
@@ -422,10 +428,15 @@ class UsuarioController extends Controller
         }
     }
 
+    /**
+     * Busca usuarios por nombre
+     */
     public function buscarUsuarios(Request $request)
     {
-        $nombre = $request->query('nombre');
+        
+        $nombre = $request->query('nombre'); // Obtiene el nombre de la consulta
 
+        // Validación básica
         $usuarios = DB::table('usuarios')
         ->select('id', 'nombre', 'avatar')
         ->where('nombre', 'like', "%{$nombre}%")
@@ -437,16 +448,21 @@ class UsuarioController extends Controller
         return response()->json($usuarios);
     }
 
+    /**
+     * Obtiene los amigos del usuario autenticado
+     */
     public function misAmigos(Request $request)
     {
         Log::info('Usuario autenticado: ' . json_encode($request->user()));
 
-        $usuario = $request->user();
+        
+        $usuario = $request->user(); // Obtiene el usuario autenticado desde la solicitud
 
         if (!$usuario) {
             return response()->json(['error' => 'No autenticado'], 401);
         }
 
+        // Obtener amigos del usuario autenticado
         $amigos = DB::table('amigos')
             ->join('usuarios', function($join) use ($usuario) {
                 $join->on(function ($query) use ($usuario) {
@@ -466,6 +482,11 @@ class UsuarioController extends Controller
             return response()->json(['amigos' => $amigos]); // Cambiado para que sea un objeto con propiedad 'amigos'
         }
 
+    /**
+     * Obtiene los amigos de un usuario por su ID
+     * @param int $id
+     * @return \Illuminate\Http\JsonResponse
+     */
         public function amigosPorId($id)
         {
             $amigos = DB::table('amigos')
@@ -487,42 +508,42 @@ class UsuarioController extends Controller
             return response()->json(['amigos' => $amigos]);
     }
 
+    /**
+     * Obtiene el ranking de usuarios basado en sus estadísticas
+     */
     public function ranking()
-{
-    $usuarioId = Auth::id();
+    {
+        $usuarioId = Auth::id();
 
-    $usuarios = DB::table('usuarios')
-        ->join('estadisticas', 'usuarios.id', '=', 'estadisticas.usuario_id')
-        ->select('usuarios.id', 'usuarios.nombre', 'usuarios.avatar', 'estadisticas.victorias', 'estadisticas.derrotas', 'estadisticas.numeroPartida')
-        ->get();
+        $usuarios = DB::table('usuarios')
+            ->join('estadisticas', 'usuarios.id', '=', 'estadisticas.usuario_id')
+            ->select('usuarios.id', 'usuarios.nombre', 'usuarios.avatar', 'estadisticas.victorias', 'estadisticas.derrotas', 'estadisticas.numeroPartida')
+            ->get();
 
-    // Calcular puntuación ponderada
-    $usuarios = $usuarios->map(function ($u) {
-        if ($u->numeroPartida > 0) {
-            $ratio = $u->victorias / $u->numeroPartida;
-            $ponderacion = log10($u->numeroPartida + 1); // +1 para evitar log(0)
-            $u->puntuacion = $ratio * $ponderacion;
-        } else {
-            $u->puntuacion = 0;
+        // Calcular puntuación ponderada
+        $usuarios = $usuarios->map(function ($u) {
+            if ($u->numeroPartida > 0) {
+                $ratio = $u->victorias / $u->numeroPartida;
+                $ponderacion = log10($u->numeroPartida + 1); // +1 para evitar log(0)
+                $u->puntuacion = $ratio * $ponderacion;
+            } else {
+                $u->puntuacion = 0;
+            }
+            return $u;
+        })->sortByDesc('puntuacion')->values();
+
+        // Top 10
+        $top = $usuarios->take(10);
+
+        // Jugador actual con posición
+        $jugador = $usuarios->firstWhere('id', $usuarioId);
+        if ($jugador) {
+            $jugador->posicion = $usuarios->search(fn($u) => $u->id === $usuarioId) + 1;
         }
-        return $u;
-    })->sortByDesc('puntuacion')->values();
 
-    // Top 10
-    $top = $usuarios->take(10);
-
-    // Jugador actual con posición
-    $jugador = $usuarios->firstWhere('id', $usuarioId);
-    if ($jugador) {
-        $jugador->posicion = $usuarios->search(fn($u) => $u->id === $usuarioId) + 1;
+        return response()->json([
+            'top' => $top->values(),
+            'jugador' => $jugador,
+        ]);
     }
-
-    return response()->json([
-        'top' => $top->values(),
-        'jugador' => $jugador,
-    ]);
 }
-
-
-
-    }

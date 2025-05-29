@@ -13,6 +13,7 @@ Route::get('/user', function (Request $request) {
     return $request->user();
 })->middleware('auth:sanctum');
 
+// Rutas para registro y autenticación de usuarios
 Route::post('/registrar', [UsuarioController::class, 'registrar']);
 Route::post('/login', [UsuarioController::class, 'login']);
 Route::middleware('auth:sanctum')->post('/logout', function (Request $request) {
@@ -34,7 +35,7 @@ Route::get('/sanctum/csrf-cookie', function () {
     return response()->json(['csrf' => csrf_token()]);
 });
 
-
+// Rutas para las cartas
 Route::get('/cartas', [CartasController::class, 'index']);
 Route::get('/cartas/{id}', [CartasController::class, 'CartasPorID']);
 Route::post('/cartas/agregar', [CartasController::class, 'agregarCarta']);
@@ -43,6 +44,7 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 Route::post('/cartas/obtener', [CartasController::class, 'obtenerCartasPorID']);
 
+// Rutas para las monedas y usuarios
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/monedas/gastar', [MonedasController::class, 'gastar']);    Route::get('/usuario', [UsuarioController::class, 'obtenerUsuario']);
     Route::get('/usuario/{id}', [UsuarioController::class, 'obtenerUsuario']);
@@ -74,7 +76,7 @@ Route::middleware('auth:sanctum')->group(function () {
 });
 Route::get('/equipo/mostrar', [EquipoController::class, 'mostrarEquipo']);
 
-// Rutas para las partidas
+// Rutas para las salas de juego PvP
 Route::middleware('auth:sanctum')->group(function () {
     Route::get('/salas', [SalaController::class, 'index']); // Para obtener todas las salas
     Route::post('/crear-sala', [SalaController::class, 'store']); // Para crear una nueva sala
@@ -84,4 +86,5 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::delete('/salas/{id}', [SalaController::class, 'destroy']);
 });
 
+// Rutas para el ranking de usuarios
 Route::middleware('auth:sanctum')->get('/ranking', [UsuarioController::class, 'ranking']);

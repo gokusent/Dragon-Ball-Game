@@ -38,7 +38,12 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Volver al menú con tecla "b"
     document.addEventListener("keydown", e => {
         if (e.key === "b") {
-            window.location.href = "menu.html";
+            const confirmar = confirm("¿Volver al menú principal?");
+            if (confirmar) {
+                window.location.href = "menu.html";
+            } else {
+                return;
+            }
         }
     });
 

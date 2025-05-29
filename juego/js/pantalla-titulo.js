@@ -15,15 +15,18 @@ document.addEventListener("DOMContentLoaded", () => {
             container.style.display = 'block'; // Muestra el contenedor principal
         }, 2700); // Tiempo de la animación de desvanecimiento
 
+        // Reproducir música de fondo
         window.sessionStorage.setItem("musicaIniciada", "true");
+        
         // Reiniciar y reproducir música
-        audio.currentTime = 0;
-        audio.volume = 0.5;
+        audio.currentTime = 0; // Inicia la música desde el principio
+        audio.volume = 0.5; // Ajusta el volumen al 50%
         audio.play().catch(err => {
             console.error("Error al reproducir la música:", err);
         });
     });
 
+    // 
     window.addEventListener('beforeunload', () => {
         sessionStorage.setItem('tiempoMusica', audio.currentTime);
         sessionStorage.removeItem('ReinicioMusica');
@@ -96,7 +99,7 @@ document.addEventListener("DOMContentLoaded", () => {
             console.warn("No se recibió el objeto usuario.");
         }
         // Redirigir al menú principal
-        window.location.href = "menu.html";
+        window.location.href = "./html/menu.html";
       } else {
         // Mostrar error recibido o mensaje por defecto
         mostrarError(loginError, data.error || "Correo o contraseña incorrectos.");

@@ -17,8 +17,8 @@ class SalaController extends Controller
     }
 
     // Crear una nueva sala
-public function store(Request $request)
-{
+    public function store(Request $request)
+    {
     $user = $request->user(); // usuario autenticado
     
     $sala = new Sala();
@@ -34,72 +34,70 @@ public function store(Request $request)
             'id' => $sala->id,
             'sala' => $sala->sala
         ]);
-        
-        
-}
+    }
     
     // Obtener los detalles de una sala específica
     public function show($id)
-{
-    // Buscar la sala usando el campo "sala" que almacena el string completo (como pvp_174438...)
-    $sala = Sala::where('sala', $id)->first();
+    {
+        // Buscar la sala usando el campo "sala" que almacena el string completo (como pvp_174438...)
+        $sala = Sala::where('sala', $id)->first();
 
-    if (!$sala) {
-        return response()->json(['message' => 'Sala no encontrada'], 404);
+        if (!$sala) {
+            return response()->json(['message' => 'Sala no encontrada'], 404);
+        }
+
+        return response()->json([
+            'message' => 'Sala encontrada',
+            'sala' => $sala->sala,
+            'jugador1_id' => $sala->jugador1_id,
+            'jugador2_id' => $sala->jugador2_id,
+            'estado' => $sala->estado,
+        ]);
     }
 
-    return response()->json([
-        'message' => 'Sala encontrada',
-        'sala' => $sala->sala,
-        'jugador1_id' => $sala->jugador1_id,
-        'jugador2_id' => $sala->jugador2_id,
-        'estado' => $sala->estado,
-    ]);
-}
+    // Buscar salas disponibles
+    public function buscarDisponibles(Request $request)
+    {
+        $usuario_id = $request->user()->id;
 
-// Buscar salas disponibles
-public function buscarDisponibles(Request $request)
-{
-    $usuario_id = $request->user()->id;
+        $salasDisponibles = Sala::where('estado', 'esperando')
+            ->whereNull('jugador2_id')
+            ->where('jugador1_id', '!=', $usuario_id) // Evitar unirse a su propia sala
+            ->get();
 
-    $salasDisponibles = Sala::where('estado', 'esperando')
-        ->whereNull('jugador2_id')
-        ->where('jugador1_id', '!=', $usuario_id) // Evitar unirse a su propia sala
-        ->get();
-
-    return response()->json($salasDisponibles);
-}
-
+        return response()->json($salasDisponibles);
+    }
 
     // Actualizar el estado o los detalles de una sala
     public function update(Request $request, $id)
-{
-    $sala = Sala::findOrFail($id);
+    {
+        $sala = Sala::findOrFail($id);
 
-    $sala->jugador2_id = $request->jugador2_id;
-    $sala->estado = 'llena';
-    $sala->save();
+        $sala->jugador2_id = $request->jugador2_id;
+        $sala->estado = 'llena';
+        $sala->save();
 
-    return response()->json([
-        'id' => $sala->id,
-        'sala' => $sala->sala,
-        'jugador1_id' => $sala->jugador1_id,
-        'jugador2_id' => $sala->jugador2_id,
-        'estado' => $sala->estado,
-    ]);
-}
-
-    public function destroy($id)
-{
-    // Buscar por campo 'sala' que es string tipo pvp_1748432308264
-    $sala = Sala::where('sala', $id)->first();
-
-    if (!$sala) {
-        return response()->json(['message' => 'Sala no encontrada'], 404);
+        return response()->json([
+            'id' => $sala->id,
+            'sala' => $sala->sala,
+            'jugador1_id' => $sala->jugador1_id,
+            'jugador2_id' => $sala->jugador2_id,
+            'estado' => $sala->estado,
+        ]);
     }
 
-    $sala->delete();
-    return response()->json(['message' => 'Sala eliminada correctamente']);
-}
+    // Eliminar una sala
+    public function destroy($id)
+    {
+        // Buscar por campo 'sala' que es string tipo pvp_1748432308264
+        $sala = Sala::where('sala', $id)->first();
+
+        if (!$sala) {
+            return response()->json(['message' => 'Sala no encontrada'], 404);
+        }
+
+        $sala->delete();
+        return response()->json(['message' => 'Sala eliminada correctamente']);
+    }
 
 }

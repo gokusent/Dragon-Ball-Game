@@ -81,7 +81,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                         </small>
                     </div>
                 </div>
+                <div class="acciones-post">
                 <p>${post.contenido}</p>
+                </div>
                 <div class="comentarios" id="comentarios-${post.id}" style="display: none;"></div>
                 <div class="formulario-comentario" id="formulario-${post.id}" style="display: none;"></div>
                 <hr>
@@ -139,7 +141,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                     <img src="${avatarUrl}" alt="avatar" class="avatar-comentario">
                     </a>
                     <div class="contenido-comentario">
-                    <strong>${comentario.nombre}</strong>
+                    <strong>${comentario.autor || comentario.nombre}</strong>
                     ${comentario.fecha ? `- <span>${new Date(comentario.fecha).toLocaleString()}</span>` : ''}
                     </div>
                     <div class="contenido-comentario">

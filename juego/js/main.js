@@ -3,26 +3,27 @@ import { Carta } from './clases.js'; // Importa la clase Carta para crear cartas
 import { colocar } from './funciones.js'; // Importa la función para colocar las cartas en el tablero
 import { toggleMusic } from './music.js'; // Importa la función para alternar la música
 
-// 📌 **Obtener el modo de juego de la URL**
+// **Obtener el modo de juego de la URL**
 const urlParams = new URLSearchParams(window.location.search);
 const modoJuego = urlParams.get("modo") || "cpu";  // Por defecto CPU
 console.log("Modo de juego:", modoJuego);
 
-/*
+
 // 1. Conectar el socket
 const socket = io("http://localhost:3000");
 
+/* Código comentado para ser implementado en el futuro adecuadamente.
 // 2. Obtener el ID del jugador y la sala desde localStorage
 const jugadorId = localStorage.getItem("jugadorId");
 const salaId = localStorage.getItem("salaPvp");
 
 // 3. Esperar a que se conecte el socket
 socket.on("connect", () => {
-  console.log("🔌 Reconectado al servidor con ID:", socket.id);
+  console.log("Reconectado al servidor con ID:", socket.id);
 
   // 4. Verificar que haya datos para volver a unirse
   if (jugadorId && salaId) {
-    console.log(`🎮 Reuniéndose a la sala ${salaId} como ${jugadorId}`);
+    console.log(`Reuniéndose a la sala ${salaId} como ${jugadorId}`);
 
     // 5. Emitir evento para volver a unirse a la sala PvP
     socket.emit("unirse_sala_pvp", {
@@ -36,13 +37,13 @@ socket.on("connect", () => {
       jugadorId: jugadorId,
     });
   } else {
-    console.warn("⚠️ No se encontraron datos de jugador o sala en localStorage");
+    console.warn("No se encontraron datos de jugador o sala en localStorage");
   }
 });
 
 // 7. Aquí puedes agregar más listeners de combate:
 socket.on("iniciar_turno", (data) => {
-  console.log("🔁 Turno iniciado:", data);
+  console.log("Turno iniciado:", data);
   // Actualiza la UI según el jugador que deba jugar
 });
 
@@ -58,14 +59,14 @@ let turno = 0; // 0: jugador1, 1: jugador2
 let turnos = 0;
 
 /*
-// 🧠 Emitir solicitud para iniciar partida si sos host
+// Emitir solicitud para iniciar partida si eres el host
 if (modoJuego === "pvp" && soyHost) {
     console.log("Esperando a que ambos jugadores estén listos...");
     socket.emit("solicitar_inicio_partida");  // El servidor elige el turno y emite a ambos
     console.log("Partida iniciada.");
 }
-
-// 🎧 Esperar a que el servidor indique el inicio y el turno inicial
+*/
+// Esperar a que el servidor indique el inicio y el turno inicial
 socket.on("iniciar_partida", ({ turnoInicial, jugador1, jugador2 }) => {
     estadoSala.jugador1 = jugador1;
     estadoSala.jugador2 = jugador2;
@@ -77,9 +78,8 @@ socket.on("iniciar_partida", ({ turnoInicial, jugador1, jugador2 }) => {
     anunciarTurno();
     actualizarBotones();
 });
-*/
 
-// 📢 Mostrar quién juega
+
 // Función para mostrar un mensaje que indique el turno actual
 function anunciarTurno() {
     anuncioTurno.innerText = turno === 0 ? "Turno de J1" : "Turno de J2"; // Cambia el mensaje dependiendo del turno
@@ -91,7 +91,7 @@ function anunciarTurno() {
     }, 1500);
 }
 
-// 🔁 Cambiar de turno
+// Cambiar de turno
 function cambiarTurno(esPvp) {
     turno = turno === 0 ? 1 : 0;
 
@@ -109,7 +109,7 @@ function cambiarTurno(esPvp) {
 }
 
 /*
-// ✅ Verifica si es tu turno
+// Verifica si es tu turno
 function verificarTurnoPropio() {
     if (!jugadorID) return false;
     if (turno === 0) return estadoSala.jugador1?.jugador_id === jugadorID;
@@ -149,7 +149,7 @@ function turnoIA() {
             console.log("La IA aumenta su energía.");
             aumentarEnergia(rival);
         }
-    }, 1500);
+    }, 2000);
 }
 
 /**
@@ -205,7 +205,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 });
 
-// 📌 **Obtener el token del usuario**
+// **Obtener el token del usuario**
 const token = localStorage.getItem("token");
 
 if (!token) {
@@ -213,7 +213,7 @@ if (!token) {
     window.location.href = "index.html";
 }
 
-// 📌 **Definir los mazos del jugador y del rival**
+// **Definir los mazos del jugador y del rival**
 const jugador = { cartas: [] };
 const rival = { cartas: [] };
 
@@ -221,7 +221,7 @@ async function cargarEquipo() {
     try {
         console.log("Modo de juego:", modoJuego);  // Verifica el modo de juego
 
-        // 🔹 **Modo Local: Cada jugador elige su equipo**
+        // **Modo Local: Cada jugador elige su equipo**
         if (modoJuego === "local") {
             const equipoJ1 = JSON.parse(localStorage.getItem("equipoJ1")) || [];
             const equipoJ2 = JSON.parse(localStorage.getItem("equipoJ2")) || [];
@@ -235,12 +235,12 @@ async function cargarEquipo() {
             console.log("Equipo Jugador 1:", equipoJ1);
             console.log("Equipo Jugador 2:", equipoJ2);
 
-            // 🔹 **Cargar personajes de ambos jugadores**
+            // **Cargar personajes de ambos jugadores**
             await cargarCartasDesdeIDs(equipoJ1, jugador);
             await cargarCartasDesdeIDs(equipoJ2, rival);
 
         } else if (modoJuego === "pvp" || modoJuego === "cpu") {
-            // 🔹 **Modo PVP y CPU: Cargar desde la API**
+            // **Modo PVP y CPU: Cargar desde la API**
             if (modoJuego === "pvp") {
                 // Limpiar equipos anteriores al iniciar el modo PvP
                 localStorage.removeItem("equipoJ1");
@@ -262,7 +262,7 @@ async function cargarEquipo() {
                         idJugador = usuario.id;
                         localStorage.setItem("usuario", JSON.stringify(usuario));
                     } catch (error) {
-                        console.error("❌ Error al obtener ID del jugador:", error);
+                        console.error("Error al obtener ID del jugador:", error);
                         alert("No se pudo obtener el perfil del jugador.");
                         window.location.href = "seleccion.html?modo=pvp";
                         return;
@@ -300,7 +300,7 @@ async function cargarEquipo() {
                     return;
                 }
 
-                // 📌 **Asignamos los personajes al jugador**
+                // **Asignamos los personajes al jugador**
                 personajesJugador.forEach(personaje => {
                     const cartaJugador = new Carta(
                         personaje.nombre,
@@ -316,20 +316,20 @@ async function cargarEquipo() {
                 });
 
                 // 🔹 **El rival en modo CPU es Moro**
-                const cartaRival = new Carta("Moro", 300, 30, 10, "Planetarian Absorbtion", 80, "cartas/Moro.webp");
+                const cartaRival = new Carta("Moro", 300, 30, 10, "Planetarian Absorbtion", 80, "../cartas/Moro.webp");
                 cartaRival.vidaOriginal = cartaRival.vida; // Guardar vida original
                 rival.cartas.push(cartaRival);
             }
         }
 
-        // 📌 **Colocar las cartas en el tapete**
+        // **Colocar las cartas en el tapete**
         console.log("Cartas del jugador:", jugador.cartas);
         console.log("Cartas del rival:", rival.cartas);
 
         if (jugador.cartas.length > 0 && rival.cartas.length > 0) {
             const tapete = document.getElementById("tapete");
             colocar(jugador, rival, tapete);
-            actualizarEstadoCartas(); // 🔁 Asegura que las cartas activas se reflejen
+            actualizarEstadoCartas(); // Asegura que las cartas activas se reflejen
         } else {
             alert("No se han cargado las cartas correctamente.");
         }
@@ -341,7 +341,7 @@ async function cargarEquipo() {
 }
 
 /**
- * 🔹 **Función para cargar personajes por ID en modo Local**
+ * **Función para cargar personajes por ID en modo Local**
  */
 async function cargarCartasDesdeIDs(ids, destino) {
     try {
@@ -374,7 +374,7 @@ async function cargarCartasDesdeIDs(ids, destino) {
     }
 }
 
-// 📌 **Cargar el equipo al iniciar la página**
+// **Cargar el equipo al iniciar la página**
 cargarEquipo();
 
 
@@ -578,7 +578,7 @@ async function verificarFinDeJuego() {
             const monedasGanadas = ganador === "Jugador" ? 5 : 1;
             modificarMonedas(monedasGanadas);
 
-            // 🔽 Definimos correctamente todas las variables necesarias
+            // Definimos correctamente todas las variables necesarias
             const resultado = rivalDerrotado ? "victoria" : "derrota";
             const personaje = cartaJugador.nombre;
             const vidaFinal = cartaJugador.vida;
@@ -796,7 +796,7 @@ function activarTecnicaEspecial(jugadorActual, turno) {
 
     const defensor = rivalJugador.cartas[defensorIndex];
 
-    console.log(`⚡ ${atacante.nombre} usa ${atacante.tecnicaEspecial} contra ${defensor.nombre}`);
+    console.log(`${atacante.nombre} usa ${atacante.tecnicaEspecial} contra ${defensor.nombre}`);
 
     // Obtener el contenedor de la carta atacante
     const cartaContainerAtacante = document.querySelectorAll(`.contenedor-${turno === 0 ? 'jugador' : 'rival'} .carta-container`)[atacanteIndex];

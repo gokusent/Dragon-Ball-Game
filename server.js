@@ -1,35 +1,59 @@
+// Importa el framework Express para crear la app del servidor
 const express = require("express");
-const http = require("http");
-const { Server } = require("socket.io");
-const path = require("path");
-const fs = require("fs");
-const cors = require("cors");
-const mysql = require('mysql2/promise');
-require('dotenv').config(); // Cargar variables desde .env
 
+// Importa el módulo HTTP de Node.js para crear el servidor
+const http = require("http");
+
+// Importa el constructor del servidor WebSocket de Socket.IO
+const { Server } = require("socket.io");
+
+// Módulo para manejar rutas de archivos
+const path = require("path");
+
+// Módulo para trabajar con el sistema de archivos
+const fs = require("fs");
+
+// Middleware para habilitar CORS (permite conexiones desde otros dominios)
+const cors = require("cors");
+
+// Cliente MySQL con soporte para promesas
+const mysql = require('mysql2/promise');
+
+// Carga variables de entorno desde un archivo .env al objeto process.env
+require('dotenv').config();
+
+// Configura un pool de conexiones MySQL usando las variables de entorno
 const db = mysql.createPool({
-  host: process.env.DB_HOST || 'localhost',
-  user: process.env.DB_USER || 'root',
-  password: process.env.DB_PASSWORD || 'root',
-  database: process.env.DB_NAME || 'juego',
-  port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 3306,
-  waitForConnections: true,
-  connectionLimit: 10,
-  queueLimit: 0
+  host: process.env.DB_HOST || 'localhost',            // Dirección del servidor de base de datos
+  user: process.env.DB_USER || 'root',                 // Usuario de la base de datos
+  password: process.env.DB_PASSWORD || '',             // Contraseña del usuario
+  database: process.env.DB_NAME || 'juego',            // Nombre de la base de datos
+  port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 3306, // Puerto de conexión
+  waitForConnections: true,                            // Esperar si no hay conexiones disponibles
+  connectionLimit: 10,                                 // Número máximo de conexiones simultáneas
+  queueLimit: 0                                        // Sin límite para las conexiones en cola
 });
 
+// Exporta el pool de conexiones para usarlo en otros archivos
 module.exports = db;
 
+// Middleware para manejar subidas de archivos (como imágenes o avatares)
 const multer = require("multer");
 
+// Crea la instancia principal de la aplicación Express
 const app = express();
+
+// Crea un servidor HTTP usando la aplicación Express
 const server = http.createServer(app);
+
+// Inicializa un servidor WebSocket con Socket.IO sobre el servidor HTTP
 const io = new Server(server);
 
+// Habilita CORS para permitir peticiones desde el frontend en localhost:3000
 app.use(cors({
-  origin: "http://localhost:3000",
-  methods: ["GET", "POST"],
-  allowedHeaders: ["Content-Type", "Authorization"]
+  origin: "http://localhost:3000",             // Permitir solicitudes solo desde esta URL
+  methods: ["GET", "POST"],                    // Métodos permitidos
+  allowedHeaders: ["Content-Type", "Authorization"] // Cabeceras permitidas
 }));
 
 // NECESARIO para que Express pueda leer JSON:
@@ -48,12 +72,13 @@ app.get('/api/perfil', async (req, res) => {
   }
 });
 
-
+// Ruta para crear una nueva sala
 app.get("/api/crear-sala", (req, res) => {
   const token = generarToken();
   res.json({ token });
 });
 
+// Darle un token aleatorio a una nueva sala
 function generarToken() {
   const letras = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
   let token = "";
@@ -71,6 +96,7 @@ app.use(express.static(rutaJuego));
 app.use('/cartas', express.static(path.join(__dirname, 'juego/cartas')));
 app.use('/storage/avatars', express.static(path.join(__dirname, 'storage')));
 
+// Servir archivos HTML del juego
 fs.readdirSync(rutaJuego).forEach(file => {
   if (file.endsWith(".html")) {
     app.get(`/${file}`, (req, res) => {
@@ -98,6 +124,7 @@ const fileFilter = (req, file, cb) => {
     cb(null, true);
 };
 
+// Configura multer con el almacenamiento y el filtro
 const upload = multer({ storage, fileFilter });
 
 app.post('/api/perfil/avatar', upload.single('avatar'), (req, res) => {
@@ -133,11 +160,11 @@ let posts = []; // Array para los posts del foro
 const usuarios = {}; // Objeto para almacenar los usuarios registrados
 
 io.on("connection", (socket) => {
-  console.log("🔌 Jugador o usuario conectado:", socket.id);
+  console.log("Jugador o usuario conectado:", socket.id);
 
   // --- FORO ---
   socket.on('registrar_usuario', ({ jugador_id, nombre, avatar }) => {
-    console.log(`👤 Usuario registrado: ${nombre} con avatar: ${avatar}`);
+    console.log(`Usuario registrado: ${nombre} con avatar: ${avatar}`);
     usuarios[socket.id] = { jugador_id, nombre, avatar };
 });
 
@@ -392,7 +419,7 @@ socket.on('nuevo_comentario', async (comentarioData) => {
     }
 
     if (salaActual.jugador1?.listo && salaActual.jugador2?.listo) {
-      console.log("🚀 Ambos jugadores listos, iniciando partida en sala", sala);
+      console.log("Ambos jugadores listos, iniciando partida en sala", sala);
 
       const turnoInicial = Math.random() < 0.5 ? "jugador1" : "jugador2";
       salas[sala].turno = turnoInicial;
@@ -408,7 +435,7 @@ socket.on('nuevo_comentario', async (comentarioData) => {
         jugador2: salas[sala].jugador2,
         turno: salas[sala].turno
       };
-      console.log(`📦 [ESTADO SOLICITADO] Sala: ${sala}`, estado);
+      console.log(`[ESTADO SOLICITADO] Sala: ${sala}`, estado);
       io.to(sala).emit("estado_sala", estado);
     }
   });
@@ -438,17 +465,17 @@ socket.on('nuevo_comentario', async (comentarioData) => {
   });
 
   socket.on("solicitar_inicio_partida", () => {
-    console.log("🕹️ [INICIO PARTIDA] Solicitud de inicio recibida:", socket.id);
+    console.log("[INICIO PARTIDA] Solicitud de inicio recibida:", socket.id);
     const sala = obtenerSalaDelJugador(socket.id);
     if (!sala || !salas[sala].jugador1 || !salas[sala].jugador2) {
-      console.log("❌ [INICIO PARTIDA] Faltan jugadores");
+      console.log("[INICIO PARTIDA] Faltan jugadores");
       return;
     }
   
     const turnoInicial = Math.random() < 0.5 ? "jugador1" : "jugador2";
     salas[sala].turno = turnoInicial;
   
-    console.log(`🚀 [INICIO PARTIDA] Sala: ${sala}, Turno inicial: ${turnoInicial}`);
+    console.log(`[INICIO PARTIDA] Sala: ${sala}, Turno inicial: ${turnoInicial}`);
   
     io.to(sala).emit("iniciar_partida", {
       turnoInicial,
@@ -461,11 +488,11 @@ socket.on('nuevo_comentario', async (comentarioData) => {
   socket.on("cambiar_turno", (nuevoTurno) => {
     const sala = obtenerSalaDelJugador(socket.id);
     if (sala && salas[sala]) {
-      console.log(`🌀 [CAMBIO DE TURNO] Jugador: ${socket.id}, Sala: ${sala}, Nuevo Turno: ${nuevoTurno}`);
+      console.log(`[CAMBIO DE TURNO] Jugador: ${socket.id}, Sala: ${sala}, Nuevo Turno: ${nuevoTurno}`);
       salas[sala].turno = nuevoTurno;
       io.to(sala).emit("cambiar_turno", nuevoTurno);
     } else {
-      console.log(`⚠️ [CAMBIO DE TURNO] Sala no encontrada para el jugador ${socket.id}`);
+      console.log(`[CAMBIO DE TURNO] Sala no encontrada para el jugador ${socket.id}`);
     }
   });
   
@@ -477,10 +504,10 @@ socket.on('nuevo_comentario', async (comentarioData) => {
     const atacanteEsJugador1 = salas[sala].jugador1?.jugador_id === jugador_id;
     const jugadorTurno = turnoActual === "jugador1" ? salas[sala].jugador1?.jugador_id : salas[sala].jugador2?.jugador_id;
   
-    console.log(`⚔️ [ATAQUE] Jugador ${jugador_id} ataca. Turno actual: ${turnoActual}, Jugador del turno: ${jugadorTurno}`);
+    console.log(`[ATAQUE] Jugador ${jugador_id} ataca. Turno actual: ${turnoActual}, Jugador del turno: ${jugadorTurno}`);
   
     if (jugador_id !== jugadorTurno) {
-      console.log(`❌ ATAQUE BLOQUEADO: No es el turno del jugador ${jugador_id}`);
+      console.log(`ATAQUE BLOQUEADO: No es el turno del jugador ${jugador_id}`);
       return; // Bloqueamos el ataque si no es su turno
     }
   
@@ -497,7 +524,7 @@ socket.on('nuevo_comentario', async (comentarioData) => {
   
 socket.on("salir_sala", async ({ sala }) => {
     socket.leave(sala);
-    console.log(`🔴 Socket ${socket.id} salió de la sala ${sala}`);
+    console.log(`Socket ${socket.id} salió de la sala ${sala}`);
 
     if (salas[sala] && Array.isArray(salas[sala].jugadores)) {
         // Eliminar jugador de la lista
@@ -507,23 +534,23 @@ socket.on("salir_sala", async ({ sala }) => {
             // Si no quedan jugadores, eliminar sala de memoria y base de datos
             const salaId = salas[sala].id || sala;
             delete salas[sala];
-            console.log(`💥 Sala ${sala} eliminada de memoria`);
+            console.log(`Sala ${sala} eliminada de memoria`);
 
             try {
                 // Aquí hacemos la llamada para eliminar la sala en BD
                 await fetch(`http://localhost:8000/api/salas/${salaId}`, {
                     method: "DELETE"
                 });
-                console.log(`🗑 Sala ID ${salaId} eliminada de la base de datos`);
+                console.log(`Sala ID ${salaId} eliminada de la base de datos`);
             } catch (err) {
-                console.error(`⚠ Error eliminando sala ID ${salaId} de la base de datos`, err);
+                console.error(`Error eliminando sala ID ${salaId} de la base de datos`, err);
             }
         } 
     }
 });
 
   socket.on("disconnect", () => {
-    console.log("❌ Jugador o usuario desconectado:", socket.id);
+    console.log("Jugador o usuario desconectado:", socket.id);
   
     for (const [sala, datos] of Object.entries(salas)) {
       let cambiado = false;
@@ -539,7 +566,7 @@ socket.on("salir_sala", async ({ sala }) => {
   
       if (cambiado) {
         io.to(sala).emit("oponente_desconectado");
-        console.log(`👤 Jugador ${socket.id} desconectado de la sala ${sala}`);
+        console.log(`Jugador ${socket.id} desconectado de la sala ${sala}`);
       }
     }
   });
@@ -640,5 +667,5 @@ app.get('/api/estadisticas/usuario/:id', async (req, res) => {
 // ==========================
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {
-  console.log(`✅ Servidor iniciado en http://localhost:${PORT}`);
+  console.log(`Servidor iniciado en http://localhost:${PORT}`);
 });

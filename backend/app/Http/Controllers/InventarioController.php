@@ -9,7 +9,7 @@ use Illuminate\Support\Facades\Auth;
 
 class InventarioController extends Controller
 {
-    // 📌 VER INVENTARIO DEL USUARIO
+    // VER INVENTARIO DEL USUARIO
     public function verInventario()
 {
     $usuario_id = Auth::id();
@@ -18,7 +18,7 @@ class InventarioController extends Controller
     return response()->json($inventario->map(function ($item) {
         return [
             'id' => $item->id, // ID del inventario
-            'carta_id' => $item->carta->id, // ✅ ID real de la carta en la tabla `cartas`
+            'carta_id' => $item->carta->id, // ID real de la carta en la tabla `cartas`
             'cantidad' => $item->cantidad,
             'nombre' => $item->carta->nombre,
             'rareza' => $item->carta->rareza,

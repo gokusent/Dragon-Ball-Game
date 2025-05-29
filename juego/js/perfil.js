@@ -515,7 +515,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     btnSalir.addEventListener("click", () => {
         localStorage.removeItem("token");
         alert("Sesión cerrada correctamente.");
-        window.location.href = "index.html";
+        window.location.href = "../index.html";
     });
 
     btnMenu.addEventListener("click", () => {
