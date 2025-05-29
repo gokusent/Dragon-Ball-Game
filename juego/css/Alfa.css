@@ -75,6 +75,14 @@ h1 {
     margin-top: 50px; /* Margen superior para separar del resto del contenido */
 }
 
+.contenedor-jugador,
+.contenedor-rival {
+  display: flex;
+  justify-content: center;
+  margin: 20px 0;
+  gap: 20px;
+}
+
 /* Contenedor individual de cada carta */
 .carta-container {
     display: flex; /* Usa flexbox para organizar el contenido en columna */
@@ -178,6 +186,13 @@ button:hover {
     position: absolute; /* Posicionamiento absoluto en relación con el contenedor padre */
     left: 50%; /* Lo centra horizontalmente en la pantalla */
     bottom: 20px; /* Distancia desde la parte inferior, ajustable según necesidad */
+    transform: translateX(-50%); /* Corrige el centrado exacto */
+}
+
+#volver {
+    position: absolute; /* Posicionamiento absoluto en relación con el contenedor padre */
+    left: 50%; /* Lo centra horizontalmente en la pantalla */
+    bottom: 60px; /* Distancia desde la parte inferior, ajustable según necesidad */
     transform: translateX(-50%); /* Corrige el centrado exacto */
 }
 
