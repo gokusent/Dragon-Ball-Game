@@ -187,7 +187,6 @@ body {
 /* --------- Detalles --------- */
 #nohay {
     color: #ffffff;
-    text-align: center;
 }
 
 /* --------- Responsive para portatiles --------- */
@@ -235,14 +234,13 @@ body {
   }
 
   #modal-content {
-    flex-direction: column;
     align-items: center;
     height: auto;
     padding: 20px;
   }
 
   #img-content {
-    width: 40vw;
+    width: 26vw;
     padding: 0;
     justify-content: center;
     align-items: center;

@@ -256,8 +256,8 @@ body {
 /* ------------------------ Responsive para pantallas de portatil ------------------------ */
 @media (max-width: 1600px) and (min-width: 1024px) {
     .perfil-container {
-        width: 90%;
-        height: 95%;
+        width: 80%;
+        height: 85%;
         padding: 15px;
     }
 

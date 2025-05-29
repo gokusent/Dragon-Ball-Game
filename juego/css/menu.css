@@ -31,7 +31,7 @@ body {
 /* -------------- Encabezado: título + imágen -------------- */
 .title {
     display: flex;
-    width: 51vw;
+    width: 53vw;
     align-items: center;
     margin-top: 40px;
     & h1 {
@@ -174,3 +174,15 @@ body {
     display: none;
 }
 
+/* --------- Responsive para portatiles --------- */
+@media screen and (max-width: 1440px) {
+    .duelo_opc {
+        margin-top: 11vw;
+        width: 12vw;
+        height: 30vh;
+    }
+
+    .menu {
+        width: 50vw;
+    }
+}
