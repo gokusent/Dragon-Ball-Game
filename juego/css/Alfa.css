@@ -2,320 +2,476 @@
 
 /* Establece la fuente y el fondo de la página */
 body {
-    font-family: Arial, sans-serif; /* Fuente predeterminada */
-    background-color: #f0f0f0; /* Color de fondo gris claro */
-    display: flex; /* Usa flexbox para centrar el contenido */
+    font-family: Arial, sans-serif;
+    /* Fuente predeterminada */
+    background-color: #f0f0f0;
+    /* Color de fondo gris claro */
+    display: flex;
+    /* Usa flexbox para centrar el contenido */
     flex-direction: column;
-    justify-content: center; /* Centra el contenido horizontalmente */
-    align-items: center; /* Centra el contenido verticalmente */
-    max-height: 100vh; /* Ocupa toda la altura de la ventana */
-    margin: 0; /* Elimina los márgenes predeterminados */
+    justify-content: center;
+    /* Centra el contenido horizontalmente */
+    align-items: center;
+    /* Centra el contenido verticalmente */
+    max-height: 100vh;
+    /* Ocupa toda la altura de la ventana */
+    margin: 0;
+    /* Elimina los márgenes predeterminados */
 }
 
 /* Contenedor principal de la selección de personajes */
 #seleccion-personajes {
-    text-align: center; /* Centra el texto y elementos internos */
+    text-align: center;
+    /* Centra el texto y elementos internos */
 }
 
 /* Estilos para el título principal */
 h1 {
     font-family: 'Russo One', sans-serif;
-    font-size: 5rem; /* Tamaño de fuente grande */
-    margin-bottom: 1rem; /* Espaciado inferior para separación */
+    font-size: 5rem;
+    /* Tamaño de fuente grande */
+    margin-bottom: 1rem;
+    /* Espaciado inferior para separación */
     color: #e4f312;
     text-shadow: 0 0 15px #f3ef12;
 }
 
 /* Contenedor del fondo animado */
 #fondo-container {
-    position: fixed; /* Mantiene el fondo fijo en la pantalla */
+    position: fixed;
+    /* Mantiene el fondo fijo en la pantalla */
     top: 0;
     left: 0;
-    width: 200vw; /* El doble del ancho de la pantalla para crear el efecto de desplazamiento */
-    height: 100vh; /* Ocupa toda la altura de la pantalla */
-    display: flex; /* Usa flexbox para organizar los elementos del fondo */
-    animation: moverFondo 200s linear infinite; /* Animación de movimiento continuo */
-    z-index: -1; /* Envía el fondo detrás de los demás elementos */
+    width: 200vw;
+    /* El doble del ancho de la pantalla para crear el efecto de desplazamiento */
+    height: 100vh;
+    /* Ocupa toda la altura de la pantalla */
+    display: flex;
+    /* Usa flexbox para organizar los elementos del fondo */
+    animation: moverFondo 200s linear infinite;
+    /* Animación de movimiento continuo */
+    z-index: -1;
+    /* Envía el fondo detrás de los demás elementos */
 }
 
 /* Estilos para las capas del fondo animado */
 .fondo {
-    width: 100vw; /* Ocupa todo el ancho de la ventana del navegador */
-    height: 100vh; /* Ocupa toda la altura de la ventana del navegador */
-    display: flex; /* Usa flexbox para centrar el contenido */
-    justify-content: center; /* Centra horizontalmente */
-    align-items: center; /* Centra verticalmente */
+    width: 100vw;
+    /* Ocupa todo el ancho de la ventana del navegador */
+    height: 100vh;
+    /* Ocupa toda la altura de la ventana del navegador */
+    display: flex;
+    /* Usa flexbox para centrar el contenido */
+    justify-content: center;
+    /* Centra horizontalmente */
+    align-items: center;
+    /* Centra verticalmente */
 }
 
 /* Estilos para las imágenes dentro del fondo */
 .fondo img {
-    width: 100%; /* Ajusta la imagen al ancho completo del contenedor */
-    height: 100%; /* Ajusta la imagen a la altura completa del contenedor */
-    object-fit: cover; /* Asegura que la imagen cubra todo el contenedor sin deformarse */
+    width: 100%;
+    /* Ajusta la imagen al ancho completo del contenedor */
+    height: 100%;
+    /* Ajusta la imagen a la altura completa del contenedor */
+    object-fit: cover;
+    /* Asegura que la imagen cubra todo el contenedor sin deformarse */
 }
 
 
 .fondo2 img {
-    transform: rotateY(180deg); /* Voltea la segunda imagen */
+    transform: rotateY(180deg);
+    /* Voltea la segunda imagen */
 }
 
 /* Animación para mover el fondo de forma continua */
 @keyframes moverFondo {
     0% {
-        transform: translateX(0); /* Posición inicial del fondo */
+        transform: translateX(0);
+        /* Posición inicial del fondo */
     }
+
     99% {
-        transform: translateX(-100vw); /* Mueve la primera imagen completamente a la izquierda */
+        transform: translateX(-100vw);
+        /* Mueve la primera imagen completamente a la izquierda */
     }
+
     100% {
-        transform: translateX(-200vw); /* Mueve ambas imágenes fuera de la vista, reiniciando el ciclo */
+        transform: translateX(-200vw);
+        /* Mueve ambas imágenes fuera de la vista, reiniciando el ciclo */
     }
 }
 
 /* Contenedor del tapete donde se colocarán las cartas */
 #tapete {
-    display: flex; /* Usa flexbox para organizar las cartas horizontalmente */
-    justify-content: center; /* Centra las cartas en el eje horizontal */
-    align-items: center; /* Alinea las cartas en el eje vertical */
-    gap: 20px; /* Espaciado entre cartas */
-    margin-top: 50px; /* Margen superior para separar del resto del contenido */
+    display: flex;
+    /* Usa flexbox para organizar las cartas horizontalmente */
+    justify-content: center;
+    /* Centra las cartas en el eje horizontal */
+    align-items: center;
+    /* Alinea las cartas en el eje vertical */
+    gap: 20px;
+    /* Espaciado entre cartas */
+    margin-top: 50px;
+    /* Margen superior para separar del resto del contenido */
 }
 
-.contenedor-jugador,
 .contenedor-rival {
-  display: flex;
-  justify-content: center;
-  margin: 20px 0;
-  gap: 20px;
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+    gap: 20px;
+}
+
+.contenedor-jugador {
+    display: flex;
+    justify-content: center;
+    margin: 20px 0;
+    gap: 20px;
+    flex-direction: row-reverse;
 }
 
 /* Contenedor individual de cada carta */
 .carta-container {
-    display: flex; /* Usa flexbox para organizar el contenido en columna */
-    flex-direction: column; /* Organiza los elementos en una columna */
-    align-items: center; /* Centra los elementos horizontalmente */
-    background: rgba(255, 255, 255, 0.1); /* Fondo semitransparente para efecto visual */
-    padding: 20px; /* Espaciado interno */
-    border-radius: 10px; /* Bordes redondeados */
-    width: 200px; /* Ancho fijo del contenedor de la carta */
+    display: flex;
+    /* Usa flexbox para organizar el contenido en columna */
+    flex-direction: column;
+    /* Organiza los elementos en una columna */
+    align-items: center;
+    /* Centra los elementos horizontalmente */
+    background: rgba(255, 255, 255, 0.1);
+    /* Fondo semitransparente para efecto visual */
+    padding: 20px;
+    /* Espaciado interno */
+    border-radius: 10px;
+    /* Bordes redondeados */
+    width: 200px;
+    /* Ancho fijo del contenedor de la carta */
 }
 
 /* Estilos para la carta */
 .carta {
-    background: #222; /* Fondo oscuro para resaltar la carta */
-    padding: 10px; /* Espaciado interno para mejorar la apariencia */
-    border-radius: 10px; /* Bordes redondeados para un diseño más atractivo */
-    text-align: center; /* Centra el texto dentro de la carta */
-    width: 100%; /* Se ajusta al ancho del contenedor */
+    background: #222;
+    /* Fondo oscuro para resaltar la carta */
+    padding: 10px;
+    /* Espaciado interno para mejorar la apariencia */
+    border-radius: 10px;
+    /* Bordes redondeados para un diseño más atractivo */
+    text-align: center;
+    /* Centra el texto dentro de la carta */
+    width: 100%;
+    /* Se ajusta al ancho del contenedor */
 }
 
 /* Imagen dentro de la carta */
 .imagen-carta {
-    height: auto; /* Mantiene la proporción de la imagen */
-    border-radius: 10px; /* Bordes redondeados para un diseño más elegante */
-    max-height: 220px; /* Altura máxima de la imagen */
-    max-width: 200px; /* Ancho máximo para mantener la consistencia */
+    height: auto;
+    /* Mantiene la proporción de la imagen */
+    border-radius: 10px;
+    /* Bordes redondeados para un diseño más elegante */
+    max-height: 220px;
+    /* Altura máxima de la imagen */
+    max-width: 200px;
+    /* Ancho máximo para mantener la consistencia */
 }
 
 /* Contenedor de los atributos de la carta */
 .atributos {
-    margin-top: 10px; /* Espacio superior para separar de la imagen */
+    margin-top: 10px;
+    /* Espacio superior para separar de la imagen */
 }
 
 /* Estilos para las barras de vida y habilidad */
-.barra-vida, .barra-habilidad {
-    width: 100%; /* Ocupa todo el ancho del contenedor */
-    height: 10px; /* Altura de la barra */
-    background: gray; /* Color de fondo para indicar la barra vacía */
-    border-radius: 5px; /* Bordes redondeados para un diseño más suave */
-    margin-top: 5px; /* Espaciado superior */
-    position: relative; /* Permite posicionar elementos internos de manera relativa */
-    overflow: hidden; /* Evita que el contenido interno sobresalga de la barra */
+.barra-vida,
+.barra-habilidad {
+    width: 100%;
+    /* Ocupa todo el ancho del contenedor */
+    height: 10px;
+    /* Altura de la barra */
+    background: gray;
+    /* Color de fondo para indicar la barra vacía */
+    border-radius: 5px;
+    /* Bordes redondeados para un diseño más suave */
+    margin-top: 5px;
+    /* Espaciado superior */
+    position: relative;
+    /* Permite posicionar elementos internos de manera relativa */
+    overflow: hidden;
+    /* Evita que el contenido interno sobresalga de la barra */
 }
 
 /* Estilos generales para las barras internas de vida y habilidad */
-.vida, .habilidad {
-    height: 100%; /* Ocupa toda la altura de la barra contenedora */
-    border-radius: 5px; /* Bordes redondeados para mejor apariencia */
-    transition: width 1s ease; /* Transición suave al cambiar el ancho */
+.vida,
+.habilidad {
+    height: 100%;
+    /* Ocupa toda la altura de la barra contenedora */
+    border-radius: 5px;
+    /* Bordes redondeados para mejor apariencia */
+    transition: width 1s ease;
+    /* Transición suave al cambiar el ancho */
 }
 
 /* Barra de vida (roja) */
 .vida {
-    background: red; /* Color rojo para representar la vida */
-    width: 100%; /* Inicia llena, pero puede cambiar dinámicamente */
+    background: red;
+    /* Color rojo para representar la vida */
+    width: 100%;
+    /* Inicia llena, pero puede cambiar dinámicamente */
 }
 
 /* Estilos para los textos */
-p, h3 {
-    color: #f0f0f0; /* Color blanco suave para mejorar la visibilidad sobre fondos oscuros */
+p,
+h3 {
+    color: #f0f0f0;
+    /* Color blanco suave para mejorar la visibilidad sobre fondos oscuros */
 }
 
 /* Barra de habilidad (azul) */
 .barra-habilidad {
-    background: blue; /* Color azul para representar la habilidad */
-    width: 0%; /* Inicia vacía y se llena según la mecánica del juego */
-    transition: width 1s ease; /* Transición suave al cambiar el ancho */
+    background: blue;
+    /* Color azul para representar la habilidad */
+    width: 0%;
+    /* Inicia vacía y se llena según la mecánica del juego */
+    transition: width 1s ease;
+    /* Transición suave al cambiar el ancho */
 }
 
 /* Contenedor de los botones de acción */
 .botones {
-    margin-top: 10px; /* Espacio superior para separarlos de la carta */
-    display: flex; /* Usa flexbox para organizar los botones */
-    flex-direction: column; /* Acomoda los botones en columna */
-    gap: 5px; /* Espacio entre botones */
+    margin-top: 10px;
+    /* Espacio superior para separarlos de la carta */
+    display: flex;
+    /* Usa flexbox para organizar los botones */
+    flex-direction: column;
+    /* Acomoda los botones en columna */
+    gap: 5px;
+    /* Espacio entre botones */
 }
 
 /* Estilos generales para los botones */
 button {
-    background: #333; /* Color de fondo oscuro */
-    color: white; /* Texto en color blanco */
-    border: none; /* Sin bordes para un diseño más limpio */
-    padding: 5px 10px; /* Espaciado interno para mayor comodidad al hacer clic */
-    cursor: pointer; /* Cambia el cursor a "mano" para indicar que es interactivo */
-    border-radius: 5px; /* Bordes redondeados para un diseño más suave */
+    background: #333;
+    /* Color de fondo oscuro */
+    color: white;
+    /* Texto en color blanco */
+    border: none;
+    /* Sin bordes para un diseño más limpio */
+    padding: 5px 10px;
+    /* Espaciado interno para mayor comodidad al hacer clic */
+    cursor: pointer;
+    /* Cambia el cursor a "mano" para indicar que es interactivo */
+    border-radius: 5px;
+    /* Bordes redondeados para un diseño más suave */
 }
 
 /* Efecto hover (cuando el usuario pasa el cursor sobre el botón) */
 button:hover {
-    background: #555; /* Color de fondo más claro al pasar el mouse */
+    background: #555;
+    /* Color de fondo más claro al pasar el mouse */
 }
 
 /* Estilos para los botones de habilidad cuando están deshabilitados */
 .boton-habilidad[disabled] {
-    background-color: #666; /* Color grisáceo para indicar que está inactivo */
-    cursor: not-allowed; /* Cambia el cursor para mostrar que no es interactivo */
+    background-color: #666;
+    /* Color grisáceo para indicar que está inactivo */
+    cursor: not-allowed;
+    /* Cambia el cursor para mostrar que no es interactivo */
 }
 
 /* Estilos específicos para el botón de reinicio */
 .boton-reiniciar {
-    position: absolute; /* Posicionamiento absoluto en relación con el contenedor padre */
-    left: 50%; /* Lo centra horizontalmente en la pantalla */
-    bottom: 50px; /* Distancia desde la parte inferior, ajustable según necesidad */
-    transform: translateX(-50%); /* Corrige el centrado exacto */
+    position: absolute;
+    /* Posicionamiento absoluto en relación con el contenedor padre */
+    left: 50%;
+    /* Lo centra horizontalmente en la pantalla */
+    bottom: 50px;
+    /* Distancia desde la parte inferior, ajustable según necesidad */
+    transform: translateX(-50%);
+    /* Corrige el centrado exacto */
 }
 
 #volver {
-    position: absolute; /* Posicionamiento absoluto en relación con el contenedor padre */
-    left: 50%; /* Lo centra horizontalmente en la pantalla */
-    bottom: 90px; /* Distancia desde la parte inferior, ajustable según necesidad */
-    transform: translateX(-50%); /* Corrige el centrado exacto */
+    position: absolute;
+    /* Posicionamiento absoluto en relación con el contenedor padre */
+    left: 50%;
+    /* Lo centra horizontalmente en la pantalla */
+    bottom: 90px;
+    /* Distancia desde la parte inferior, ajustable según necesidad */
+    transform: translateX(-50%);
+    /* Corrige el centrado exacto */
 }
 
 /* Efecto hover para el botón de reinicio */
 .boton-reiniciar:hover {
-    background-color: #ffaa00; /* Color naranja al pasar el mouse para resaltar la acción */
+    background-color: #ffaa00;
+    /* Color naranja al pasar el mouse para resaltar la acción */
 }
 
 .carta-container.seleccionada {
-    border: 2px solid #00ff00; /* Borde verde brillante */
-    box-shadow: 0 0 10px rgba(0, 255, 0, 0.6); /* Sombra para resaltar */
+    border: 2px solid #00ff00;
+    /* Borde verde brillante */
+    box-shadow: 0 0 10px rgba(0, 255, 0, 0.6);
+    /* Sombra para resaltar */
 }
 
 /* Estilos para el marcador "VS" en el centro del juego */
 .vs-placeholder {
-    font-size: 2rem; /* Tamaño grande del texto */
-    font-weight: bold; /* Texto en negrita */
-    color: red; /* Color rojo para resaltar */
-    text-align: center; /* Alineación centrada */
-    animation: vs-animacion 0.8s infinite alternate; /* Animación de parpadeo */
+    font-size: 2rem;
+    /* Tamaño grande del texto */
+    font-weight: bold;
+    /* Texto en negrita */
+    color: red;
+    /* Color rojo para resaltar */
+    text-align: center;
+    /* Alineación centrada */
+    animation: vs-animacion 0.8s infinite alternate;
+    /* Animación de parpadeo */
 }
 
 /* Animación para el marcador "VS" */
 @keyframes vs-animacion {
-    0% { 
-        transform: scale(1); /* Tamaño normal */
-        opacity: 0.8; /* Un poco transparente */
+    0% {
+        transform: scale(1);
+        /* Tamaño normal */
+        opacity: 0.8;
+        /* Un poco transparente */
     }
-    100% { 
-        transform: scale(1.2); /* Aumenta ligeramente el tamaño */
-        opacity: 1; /* Totalmente visible */
+
+    100% {
+        transform: scale(1.2);
+        /* Aumenta ligeramente el tamaño */
+        opacity: 1;
+        /* Totalmente visible */
     }
 }
 
 /* Estilos para el anuncio de turno */
 .turno-anuncio {
-    position: absolute; /* Posición absoluta respecto al contenedor padre */
-    top: 20px; /* Separación desde la parte superior */
-    left: 50%; /* Lo coloca en el centro horizontalmente */
-    transform: translateX(-50%); /* Corrige el centrado exacto */
-    font-size: 24px; /* Tamaño del texto */
-    font-weight: bold; /* Negrita */
-    background: rgba(0, 0, 0, 0.8); /* Fondo oscuro semi-transparente */
-    color: white; /* Texto en blanco */
-    padding: 10px 20px; /* Espaciado interno */
-    border-radius: 10px; /* Bordes redondeados */
-    opacity: 0; /* Inicialmente invisible */
-    transition: opacity 0.5s ease-in-out; /* Transición suave de opacidad */
+    position: absolute;
+    /* Posición absoluta respecto al contenedor padre */
+    top: 20px;
+    /* Separación desde la parte superior */
+    left: 50%;
+    /* Lo coloca en el centro horizontalmente */
+    transform: translateX(-50%);
+    /* Corrige el centrado exacto */
+    font-size: 24px;
+    /* Tamaño del texto */
+    font-weight: bold;
+    /* Negrita */
+    background: rgba(0, 0, 0, 0.8);
+    /* Fondo oscuro semi-transparente */
+    color: white;
+    /* Texto en blanco */
+    padding: 10px 20px;
+    /* Espaciado interno */
+    border-radius: 10px;
+    /* Bordes redondeados */
+    opacity: 0;
+    /* Inicialmente invisible */
+    transition: opacity 0.5s ease-in-out;
+    /* Transición suave de opacidad */
 }
 
 /* Clase para activar la visibilidad del anuncio de turno */
 .turno-activo {
-    opacity: 1; /* Hace visible el anuncio cuando se activa */
+    opacity: 1;
+    /* Hace visible el anuncio cuando se activa */
 }
 
 /* Animación para la aparición del anuncio de turno */
 @keyframes turnoAnimacion {
-    0% { 
-        opacity: 0; /* Comienza invisible */
+    0% {
+        opacity: 0;
+        /* Comienza invisible */
     }
-    100% { 
-        opacity: 1; /* Se hace completamente visible */
+
+    100% {
+        opacity: 1;
+        /* Se hace completamente visible */
     }
 }
 
 /* Aplicar la animación al anuncio de turno cuando está activo */
 .turno-anuncio.turno-activo {
-    animation: turnoAnimacion 1s ease-in-out; /* Animación suave */
+    animation: turnoAnimacion 1s ease-in-out;
+    /* Animación suave */
 }
 
 /* Estilos para la indicación de daño recibido */
 .daño {
-    position: absolute; /* Posición absoluta para superponer sobre la carta */
-    font-size: 24px; /* Tamaño del texto para que sea llamativo */
-    font-weight: bold; /* Negrita para resaltar */
-    color: red; /* Color rojo para indicar daño */
-    top: 10%; /* Posiciona el daño sobre la carta */
-    left: 50%; /* Lo centra horizontalmente */
-    transform: translateX(-50%); /* Ajuste para centrar con precisión */
-    opacity: 1; /* Comienza completamente visible */
-    animation: dañoAnim 1s ease-out forwards; /* Animación de desaparición */
-    pointer-events: none; /* Evita que el texto de daño interfiera con clics */
+    position: absolute;
+    /* Posición absoluta para superponer sobre la carta */
+    font-size: 24px;
+    /* Tamaño del texto para que sea llamativo */
+    font-weight: bold;
+    /* Negrita para resaltar */
+    color: red;
+    /* Color rojo para indicar daño */
+    top: 10%;
+    /* Posiciona el daño sobre la carta */
+    left: 50%;
+    /* Lo centra horizontalmente */
+    transform: translateX(-50%);
+    /* Ajuste para centrar con precisión */
+    opacity: 1;
+    /* Comienza completamente visible */
+    animation: dañoAnim 1s ease-out forwards;
+    /* Animación de desaparición */
+    pointer-events: none;
+    /* Evita que el texto de daño interfiera con clics */
 }
 
 /* Animación para mostrar el daño recibido */
 @keyframes dañoAnim {
     0% {
-        transform: translate(-50%, 0) scale(1); /* Posición inicial, tamaño normal */
-        opacity: 1; /* Totalmente visible */
+        transform: translate(-50%, 0) scale(1);
+        /* Posición inicial, tamaño normal */
+        opacity: 1;
+        /* Totalmente visible */
     }
+
     50% {
-        transform: translate(-50%, -30px) scale(1.2); /* Se mueve hacia arriba y aumenta de tamaño */
+        transform: translate(-50%, -30px) scale(1.2);
+        /* Se mueve hacia arriba y aumenta de tamaño */
     }
+
     100% {
-        transform: translate(-50%, -60px) scale(1); /* Sigue subiendo y vuelve a su tamaño normal */
-        opacity: 0; /* Se desvanece completamente */
+        transform: translate(-50%, -60px) scale(1);
+        /* Sigue subiendo y vuelve a su tamaño normal */
+        opacity: 0;
+        /* Se desvanece completamente */
     }
 }
 
 /* Estilos para el texto de daño especial */
 .daño-especial {
-    position: absolute; /* Se coloca en una posición específica sobre la carta */
-    font-size: 20px; /* Tamaño del texto */
-    font-weight: bold; /* Texto en negrita */
-    color: red; /* Color rojo para destacar el daño (puedes cambiarlo) */
-    animation: dañoEspecialAnimacion 3s ease-out forwards; /* Aplica la animación */
+    position: absolute;
+    /* Se coloca en una posición específica sobre la carta */
+    font-size: 20px;
+    /* Tamaño del texto */
+    font-weight: bold;
+    /* Texto en negrita */
+    color: red;
+    /* Color rojo para destacar el daño (puedes cambiarlo) */
+    animation: dañoEspecialAnimacion 3s ease-out forwards;
+    /* Aplica la animación */
 }
 
 /* Animación para el daño especial, más lenta y sutil */
 @keyframes dañoEspecialAnimacion {
     0% {
-        transform: translateY(0); /* Posición inicial */
-        opacity: 1; /* Comienza totalmente visible */
+        transform: translateY(0);
+        /* Posición inicial */
+        opacity: 1;
+        /* Comienza totalmente visible */
     }
+
     100% {
-        transform: translateY(-20px); /* Se desplaza ligeramente hacia arriba */
-        opacity: 0; /* Se desvanece completamente */
+        transform: translateY(-20px);
+        /* Se desplaza ligeramente hacia arriba */
+        opacity: 0;
+        /* Se desvanece completamente */
     }
 }
 
@@ -325,11 +481,13 @@ button:hover {
 
 @keyframes ataqueAnim {
     0% {
-        transform: translateX(0); 
+        transform: translateX(0);
     }
+
     50% {
-        transform: translateX(10px); 
+        transform: translateX(10px);
     }
+
     100% {
         transform: translateX(0);
     }
@@ -338,56 +496,80 @@ button:hover {
 
 /* Estilo para la nueva imagen que aparece sobre la pantalla */
 .nueva-imagen {
-    width: 20%; /* Tamaño de la imagen es un 20% del contenedor */
-    height: auto; /* Mantiene las proporciones originales de la imagen */
-    position: absolute; /* Posiciona la imagen de forma absoluta en la pantalla */
-    left: 50%; /* Centra la imagen horizontalmente */
-    transform: translate(-50%, -50%); /* Ajusta para que la imagen esté perfectamente centrada */
-    z-index: 10; /* Asegura que la imagen esté por encima de otros elementos */
+    width: 20%;
+    /* Tamaño de la imagen es un 20% del contenedor */
+    height: auto;
+    /* Mantiene las proporciones originales de la imagen */
+    position: absolute;
+    /* Posiciona la imagen de forma absoluta en la pantalla */
+    left: 50%;
+    /* Centra la imagen horizontalmente */
+    transform: translate(-50%, -50%);
+    /* Ajusta para que la imagen esté perfectamente centrada */
+    z-index: 10;
+    /* Asegura que la imagen esté por encima de otros elementos */
 }
 
 /* Estilo adicional para las imágenes relacionadas con habilidades, con un nivel de capa mayor */
 .nueva-imagen.animacion-habilidad {
-    position: absolute; /* Posicionamiento absoluto para que se pueda colocar donde se desee */
-    z-index: 9999; /* Le da la capa más alta para asegurarse de que se vea sobre otros elementos */
+    position: absolute;
+    /* Posicionamiento absoluto para que se pueda colocar donde se desee */
+    z-index: 9999;
+    /* Le da la capa más alta para asegurarse de que se vea sobre otros elementos */
 }
 
 
 /* Animación para la primera carta (se mueve de izquierda a derecha) */
 @keyframes mover-izquierda-a-derecha {
     0% {
-        transform: scale(1) translateX(-250px); /* La carta empieza más a la izquierda */
-        opacity: 1; /* Es completamente visible al inicio */
+        transform: scale(1) translateX(-250px);
+        /* La carta empieza más a la izquierda */
+        opacity: 1;
+        /* Es completamente visible al inicio */
     }
+
     50% {
-        transform: scale(1.2) translateX(100px); /* Se agranda un poco y se mueve a la derecha */
-        opacity: 0.8; /* Se desvanece ligeramente */
+        transform: scale(1.2) translateX(100px);
+        /* Se agranda un poco y se mueve a la derecha */
+        opacity: 0.8;
+        /* Se desvanece ligeramente */
     }
+
     100% {
-        transform: scale(1.5) translateX(500px); /* Se agranda aún más y sale completamente de la pantalla */
-        opacity: 0; /* Desaparece por completo */
+        transform: scale(1.5) translateX(500px);
+        /* Se agranda aún más y sale completamente de la pantalla */
+        opacity: 0;
+        /* Desaparece por completo */
     }
 }
 
 /* Animación para la segunda carta (se mueve de derecha a izquierda) */
 @keyframes mover-derecha-a-izquierda {
     0% {
-        transform: scale(1) translateX(0); /* La carta empieza en su posición normal */
-        opacity: 1; /* Es completamente visible al inicio */
+        transform: scale(1) translateX(0);
+        /* La carta empieza en su posición normal */
+        opacity: 1;
+        /* Es completamente visible al inicio */
     }
+
     50% {
-        transform: scale(1.2) translateX(-200px); /* Se agranda un poco y se mueve a la izquierda */
-        opacity: 0.8; /* Se desvanece ligeramente */
+        transform: scale(1.2) translateX(-200px);
+        /* Se agranda un poco y se mueve a la izquierda */
+        opacity: 0.8;
+        /* Se desvanece ligeramente */
     }
+
     100% {
-        transform: scale(1.5) translateX(-500px); /* Se agranda aún más y sale completamente de la pantalla por la izquierda */
-        opacity: 0; /* Desaparece por completo */
+        transform: scale(1.5) translateX(-500px);
+        /* Se agranda aún más y sale completamente de la pantalla por la izquierda */
+        opacity: 0;
+        /* Desaparece por completo */
     }
 }
 
 /* Imagen con animación para la primera carta: 
    Se mueve de izquierda a derecha con la animación previamente definida */
-   .nueva-imagen.primera-carta {
+.nueva-imagen.primera-carta {
     animation: mover-izquierda-a-derecha 2s ease-in-out forwards;
 }
 
@@ -405,8 +587,10 @@ button:hover {
     left: 0;
     width: 100%;
     height: 100%;
-    background-color: rgba(0, 0, 0, 0.7); /* Oscurece el fondo */
-    z-index: -1; /* Se asegura de que quede detrás de los botones y elementos interactivos */
+    background-color: rgba(0, 0, 0, 0.7);
+    /* Oscurece el fondo */
+    z-index: -1;
+    /* Se asegura de que quede detrás de los botones y elementos interactivos */
 }
 
 /* Animación de recibir daño */
@@ -414,62 +598,172 @@ button:hover {
     0% {
         transform: translateX(0);
     }
+
     25% {
-        transform: translateX(-30px); /* Aumenta el movimiento a la izquierda */
+        transform: translateX(-30px);
+        /* Aumenta el movimiento a la izquierda */
     }
+
     50% {
-        transform: translateX(30px); /* Aumenta el movimiento a la derecha */
+        transform: translateX(30px);
+        /* Aumenta el movimiento a la derecha */
     }
+
     75% {
-        transform: translateX(-30px); /* Aumenta el movimiento a la izquierda */
+        transform: translateX(-30px);
+        /* Aumenta el movimiento a la izquierda */
     }
+
     100% {
-        transform: translateX(0); /* Vuelve al centro */
+        transform: translateX(0);
+        /* Vuelve al centro */
     }
 }
 
 .recibir-daño {
-    animation: recibirDañoAnimacion 0.2s ease-out; /* Aumento el tiempo de la animación */
+    animation: recibirDañoAnimacion 0.2s ease-out;
+    /* Aumento el tiempo de la animación */
 }
 
 /* Animación de impacto al recibir daño especial:
    La animación sacude el elemento de un lado a otro en intervalos cortos,
    simulando un fuerte impacto antes de volver a su posición original. */
-   @keyframes recibirDañoEspecialAnimacion {
-    0% { transform: translateX(0); }
-    3% { transform: translateX(-50px); }
-    6% { transform: translateX(40px); }
-    9% { transform: translateX(-60px); }
-    12% { transform: translateX(50px); }
-    15% { transform: translateX(-70px); }
-    18% { transform: translateX(60px); }
-    21% { transform: translateX(-80px); }
-    24% { transform: translateX(70px); }
-    27% { transform: translateX(-90px); }
-    30% { transform: translateX(80px); }
-    33% { transform: translateX(-100px); }
-    36% { transform: translateX(90px); }
-    39% { transform: translateX(-110px); }
-    42% { transform: translateX(100px); }
-    45% { transform: translateX(-120px); }
-    48% { transform: translateX(110px); }
-    51% { transform: translateX(-130px); }
-    54% { transform: translateX(120px); }
-    57% { transform: translateX(-140px); }
-    60% { transform: translateX(130px); }
-    63% { transform: translateX(-150px); }
-    66% { transform: translateX(140px); }
-    69% { transform: translateX(-160px); }
-    72% { transform: translateX(150px); }
-    75% { transform: translateX(-170px); }
-    78% { transform: translateX(160px); }
-    81% { transform: translateX(-180px); }
-    84% { transform: translateX(170px); }
-    87% { transform: translateX(-190px); }
-    90% { transform: translateX(180px); }
-    93% { transform: translateX(-200px); }
-    96% { transform: translateX(190px); }
-    100% { transform: translateX(0); }
+@keyframes recibirDañoEspecialAnimacion {
+    0% {
+        transform: translateX(0);
+    }
+
+    3% {
+        transform: translateX(-50px);
+    }
+
+    6% {
+        transform: translateX(40px);
+    }
+
+    9% {
+        transform: translateX(-60px);
+    }
+
+    12% {
+        transform: translateX(50px);
+    }
+
+    15% {
+        transform: translateX(-70px);
+    }
+
+    18% {
+        transform: translateX(60px);
+    }
+
+    21% {
+        transform: translateX(-80px);
+    }
+
+    24% {
+        transform: translateX(70px);
+    }
+
+    27% {
+        transform: translateX(-90px);
+    }
+
+    30% {
+        transform: translateX(80px);
+    }
+
+    33% {
+        transform: translateX(-100px);
+    }
+
+    36% {
+        transform: translateX(90px);
+    }
+
+    39% {
+        transform: translateX(-110px);
+    }
+
+    42% {
+        transform: translateX(100px);
+    }
+
+    45% {
+        transform: translateX(-120px);
+    }
+
+    48% {
+        transform: translateX(110px);
+    }
+
+    51% {
+        transform: translateX(-130px);
+    }
+
+    54% {
+        transform: translateX(120px);
+    }
+
+    57% {
+        transform: translateX(-140px);
+    }
+
+    60% {
+        transform: translateX(130px);
+    }
+
+    63% {
+        transform: translateX(-150px);
+    }
+
+    66% {
+        transform: translateX(140px);
+    }
+
+    69% {
+        transform: translateX(-160px);
+    }
+
+    72% {
+        transform: translateX(150px);
+    }
+
+    75% {
+        transform: translateX(-170px);
+    }
+
+    78% {
+        transform: translateX(160px);
+    }
+
+    81% {
+        transform: translateX(-180px);
+    }
+
+    84% {
+        transform: translateX(170px);
+    }
+
+    87% {
+        transform: translateX(-190px);
+    }
+
+    90% {
+        transform: translateX(180px);
+    }
+
+    93% {
+        transform: translateX(-200px);
+    }
+
+    96% {
+        transform: translateX(190px);
+    }
+
+    100% {
+        transform: translateX(0);
+    }
 }
 
 /* Clase que aplica la animación de recibir daño especial al personaje o carta afectada */
@@ -487,21 +781,24 @@ button:hover {
     transform: translate(-50%, -50%);
     font-size: 24px;
     font-weight: bold;
-    background-color: rgba(0, 0, 0, 0.7); /* Fondo semitransparente para resaltar el mensaje */
+    background-color: rgba(0, 0, 0, 0.7);
+    /* Fondo semitransparente para resaltar el mensaje */
     color: white;
     padding: 20px;
     border-radius: 10px;
     text-align: center;
-    z-index: 10; /* Asegura que esté por encima de otros elementos */
+    z-index: 10;
+    /* Asegura que esté por encima de otros elementos */
 }
 
 /* Media query para pantallas pequeñas (máximo 600px de ancho) */
 @media (max-width: 600px) {
+
     /* Ajusta el tamaño del contenedor de la carta para pantallas pequeñas */
     .carta-container {
         width: 150px;
     }
-    
+
     /* Limita el tamaño de la imagen dentro de la carta en pantallas pequeñas */
     .imagen-carta {
         max-width: 150px;
@@ -516,8 +813,10 @@ button:hover {
 
 /* Estilo base de la carta */
 .carta {
-    position: relative; /* Necesario para efectos y posicionamiento de elementos secundarios */
-    overflow: visible; /* Evita que los efectos como el resplandor sean recortados */
+    position: relative;
+    /* Necesario para efectos y posicionamiento de elementos secundarios */
+    overflow: visible;
+    /* Evita que los efectos como el resplandor sean recortados */
 }
 
 /* Efecto de resplandor cuando la carta tiene la clase "resplandor" */
@@ -529,39 +828,68 @@ button:hover {
    - Cambia el brillo alrededor de la carta de forma cíclica
    - Simula un efecto de carga o energía */
 @keyframes resplandorEnergia {
-    0% { box-shadow: 0 0 30px rgba(255, 242, 0, 0.5); } /* Suave inicio */
-    50% { box-shadow: 0 0 80px rgba(255, 191, 0, 0.8); } /* Máximo resplandor */
-    100% { box-shadow: 0 0 10px rgba(255, 230, 0, 0.5); } /* Vuelta al brillo base */
+    0% {
+        box-shadow: 0 0 30px rgba(255, 242, 0, 0.5);
+    }
+
+    /* Suave inicio */
+    50% {
+        box-shadow: 0 0 80px rgba(255, 191, 0, 0.8);
+    }
+
+    /* Máximo resplandor */
+    100% {
+        box-shadow: 0 0 10px rgba(255, 230, 0, 0.5);
+    }
+
+    /* Vuelta al brillo base */
 }
 
 /* Estilo del botón de alternar música */
 #toggleMusicBtn {
-    position: fixed; /* Fija el botón en la pantalla */
-    top: 10px; /* Ubicado en la parte superior */
-    right: 10px; /* Ubicado en la esquina derecha */
-    width: 50px; /* Tamaño del botón */
+    position: fixed;
+    /* Fija el botón en la pantalla */
+    top: 10px;
+    /* Ubicado en la parte superior */
+    right: 10px;
+    /* Ubicado en la esquina derecha */
+    width: 50px;
+    /* Tamaño del botón */
     height: 50px;
-    background-color: rgba(255, 255, 255, 0.2); /* Color semitransparente para efecto moderno */
-    border: 2px solid rgba(255, 255, 255, 0.5); /* Borde ligeramente visible */
-    border-radius: 50%; /* Forma circular */
-    display: flex; /* Permite centrar el contenido dentro del botón */
-    align-items: center; /* Centra verticalmente */
-    justify-content: center; /* Centra horizontalmente */
-    backdrop-filter: blur(5px); /* Aplica un desenfoque de fondo */
-    cursor: pointer; /* Indica que es un botón interactivo */
-    transition: transform 0.2s ease, background-color 0.3s ease; /* Transiciones suaves al interactuar */
+    background-color: rgba(255, 255, 255, 0.2);
+    /* Color semitransparente para efecto moderno */
+    border: 2px solid rgba(255, 255, 255, 0.5);
+    /* Borde ligeramente visible */
+    border-radius: 50%;
+    /* Forma circular */
+    display: flex;
+    /* Permite centrar el contenido dentro del botón */
+    align-items: center;
+    /* Centra verticalmente */
+    justify-content: center;
+    /* Centra horizontalmente */
+    backdrop-filter: blur(5px);
+    /* Aplica un desenfoque de fondo */
+    cursor: pointer;
+    /* Indica que es un botón interactivo */
+    transition: transform 0.2s ease, background-color 0.3s ease;
+    /* Transiciones suaves al interactuar */
 }
 
 /* Efecto al pasar el cursor sobre el botón */
 #toggleMusicBtn:hover {
-    background-color: rgba(255, 255, 255, 0.4); /* Aumenta la visibilidad del botón */
-    transform: scale(1.1); /* Hace que el botón crezca ligeramente */
+    background-color: rgba(255, 255, 255, 0.4);
+    /* Aumenta la visibilidad del botón */
+    transform: scale(1.1);
+    /* Hace que el botón crezca ligeramente */
 }
 
 /* Ajuste del tamaño de la imagen dentro del botón */
 #toggleMusicBtn img {
-    width: 90%; /* Ajusta el tamaño de la imagen al 90% del botón */
-    height: auto; /* Mantiene la proporción */
+    width: 90%;
+    /* Ajusta el tamaño de la imagen al 90% del botón */
+    height: auto;
+    /* Mantiene la proporción */
 }
 
 .carta-inactiva {
@@ -577,4 +905,3 @@ button:hover {
     opacity: 1;
     z-index: 1;
 }
-
