@@ -141,7 +141,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const inventario = await res.json();
 
       if (inventario.length === 0) {
-        inventarioContainer.innerHTML = "<p>No tienes personajes en tu inventario.</p>";
+        inventarioContainer.innerHTML = "<p id='nohay'>No tienes personajes en tu inventario.</p>";
         return;
       }
 

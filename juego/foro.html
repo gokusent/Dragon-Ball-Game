@@ -1,43 +1,52 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <title>Foro</title>
     <link rel="stylesheet" href="css/pantalla-titulo.css">
     <script src="/socket.io/socket.io.js"></script>
     <script defer type="module" src="./js/foro.js"></script>
-    <link rel="stylesheet" href="css/foro.css"> 
+    <link rel="stylesheet" href="css/foro.css">
     <!-- Carga la API de YouTube para la integración de videos -->
     <script defer src="https://www.youtube.com/iframe_api"></script>
 
     <!-- Script para controlar el reproductor de YouTube -->
     <script defer src="/js/youtubePlayer.js"></script>
 </head>
+
 <body>
     <h1>Foro del Juego</h1>
 
-    <div id="crear-post">
-        <input type="text" id="titulo-post" placeholder="Título del post">
-        <textarea id="contenido-post" placeholder="Escribe tu post..."></textarea>
-        <button id="publicar-post">Publicar</button>
-    </div>
+    <div class="contenedorPrinicipal">
 
-    <h2>Publicaciones recientes</h2>
-    <div id="lista-posts">
-        <!-- Aquí se cargarán los posts -->
-    </div>
+        <div class="parteIzq">
+            <section id="ranking">
+                <h2>Ranking - Top 10 Jugadores</h2>
+                <ul id="lista-ranking"></ul>
+            </section>
+        </div>
 
-    <section id="ranking">
-    <h2>Ranking - Top 10 Jugadores</h2>
-    <ul id="lista-ranking"></ul>
-    </section>
+        <!-- <div id="player" style="display:none;"></div> -->
+
+        <div class="parteDer">
+            <div id="crear-post">
+                <input type="text" id="titulo-post" placeholder="Título del post">
+                <textarea id="contenido-post" placeholder="Escribe tu post..."></textarea>
+                <button id="publicar-post">Publicar</button>
+            </div>
+
+            <h2>Publicaciones recientes</h2>
+            <div id="lista-posts">
+                <!-- Aquí se cargarán los posts -->
+            </div>
+        </div>
+    </div>
 
     <button id="btn-volver-menu">Volver al Menú</button>
-
-    <div id="player" style="display:none;"></div>
-
     <script>
         window.paginaActual = 'foro';
     </script>
 </body>
+
 </html>

@@ -51,7 +51,7 @@ button:disabled {
     opacity: 0.6;
 }
 
-/* Ruleta contenedor */
+/* ----------------- Ruleta contenedor ----------------- */
 .ruleta-container {
     width: 100%;
     max-width: 450px;
@@ -68,7 +68,7 @@ button:disabled {
     justify-content: flex-start;
 }
 
-/* Carril con animación dinámica */
+/* ----------------- Carril con animación dinámica ----------------- */
 .ruleta-carril {
     display: flex;
     animation: girar 2s ease-out forwards;
@@ -82,7 +82,7 @@ button:disabled {
     box-shadow: 0 0 12px rgba(255, 255, 255, 0.4);
 }
 
-/* Animación con variable controlada por JS */
+/* ----------------- Animación con variable controlada por JS ----------------- */
 @keyframes girar {
     0% {
         transform: translateX(0);
@@ -92,7 +92,7 @@ button:disabled {
     }
 }
 
-/* Resultado final de la carta obtenida */
+/* ----------------- Resultado final de la carta obtenida ----------------- */
 #resultado {
     margin-top: 25px;
     font-size: 24px;
@@ -109,7 +109,7 @@ button:disabled {
     margin-top: 10px;
 }
 
-/* Rarezas visualmente impactantes */
+/* ----------------- Rarezas visualmente impactantes ----------------- */
 .rareza-comun {
     color: #00b7ff;
     text-shadow: 0 0 5px #88b1c9;
@@ -132,4 +132,61 @@ button:disabled {
     text-shadow: 0 0 20px #f39c12, 0 0 10px #ffeaa7;
     font-weight: bolder;
     letter-spacing: 1px;
+}
+
+/* ----------------- Ajustes responsive solo para portátiles ----------------- */
+@media (max-width: 1440px) {
+    body {
+        padding: 20px;
+    }
+
+    h1 {
+        font-size: 34px;
+    }
+
+    p,
+    #resultado {
+        font-size: 18px;
+    }
+
+    button {
+        padding: 12px 22px;
+        font-size: 18px;
+    }
+
+    .ruleta-container {
+        max-width: 360px;
+        height: 180px;
+        border-width: 3px;
+    }
+
+    .ruleta-carril img {
+        width: 130px;
+        margin: 0 6px;
+    }
+
+    #resultado img {
+        width: 160px;
+    }
+}
+
+@media (max-width: 1280px) {
+    h1 {
+        font-size: 30px;
+    }
+
+    .ruleta-container {
+        max-width: 320px;
+        height: 170px;
+    }
+
+    .ruleta-carril img {
+        width: 120px;
+        margin: 0 4px;
+    }
+
+    button {
+        font-size: 16px;
+        padding: 10px 20px;
+    }
 }

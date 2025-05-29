@@ -37,8 +37,10 @@ document.addEventListener("DOMContentLoaded", () => {
         }
 
         botonTirar.disabled = true;
+        ruleta.style.display = "flex"; // muestra la ruleta
         resultadoDiv.innerHTML = "";
-        ruleta.innerHTML = "";
+        ruleta.innerHTML = ""; // limpia ruleta anterior 
+
 
         // Paso 1: Obtener carta real desde el backend
         let cartaReal;
@@ -88,15 +90,21 @@ document.addEventListener("DOMContentLoaded", () => {
         ruleta.appendChild(carril);
 
         // Paso 4: Calcular desplazamiento para centrar la penúltima carta
-        const cartaWidth = 160 + 20; // 160 de imagen + 20px margen izquierdo y derecho
-        const contenedorWidth = ruleta.offsetWidth; // px desde el CSS
+        // Esperamos un ciclo para que las imágenes se hayan renderizado y tengan dimensiones
+        requestAnimationFrame(() => {
+            const imagenes = carril.querySelectorAll("img");
+            if (!imagenes.length) return;
 
-        const desplazamientoFinal = (cartaWidth * cartaRealIndex) + (cartaWidth / 2) - (contenedorWidth / 2);
+            const cartaRealImg = imagenes[cartaRealIndex];
+            const cartaWidth = cartaRealImg.offsetWidth + parseFloat(getComputedStyle(cartaRealImg).marginLeft) + parseFloat(getComputedStyle(cartaRealImg).marginRight);
+            const contenedorWidth = ruleta.offsetWidth;
 
+            const desplazamientoFinal = (cartaWidth * cartaRealIndex) + (cartaWidth / 2) - (contenedorWidth / 2);
 
-        // Aplicar animación con desplazamiento dinámico
-        carril.style.animation = `girar 4s ease-out forwards`;
-        carril.style.setProperty("--distancia-final", `-${desplazamientoFinal}px`);
+            carril.style.animation = `girar 4s ease-out forwards`;
+            carril.style.setProperty("--distancia-final", `-${desplazamientoFinal}px`);
+        });
+
 
         // Paso 5: Gastar monedas en el backend
         try {
@@ -120,6 +128,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // Paso 6: Mostrar resultado tras animación
         setTimeout(() => {
             ruleta.innerHTML = ""; // limpia la ruleta
+            ruleta.style.display = "none"; // AHORA la ocultas, después de la animación
 
             let claseRareza = "rareza-comun";
             if (cartaReal.rareza === "Raro") claseRareza = "rareza-raro";

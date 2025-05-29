@@ -224,3 +224,57 @@ p {
     filter: grayscale(1) brightness(0.5);
     opacity: 0.6;
 }
+
+/* --------------- Responsive para portatiles --------------- */
+@media screen and (max-width: 1366px) and (min-width: 1024px) {
+    html {
+        font-size: 90%; /* Reduce el tamaño general ligeramente */
+    }
+
+    h1 {
+        font-size: 3rem;
+    }
+
+    h2 {
+        font-size: 3.2rem;
+    }
+
+    .main {
+        width: 95vw;
+        grid-template-columns: 1.2fr 3fr 1.2fr;
+        grid-column-gap: 6px;
+        height: auto;
+    }
+
+    .main.solo-player {
+        width: 80vw;
+    }
+
+    .pickPhoto_player1,
+    .pickPhoto_player2 {
+        width: 22vw;
+        height: 30vh;
+    }
+
+    .firstPick_player1, .secondPick_player1, .thirdPick_player1,
+    .firstPick_player2, .secondPick_player2, .thirdPick_player2 {
+        width: 22vw;
+        height: 5vh;
+    }
+
+    .firstPick_player1 p, .secondPick_player1 p, .thirdPick_player1 p,
+    .firstPick_player2 p, .secondPick_player2 p, .thirdPick_player2 p {
+        font-size: 1.3rem;
+    }
+
+    .characters {
+        grid-template-columns: repeat(8, 6vw);
+        grid-template-rows: repeat(6, 9vh);
+        gap: 4px;
+    }
+
+    .character {
+        width: 6vw;
+        height: 9vh;
+    }
+}
