@@ -279,7 +279,6 @@ try {
                 <img src="${avatarUrl}" alt="avatar" class="avatar-ranking">
             </a>
             <strong>${usuario.nombre}</strong> 
-            <small>${usuario.victorias} victorias</small>
         `;
         listaRanking.appendChild(li);
     });
@@ -303,7 +302,6 @@ try {
                 <img src="${avatarUrl}" alt="avatar" class="avatar-ranking">
             </a>
             <strong>${ranking.jugador.nombre}</strong>
-            <small>${ranking.jugador.victorias} victorias</small>
         `;
 
         listaRanking.appendChild(li);

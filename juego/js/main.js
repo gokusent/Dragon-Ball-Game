@@ -315,7 +315,7 @@ async function cargarEquipo() {
                         jugador.cartas.push(cartaJugador);
                     });
         
-                // 🔹 **El rival en modo CPU es Vegeta**
+                // 🔹 **El rival en modo CPU es Moro**
                 const cartaRival = new Carta("Moro", 300, 30, 10, "Planetarian Absorbtion", 80, "cartas/Moro.webp");
                 cartaRival.vidaOriginal = cartaRival.vida; // Guardar vida original
                 rival.cartas.push(cartaRival);
@@ -544,8 +544,8 @@ async function verificarFinDeJuego() {
             }, 1000);
 
         } else if (modoJuego === "cpu") {
-            const ganador = rivalDerrotado ? "Jugador" : "Vegeta";
-            const perdedor = rivalDerrotado ? "Vegeta" : "Jugador";
+            const ganador = rivalDerrotado ? "Jugador" : "Moro";
+            const perdedor = rivalDerrotado ? "Moro" : "Jugador";
 
             const monedasGanadas = ganador === "Jugador" ? 5 : 1;
             modificarMonedas(monedasGanadas);
@@ -964,7 +964,7 @@ function reiniciarJuego() {
         carta.habilidadLista = false;
     });
 
-    // Reiniciar estado del rival (Vegeta siempre será el rival)
+    // Reiniciar estado del rival
     rival.cartas.forEach(carta => {
         carta.vida = carta.vidaOriginal;
         carta.habilidad = 0;

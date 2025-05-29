@@ -477,6 +477,9 @@ document.addEventListener("DOMContentLoaded", async () => {
                     if (r.ok) {
                         boton.textContent = "Solicitud enviada";
                         boton.disabled = true;
+                    } else if (r.status === 409) {
+                        boton.textContent = "Solicitud pendiente";
+                        boton.disabled = true;
                     } else {
                         alert("Error al enviar solicitud.");
                     }
