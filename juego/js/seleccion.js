@@ -63,7 +63,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     }
 
-    // Cargar inventario de personajes
+    // Cargar inventario de personajes + sección de personajes
     async function cargarInventario() {
         seleccionContainer.innerHTML = "<p>Cargando personajes...</p>";
         try {
@@ -109,90 +109,179 @@ document.addEventListener("DOMContentLoaded", async () => {
                 }
             }
 
-            // Limpiar duplicados del listener
+            // Función para encontrar índice válido más cercano en una fila específica
+            function findClosestIndexInRow(targetRow, col) {
+                const cols = 8; // Número fijo de columnas por fila
+                const total = characters.length; // Total de personajes disponibles
+                const start = targetRow * cols; // Índice inicial de la fila objetivo
+                const end = Math.min(start + cols, total); // Índice final (no exceder total)
+
+                // Si existe personaje justo en la columna 'col' de esa fila
+                if (start + col < end) {
+                    return start + col; // Retorna ese índice
+                } else {
+                    // Si no existe en esa columna (ej. fila incompleta), buscar el personaje más cercano a la derecha
+                    for (let c = cols - 1; c >= 0; c--) {
+                        if (start + c < end) return start + c; // Retorna el último personaje válido de la fila
+                    }
+                }
+                return -1; // No se encontró personaje válido en esa fila
+            }
+
+            // Si ya existe un manejador de teclado registrado, se elimina para evitar duplicados
             if (handleKeydown) {
                 document.removeEventListener("keydown", handleKeydown);
             }
 
-            // Listener de teclado
+            // Manejador de eventos para navegación y selección con teclado
             handleKeydown = (e) => {
-                const cols = 8;
+                const cols = 9; // Columnas definidas para la grid visible
+                const total = characters.length; // Total personajes disponibles
+                let row = Math.floor(selectedIndex / cols); // Fila actual (integer)
+                let col = selectedIndex % cols; // Columna actual
+                let newIndex = selectedIndex; // Índice nuevo tras navegación (inicialmente igual)
 
-                if (e.key === "ArrowRight" || e.key === "d" && selectedIndex < characters.length - 1) {
-                    selectedIndex++;
-                } else if (e.key === "ArrowLeft" || e.key === "a" && selectedIndex > 0) {
-                    selectedIndex--;
-                // NO FUNCIONAN BIEN LAS FLECHAS DE ARRIBA Y ABAJO
-               /*  } else if (e.key === "ArrowDown" && selectedIndex + cols < characters.length) {
-                    selectedIndex += cols;
-                } else if (e.key === "ArrowUp" && selectedIndex - cols >= 0) {
-                    selectedIndex -= cols; */
-                } else if (e.key === "e") {
-                    const selected = personajes[selectedIndex];
-                    if (
-                        !selected ||
-                        personajesSeleccionados.includes(selected.carta_id) ||
-                        personajesBloqueados.includes(selected.carta_id)
-                    ) return;
-
-                    if (personajesSeleccionados.length < 3) {
-                        personajesSeleccionados.push(selected.carta_id);
-
-                        // Añadir a los slots visuales
-                        const slotSelector = jugadorActual === 1
-                            ? [".firstPick_player1", ".secondPick_player1", ".thirdPick_player1"]
-                            : [".firstPick_player2", ".secondPick_player2", ".thirdPick_player2"];
-
-                        const slot = slotSelector.map(s => document.querySelector(s)).find(el => el.innerHTML.trim() === "");
-                        if (slot) slot.innerHTML = `<p>${selected.nombre}</p>`;
-
-                        // Marcar personaje como bloqueado si J1
-                        if (jugadorActual === 1) {
-                            personajesBloqueados.push(selected.carta_id);
-                            characters[selectedIndex].classList.add("bloqueado");
+                switch (e.key) {
+                    case "ArrowRight":
+                    case "d":
+                        if (selectedIndex < total - 1) {
+                            // Si estamos en la última columna de la fila actual o índice modulo cols == 0
+                            if (col === cols - 1 || (selectedIndex + 1) % cols === 0) {
+                                // Intentamos movernos a la primera posición de la fila siguiente
+                                let nextRow = row + 1;
+                                if (nextRow * cols < total) {
+                                    newIndex = findClosestIndexInRow(nextRow, 0);
+                                }
+                            } else {
+                                // Sino, nos movemos simplemente a la derecha (siguiente índice)
+                                newIndex = selectedIndex + 1;
+                            }
                         }
+                        break;
+
+                    case "ArrowLeft":
+                    case "a":
+                        if (selectedIndex > 0) {
+                            // Si estamos en la primera columna de la fila, ir a la última de la fila anterior
+                            if (col === 0) {
+                                let prevRow = row - 1;
+                                if (prevRow >= 0) {
+                                    let prevRowEnd = Math.min((prevRow + 1) * cols, total) - 1;
+                                    newIndex = prevRowEnd;
+                                }
+                            } else {
+                                // Sino, mover un índice a la izquierda
+                                newIndex = selectedIndex - 1;
+                            }
+                        }
+                        break;
+
+                    case "ArrowDown": {
+                        // Mover hacia abajo a la fila siguiente, en la misma columna si existe personaje
+                        let nextRow = row + 1;
+                        if (nextRow * cols < total) {
+                            const candidate = findClosestIndexInRow(nextRow, col);
+                            if (candidate !== -1) {
+                                newIndex = candidate;
+                            }
+                        }
+                        break;
                     }
 
-                    // Si J1 ya eligió 3 → pasar automáticamente a J2
-                    } else if (e.key === "c" && personajesSeleccionados.length >= 1 && personajesSeleccionados.length <= 3) {
-                        // Si ya eligió al menos 1 personaje, confirmar selección
+                    case "ArrowUp": {
+                        // Mover hacia arriba a la fila anterior, misma columna si existe personaje
+                        let prevRow = row - 1;
+                        if (prevRow >= 0) {
+                            const candidate = findClosestIndexInRow(prevRow, col);
+                            if (candidate !== -1) {
+                                newIndex = candidate;
+                            }
+                        }
+                        break;
+                    }
+
+                    case "e": {
+                        // Seleccionar personaje actual (si no está seleccionado o bloqueado)
+                        const selected = personajes[selectedIndex];
+                        if (
+                            !selected ||
+                            personajesSeleccionados.includes(selected.carta_id) ||
+                            personajesBloqueados.includes(selected.carta_id)
+                        ) return;
+
+                        if (personajesSeleccionados.length < 3) {
+                            personajesSeleccionados.push(selected.carta_id);
+
+                            // Slots de selección dependiendo de qué jugador está seleccionando
+                            const slotSelector = jugadorActual === 1
+                                ? [".firstPick_player1", ".secondPick_player1", ".thirdPick_player1"]
+                                : [".firstPick_player2", ".secondPick_player2", ".thirdPick_player2"];
+
+                            // Encontrar el primer slot vacío y poner el nombre del personaje
+                            const slot = slotSelector.map(s => document.querySelector(s)).find(el => el.innerHTML.trim() === "");
+                            if (slot) slot.innerHTML = `<p>${selected.nombre}</p>`;
+
+                            // Si es jugador 1, bloqueamos el personaje para que no pueda ser seleccionado por jugador 2
+                            if (jugadorActual === 1) {
+                                personajesBloqueados.push(selected.carta_id);
+                                characters[selectedIndex].classList.add("bloqueado");
+                            }
+                        }
+                        break;
+                    }
+
+                    case "c":
+                        // Confirmar selección con "c" solo si hay al menos un personaje seleccionado
+                        if (personajesSeleccionados.length >= 1 && personajesSeleccionados.length <= 3) {
                             const confirmar = confirm("¿Confirmar selección?");
                             if (confirmar) {
                                 confirmarSeleccion();
-                            } else {
-                                return;
                             }
-                        } else if (e.key === "x") {
-                            const selected = personajes[selectedIndex];
-                            if (!selected) return;
+                        }
+                        break;
 
-                            const index = personajesSeleccionados.indexOf(selected.carta_id);
-                            if (index !== -1) {
-                                personajesSeleccionados.splice(index, 1); // eliminar de la lista
+                    case "x": {
+                        // Deseleccionar personaje actual si está seleccionado
+                        const selected = personajes[selectedIndex];
+                        if (!selected) return;
 
-                                // Limpiar visual
-                                const slotSelector = jugadorActual === 1
-                                    ? [".firstPick_player1", ".secondPick_player1", ".thirdPick_player1"]
-                                    : [".firstPick_player2", ".secondPick_player2", ".thirdPick_player2"];
+                        const index = personajesSeleccionados.indexOf(selected.carta_id);
+                        if (index !== -1) {
+                            personajesSeleccionados.splice(index, 1);
 
-                                const slot = slotSelector[index];
-                                if (slot) document.querySelector(slot).innerHTML = "";
+                            // Vaciar el slot correspondiente al personaje deseleccionado
+                            const slotSelector = jugadorActual === 1
+                                ? [".firstPick_player1", ".secondPick_player1", ".thirdPick_player1"]
+                                : [".firstPick_player2", ".secondPick_player2", ".thirdPick_player2"];
 
-                                // Desbloquear personaje si es del jugador 1
-                                if (jugadorActual === 1) {
-                                    const bloqueadoIndex = personajesBloqueados.indexOf(selected.carta_id);
-                                    if (bloqueadoIndex !== -1) {
-                                        personajesBloqueados.splice(bloqueadoIndex, 1);
-                                        characters[selectedIndex].classList.remove("bloqueado");
-                                    }
+                            const slot = slotSelector[index];
+                            if (slot) document.querySelector(slot).innerHTML = "";
+
+                            // Si es jugador 1, desbloquear personaje para que pueda ser seleccionado por el otro jugador
+                            if (jugadorActual === 1) {
+                                const bloqueadoIndex = personajesBloqueados.indexOf(selected.carta_id);
+                                if (bloqueadoIndex !== -1) {
+                                    personajesBloqueados.splice(bloqueadoIndex, 1);
+                                    characters[selectedIndex].classList.remove("bloqueado");
                                 }
                             }
                         }
+                        break;
+                    }
+                }
 
-                        updateSelection();
-                    };
+                // Si el índice seleccionado cambió, actualizar selección y hacer scroll suave para visibilidad
+                if (newIndex !== selectedIndex) {
+                    selectedIndex = newIndex;
+                    updateSelection();
+                    characters[selectedIndex].scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+                }
+            };
 
+            // Registrar el evento keydown con el manejador definido
             document.addEventListener("keydown", handleKeydown);
+
+            // Actualizar la selección inicial
             updateSelection();
         } catch (err) {
             console.error("Error:", err);
