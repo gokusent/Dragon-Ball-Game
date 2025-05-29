@@ -1,11 +1,14 @@
+@import url('https://fonts.googleapis.com/css2?family=Russo+One&display=swap');
+
 /* Establece la fuente y el fondo de la página */
 body {
     font-family: Arial, sans-serif; /* Fuente predeterminada */
     background-color: #f0f0f0; /* Color de fondo gris claro */
     display: flex; /* Usa flexbox para centrar el contenido */
+    flex-direction: column;
     justify-content: center; /* Centra el contenido horizontalmente */
     align-items: center; /* Centra el contenido verticalmente */
-    height: 100vh; /* Ocupa toda la altura de la ventana */
+    max-height: 100vh; /* Ocupa toda la altura de la ventana */
     margin: 0; /* Elimina los márgenes predeterminados */
 }
 
@@ -16,8 +19,11 @@ body {
 
 /* Estilos para el título principal */
 h1 {
-    font-size: 2rem; /* Tamaño de fuente grande */
+    font-family: 'Russo One', sans-serif;
+    font-size: 5rem; /* Tamaño de fuente grande */
     margin-bottom: 1rem; /* Espaciado inferior para separación */
+    color: #e4f312;
+    text-shadow: 0 0 15px #f3ef12;
 }
 
 /* Contenedor del fondo animado */
@@ -185,14 +191,14 @@ button:hover {
 .boton-reiniciar {
     position: absolute; /* Posicionamiento absoluto en relación con el contenedor padre */
     left: 50%; /* Lo centra horizontalmente en la pantalla */
-    bottom: 20px; /* Distancia desde la parte inferior, ajustable según necesidad */
+    bottom: 50px; /* Distancia desde la parte inferior, ajustable según necesidad */
     transform: translateX(-50%); /* Corrige el centrado exacto */
 }
 
 #volver {
     position: absolute; /* Posicionamiento absoluto en relación con el contenedor padre */
     left: 50%; /* Lo centra horizontalmente en la pantalla */
-    bottom: 60px; /* Distancia desde la parte inferior, ajustable según necesidad */
+    bottom: 90px; /* Distancia desde la parte inferior, ajustable según necesidad */
     transform: translateX(-50%); /* Corrige el centrado exacto */
 }
 
@@ -556,5 +562,19 @@ button:hover {
 #toggleMusicBtn img {
     width: 90%; /* Ajusta el tamaño de la imagen al 90% del botón */
     height: auto; /* Mantiene la proporción */
+}
+
+.carta-inactiva {
+    filter: grayscale(100%) brightness(0.6);
+    transform: scale(0.9);
+    opacity: 0.7;
+    z-index: 0;
+}
+
+.carta-activa {
+    filter: none;
+    transform: scale(1);
+    opacity: 1;
+    z-index: 1;
 }
 

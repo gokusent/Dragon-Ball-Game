@@ -174,11 +174,11 @@ function actualizarBotones() {
     });
 }
 
-    /**
-     * Espera a que el contenido de la página esté completamente cargado antes de ejecutar el código.
-     */
-    document.addEventListener("DOMContentLoaded", () => {
-        window.addEventListener('beforeunload', () => {
+/**
+ * Espera a que el contenido de la página esté completamente cargado antes de ejecutar el código.
+ */
+document.addEventListener("DOMContentLoaded", () => {
+    window.addEventListener('beforeunload', () => {
         sessionStorage.setItem('ReinicioMusica', 'true');
         sessionStorage.setItem('tiempoMusica', audio.currentTime);
     });
@@ -247,11 +247,11 @@ async function cargarEquipo() {
                 localStorage.removeItem("equipoJ2");
 
                 const token = localStorage.getItem("authToken");
-            
+
                 // Obtener el ID del jugador actual
                 let usuario = JSON.parse(localStorage.getItem("usuario"));
                 let idJugador = usuario?.id;
-            
+
                 if (!idJugador && token) {
                     try {
                         const res = await fetch("http://127.0.0.1:8000/api/perfil", {
@@ -268,53 +268,53 @@ async function cargarEquipo() {
                         return;
                     }
                 }
-            
+
                 const equipoPropio = JSON.parse(localStorage.getItem(`equipo_${idJugador}`)) || [];
                 const equipoRival = JSON.parse(localStorage.getItem("equipoRival")) || [];
-            
+
                 if (equipoPropio.length === 0 || equipoRival.length === 0) {
                     alert("Faltan datos de los equipos.");
                     window.location.href = "seleccion.html?modo=pvp";
                     return;
                 }
-            
+
                 console.log("Equipo propio:", equipoPropio);
                 console.log("Equipo rival:", equipoRival);
-            
+
                 await cargarCartasDesdeIDs(equipoPropio, jugador);
                 await cargarCartasDesdeIDs(equipoRival, rival);
             } else if (modoJuego === "cpu") {
-                    // 🔹 **Modo CPU o PVP: Cargar desde la API**
-                    const respuesta = await fetch("http://127.0.0.1:8000/api/equipo", {
-                        headers: { "Authorization": `Bearer ${token}` }
-                    });
-        
-                    if (!respuesta.ok) throw new Error("Error al obtener los personajes seleccionados");
-        
-                    const personajesJugador = await respuesta.json();
-                    console.log("Personajes obtenidos de la API:", personajesJugador);
-        
-                    if (!personajesJugador.length) {
-                        alert("No has seleccionado personajes. Volviendo a la selección.");
-                        window.location.href = "seleccion.html";
-                        return;
-                    }
-        
-                    // 📌 **Asignamos los personajes al jugador**
-                    personajesJugador.forEach(personaje => {
-                        const cartaJugador = new Carta(
-                            personaje.nombre,
-                            personaje.vida || 100,
-                            personaje.daño || 20,
-                            personaje.energia || 30,
-                            personaje.tecnicaEspecial || "Ataque básico",
-                            personaje.dañoEspecial !== null ? personaje.dañoEspecial : 50,
-                            personaje.imagen_url || "cartas/default.jpg"
-                        );
-                        cartaJugador.vidaOriginal = personaje.vida || 100; // Guardar vida original
-                        jugador.cartas.push(cartaJugador);
-                    });
-        
+                // 🔹 **Modo CPU o PVP: Cargar desde la API**
+                const respuesta = await fetch("http://127.0.0.1:8000/api/equipo", {
+                    headers: { "Authorization": `Bearer ${token}` }
+                });
+
+                if (!respuesta.ok) throw new Error("Error al obtener los personajes seleccionados");
+
+                const personajesJugador = await respuesta.json();
+                console.log("Personajes obtenidos de la API:", personajesJugador);
+
+                if (!personajesJugador.length) {
+                    alert("No has seleccionado personajes. Volviendo a la selección.");
+                    window.location.href = "seleccion.html";
+                    return;
+                }
+
+                // 📌 **Asignamos los personajes al jugador**
+                personajesJugador.forEach(personaje => {
+                    const cartaJugador = new Carta(
+                        personaje.nombre,
+                        personaje.vida || 100,
+                        personaje.daño || 20,
+                        personaje.energia || 30,
+                        personaje.tecnicaEspecial || "Ataque básico",
+                        personaje.dañoEspecial !== null ? personaje.dañoEspecial : 50,
+                        personaje.imagen_url || "cartas/default.jpg"
+                    );
+                    cartaJugador.vidaOriginal = personaje.vida || 100; // Guardar vida original
+                    jugador.cartas.push(cartaJugador);
+                });
+
                 // 🔹 **El rival en modo CPU es Moro**
                 const cartaRival = new Carta("Moro", 300, 30, 10, "Planetarian Absorbtion", 80, "cartas/Moro.webp");
                 cartaRival.vidaOriginal = cartaRival.vida; // Guardar vida original
@@ -329,6 +329,7 @@ async function cargarEquipo() {
         if (jugador.cartas.length > 0 && rival.cartas.length > 0) {
             const tapete = document.getElementById("tapete");
             colocar(jugador, rival, tapete);
+            actualizarEstadoCartas(); // 🔁 Asegura que las cartas activas se reflejen
         } else {
             alert("No se han cargado las cartas correctamente.");
         }
@@ -406,7 +407,7 @@ function mostrarDaño(objetivo, index, daño) {
     dañoDiv.innerText = `-${daño}`; // Mostramos el daño en texto
 
     // Ajustar la posición dentro de la carta
-    cartaObjetivo.style.position = "relative"; 
+    cartaObjetivo.style.position = "relative";
     dañoDiv.style.position = "absolute"; // Para que se superponga a la carta
 
     // Añadir el div de daño a la carta
@@ -418,6 +419,33 @@ function mostrarDaño(objetivo, index, daño) {
     }, 1000);
 }
 
+function actualizarEstadoCartas() {
+    const grupos = [
+        { jugador: 'jugador', cartas: jugador.cartas },
+        { jugador: 'rival', cartas: rival.cartas }
+    ];
+
+    grupos.forEach(({ jugador, cartas }) => {
+        const contenedor = document.querySelector(`.contenedor-${jugador}`);
+        if (!contenedor) return;
+        const elementos = contenedor.querySelectorAll(".carta-container");
+
+        // Buscar primera carta con vida
+        let cartaActivaEncontrada = false;
+
+        elementos.forEach((elemento, i) => {
+            const carta = cartas[i];
+            if (carta.vida > 0 && !cartaActivaEncontrada) {
+                elemento.classList.remove("carta-inactiva");
+                elemento.classList.add("carta-activa");
+                cartaActivaEncontrada = true;
+            } else {
+                elemento.classList.remove("carta-activa");
+                elemento.classList.add("carta-inactiva");
+            }
+        });
+    });
+}
 
 /**
  * Anima un ataque de un jugador.
@@ -678,7 +706,7 @@ async function modificarMonedas(monedasGanadas) {
 function actualizarBarraVida(tipo, index) {
     const equipo = tipo === "jugador" ? jugador.cartas : rival.cartas;
     const carta = document.querySelectorAll(`.contenedor-${tipo} .carta-container`)[index];
-    
+
     if (!carta) return;
 
     const barraVida = carta.querySelector('.barra-vida .vida');
@@ -707,7 +735,7 @@ function actualizarBarraVida(tipo, index) {
 function actualizarBarraHabilidad(tipo, index) {
     const equipo = tipo === "jugador" ? jugador.cartas : rival.cartas;
     const carta = document.querySelectorAll(`.contenedor-${tipo} .carta-container`)[index];
-    
+
     if (!carta) return;
 
     const barraHabilidad = carta.querySelector('.barra-habilidad .habilidad');
@@ -817,14 +845,15 @@ function activarTecnicaEspecial(jugadorActual, turno) {
 
         // Actualizar la interfaz gráfica
         actualizarBarraVida(turno === 0 ? 'rival' : 'jugador', defensorIndex);
+        actualizarEstadoCartas(); // 👈 AGREGA AQUÍ TAMBIÉN
         actualizarBarraHabilidad(turno);
 
         // Mostrar animaciones adicionales
         animarAtaque(turno === 0 ? "jugador" : "rival", atacanteIndex);
-        
+
         // Aplicar animación de daño especial
         animarRecibirDañoEspecial(defensorIndex, turno === 0 ? false : true);
-        
+
         // Verificar si el juego ha terminado
         if (verificarFinDeJuego()) {
             capaOscura.remove();
@@ -836,7 +865,7 @@ function activarTecnicaEspecial(jugadorActual, turno) {
         capaOscura.remove();
 
     });
-    
+
     // Cambiar turno
     cambiarTurno();
     console.log("Turno cambiado");
@@ -873,6 +902,7 @@ function atacar() {
     // Actualizar UI y animaciones
     actualizarBarraVida(objetivoDefensor, defensorIndex);
     mostrarDaño(objetivoDefensor, defensorIndex, daño);
+    actualizarEstadoCartas(); // 👈 AGREGA AQUÍ
     animarAtaque(objetivoAtacante, atacanteIndex);
     animarRecibirDaño(objetivoDefensor, defensorIndex);
 
@@ -898,7 +928,7 @@ function aumentarEnergia() {
 
     // Buscar la primera carta con vida en el equipo
     const cartaAtacanteIndex = equipoAtacante.findIndex(carta => carta.vida > 0);
-    
+
     if (cartaAtacanteIndex === -1) {
         console.log("No hay cartas disponibles para aumentar energía.");
         return;
@@ -945,6 +975,7 @@ function aumentarEnergia() {
 
     // Cambiar turno
     cambiarTurno();
+    actualizarEstadoCartas(); // 👈 AL FINAL DE aumentarEnergia()
 }
 
 /**
@@ -1010,29 +1041,28 @@ export { atacar, turno, aumentarEnergia, activarTecnicaEspecial, cambiarTurno, r
  */
 async function actualizarEstadisticas(usuario_id, resultado, personaje, vidaFinal, turnos) {
     try {
-      const respuesta = await fetch('/actualizar', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          usuario_id,
-          resultado,
-          personaje,
-          vidaFinal,
-          turnos
-        })
-      });
-  
-      const datos = await respuesta.json();
-  
-      if (!respuesta.ok) {
-        throw new Error(datos.mensaje || 'Error al actualizar estadísticas');
-      }
-  
-      console.log('Estadísticas actualizadas correctamente:', datos.estadisticas);
+        const respuesta = await fetch('/actualizar', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                usuario_id,
+                resultado,
+                personaje,
+                vidaFinal,
+                turnos
+            })
+        });
+
+        const datos = await respuesta.json();
+
+        if (!respuesta.ok) {
+            throw new Error(datos.mensaje || 'Error al actualizar estadísticas');
+        }
+
+        console.log('Estadísticas actualizadas correctamente:', datos.estadisticas);
     } catch (error) {
-      console.error('Error al enviar estadísticas:', error);
+        console.error('Error al enviar estadísticas:', error);
     }
-  }
-  
+}
