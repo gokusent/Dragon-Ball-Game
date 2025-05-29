@@ -906,3 +906,39 @@ button:hover {
     opacity: 1;
     z-index: 1;
 }
+
+/* Media query para portátiles (entre 768px y 1440px de ancho) */
+@media (min-width: 768px) and (max-width: 1440px) {
+
+    /* Ajusta el tamaño del contenedor de la carta */
+    .carta-container {
+        width: 180px;
+    }
+
+    /* Limita el tamaño de la imagen dentro de la carta */
+    .imagen-carta {
+        max-width: 180px;
+        max-height: 220px;
+    }
+
+    /* Aumenta el tamaño de las imágenes animadas si es necesario */
+    .nueva-imagen {
+        width: 300px;
+    }
+
+    /* Ajuste para el botón de música si lo deseas más accesible */
+    #toggleMusicBtn {
+        width: 60px;
+        height: 60px;
+    }
+
+    #toggleMusicBtn img {
+        width: 95%;
+    }
+
+    /* Aumentar tamaño de texto del mensaje final si es necesario */
+    .mensaje-fin-juego {
+        font-size: 28px;
+        padding: 25px;
+    }
+}
