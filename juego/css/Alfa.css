@@ -17,6 +17,7 @@ body {
     /* Ocupa toda la altura de la ventana */
     margin: 0;
     /* Elimina los márgenes predeterminados */
+    overflow: hidden;
 }
 
 /* Contenedor principal de la selección de personajes */
