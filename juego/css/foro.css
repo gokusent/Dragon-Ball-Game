@@ -3,9 +3,8 @@
 body {
     background: linear-gradient(to bottom, #1e1e1e, #101010);
     color: #ffffff;
-    height: 100vh;
+    max-height: 100vh;
     margin: 0;
-    overflow: hidden;
 }
 
 h1,h2 {
@@ -155,7 +154,8 @@ h1,h2 {
 button#btn-volver-menu {
     display: block;
     margin: 50px auto;
-    padding: 10px 20px;
+    width: 7.2vw;
+    height: 3vh;
     background-color: #f44336;
     color: white;
     font-weight: bold;
