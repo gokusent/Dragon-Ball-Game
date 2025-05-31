@@ -10,7 +10,7 @@ console.log("Modo de juego:", modoJuego);
 
 
 // 1. Conectar el socket
-const socket = io("wss://dragon-ball-game-hx4q.onrender.com");
+const socket = io("wss://dragon-ball-game-1-ppgv.onrender.com");
 
 /* Código comentado para ser implementado en el futuro adecuadamente.
 // 2. Obtener el ID del jugador y la sala desde localStorage

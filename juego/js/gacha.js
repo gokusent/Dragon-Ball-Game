@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Obtener y mostrar monedas actuales del perfil
     async function actualizarMonedas() {
         try {
-            const respuesta = await fetch("http://127.0.0.1:8000/api/perfil", {
+            const respuesta = await fetch("https://dragon-ball-game-hx4q.onrender.com/api/perfil", {
                 headers: { Authorization: `Bearer ${token}` }
             });
             const datos = await respuesta.json();
@@ -45,7 +45,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // Paso 1: Obtener carta real desde el backend
         let cartaReal;
         try {
-            const res = await fetch("http://127.0.0.1:8000/api/gacha", {
+            const res = await fetch("https://dragon-ball-game-hx4q.onrender.com/api/gacha", {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (!res.ok) throw new Error("Error al obtener carta.");
@@ -59,7 +59,7 @@ document.addEventListener("DOMContentLoaded", () => {
         // Paso 2: Obtener todas las cartas para generar las aleatorias
         let cartasDisponibles;
         try {
-            const resCartas = await fetch("http://127.0.0.1:8000/api/cartas", {
+            const resCartas = await fetch("https://dragon-ball-game-hx4q.onrender.com/api/cartas", {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (!resCartas.ok) throw new Error("No se pudieron cargar cartas.");
@@ -108,7 +108,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Paso 5: Gastar monedas en el backend
         try {
-            const resGasto = await fetch("http://127.0.0.1:8000/api/monedas/gastar", {
+            const resGasto = await fetch("https://dragon-ball-game-hx4q.onrender.com/api/monedas/gastar", {
                 method: "POST",
                 headers: {
                     Authorization: `Bearer ${token}`,
