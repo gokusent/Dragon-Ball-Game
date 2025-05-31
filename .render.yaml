@@ -1,10 +1,13 @@
 services:
   - type: web
-    name: laravel-backend
+    name: dragon-ball-game-backend
     env: docker
-    plan: free
+    dockerfilePath: backend/Dockerfile
     buildCommand: ""
-    startCommand: ""   # Deja vacío para que tome el CMD del Dockerfile
+    startCommand: ""
+    rootDir: backend
+    autoDeploy: true
+    region: oregon
     envVars:
       - key: APP_ENV
         value: production
