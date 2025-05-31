@@ -16,25 +16,30 @@ RUN apt-get update && apt-get install -y \
 # Habilitar mod_rewrite de Apache
 RUN a2enmod rewrite
 
-# Instalar Composer
+# Copiar composer desde la imagen oficial
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-# Copiar el código fuente al contenedor
+# Copiar el código al contenedor
 COPY . /var/www/html
 
+# Cambiar el directorio de trabajo
 WORKDIR /var/www/html
 
-# Instalar dependencias PHP del proyecto
+# Instalar dependencias PHP del proyecto con composer
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
-# Crear enlace simbólico para storage (si no existe)
+# Enlazar storage (opcional, evita error si ya existe)
 RUN php artisan storage:link || true
 
-# Ajustar permisos para storage y cache
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+# Cambiar DocumentRoot para que Apache sirva desde /public
+RUN sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available/000-default.conf
 
-# Exponer puerto 80 para Apache
+# Ajustar permisos para Apache (lectura y escritura)
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public
+RUN chmod -R 755 /var/www/html/public
+
+# Exponer el puerto 80 para HTTP
 EXPOSE 80
 
-# Ejecutar migraciones y arrancar Apache en primer plano
-CMD php artisan migrate --force && apache2-foreground
+# Ejecutar migraciones y arrancar Apache
+CMD ["bash", "-c", "php artisan migrate --force && apache2-foreground"]
