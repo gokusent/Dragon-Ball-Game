@@ -50,7 +50,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Obtener perfil del usuario
     async function obtenerIdUsuario() {
         try {
-            const res = await fetch("http://127.0.0.1:8000/api/perfil", {
+            const res = await fetch("https://dragon-ball-game-hx4q.onrender.com/api/perfil", {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (!res.ok) throw new Error("No se pudo obtener el perfil");
@@ -67,7 +67,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     async function cargarInventario() {
         seleccionContainer.innerHTML = "<p>Cargando personajes...</p>";
         try {
-            const res = await fetch("http://127.0.0.1:8000/api/inventario", {
+            const res = await fetch("https://dragon-ball-game-hx4q.onrender.com/api/inventario", {
                 headers: { Authorization: `Bearer ${token}` }
             });
             if (!res.ok) throw new Error("Inventario no cargado");
@@ -347,7 +347,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             } else {
                 // Modo CPU
-                const res = await fetch("http://127.0.0.1:8000/api/equipo/seleccionar", {
+                const res = await fetch("https://dragon-ball-game-hx4q.onrender.com/api/equipo/seleccionar", {
                     method: "POST",
                     headers: {
                         Authorization: `Bearer ${token}`,
@@ -368,7 +368,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Cargar nombre del usuario para mostrarlo en vez de "PLAYER 1"
     async function cargarNombreJugador1() {
         try {
-            const res = await fetch("http://localhost:8000/api/perfil", {
+            const res = await fetch("https://dragon-ball-game-hx4q.onrender.com/api/perfil", {
                 headers: {
                     "Authorization": `Bearer ${token}`
                 }

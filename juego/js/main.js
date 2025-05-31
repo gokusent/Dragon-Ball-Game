@@ -254,7 +254,7 @@ async function cargarEquipo() {
 
                 if (!idJugador && token) {
                     try {
-                        const res = await fetch("http://127.0.0.1:8000/api/perfil", {
+                        const res = await fetch("https://dragon-ball-game-hx4q.onrender.com/api/perfil", {
                             headers: { Authorization: `Bearer ${token}` }
                         });
                         if (!res.ok) throw new Error("No se pudo obtener el perfil");
@@ -285,7 +285,7 @@ async function cargarEquipo() {
                 await cargarCartasDesdeIDs(equipoRival, rival);
             } else if (modoJuego === "cpu") {
                 // 🔹 **Modo CPU o PVP: Cargar desde la API**
-                const respuesta = await fetch("http://127.0.0.1:8000/api/equipo", {
+                const respuesta = await fetch("https://dragon-ball-game-hx4q.onrender.com/api/equipo", {
                     headers: { "Authorization": `Bearer ${token}` }
                 });
 
@@ -345,7 +345,7 @@ async function cargarEquipo() {
  */
 async function cargarCartasDesdeIDs(ids, destino) {
     try {
-        const respuesta = await fetch("http://127.0.0.1:8000/api/cartas/obtener", {
+        const respuesta = await fetch("https://dragon-ball-game-hx4q.onrender.com/api/cartas/obtener", {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${token}`,
@@ -584,7 +584,7 @@ async function verificarFinDeJuego() {
             const vidaFinal = cartaJugador.vida;
             turnos = turnos + 1; // Aumentamos el contador de turnos
 
-            const resp = await fetch("http://localhost:8000/api/perfil", {
+            const resp = await fetch("https://dragon-ball-game-hx4q.onrender.com/api/perfil", {
                 method: "GET",
                 headers: { "Authorization": `Bearer ${token}` }
             })
@@ -665,7 +665,7 @@ async function modificarMonedas(monedasGanadas) {
     const id = localStorage.getItem("jugador_id");
 
     try {
-        const respuestaGet = await fetch(`http://127.0.0.1:8000/api/usuario/${id}`, {
+        const respuestaGet = await fetch(`https://dragon-ball-game-hx4q.onrender.com/api/usuario/${id}`, {
             headers: { "Authorization": `Bearer ${token}` }
         });
 
@@ -677,7 +677,7 @@ async function modificarMonedas(monedasGanadas) {
 
         const resultado = monedasGanadas > 1 ? "victoria" : "derrota";
 
-        const respuestaPut = await fetch("http://127.0.0.1:8000/api/usuario/monedas", {
+        const respuestaPut = await fetch("https://dragon-ball-game-hx4q.onrender.com/api/usuario/monedas", {
             method: "PUT",
             headers: {
                 "Authorization": `Bearer ${token}`,

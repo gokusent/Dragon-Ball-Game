@@ -138,7 +138,7 @@ async function createOrJoinPvpRoomAndRedirect() {
     const token = localStorage.getItem("token");
     try {
         // Obtener perfil del jugador
-        const perfilRes = await fetch("http://localhost:8000/api/perfil", {
+        const perfilRes = await fetch("https://dragon-ball-game-hx4q.onrender.com/api/perfil", {
             method: "GET",
             headers: {
                 Authorization: `Bearer ${token}`
@@ -151,7 +151,7 @@ async function createOrJoinPvpRoomAndRedirect() {
         const jugador_id = perfil.id;
 
         // Buscar salas disponibles
-        const disponiblesRes = await fetch("http://localhost:8000/api/salas-disponibles", {
+        const disponiblesRes = await fetch("https://dragon-ball-game-hx4q.onrender.com/api/salas-disponibles", {
             headers: { Authorization: `Bearer ${token}` }
         });
 
@@ -166,7 +166,7 @@ async function createOrJoinPvpRoomAndRedirect() {
             const sala = salas[0];
             nombreSala = sala.sala;
 
-            const joinRes = await fetch(`http://localhost:8000/api/salas/${sala.id}`, {
+            const joinRes = await fetch(`https://dragon-ball-game-hx4q.onrender.com/api/salas/${sala.id}`, {
                 method: "PUT",
                 headers: {
                     "Content-Type": "application/json",
@@ -183,7 +183,7 @@ async function createOrJoinPvpRoomAndRedirect() {
             localStorage.setItem("jugador_id", jugador_id);
             localStorage.setItem("salaPvp", nombreSala);
 
-            console.log(`✅ Te uniste a la sala de ${data.jugador1_id} (ID: ${data.id})`);
+            console.log(`Te uniste a la sala de ${data.jugador1_id} (ID: ${data.id})`);
 
             // Redirigir a sala con la sala ya asignada en la URL
             window.location.href = `sala.html?sala=${encodeURIComponent(data.sala)}`;
@@ -191,20 +191,20 @@ async function createOrJoinPvpRoomAndRedirect() {
             // No hay salas → crear una nueva
             nombreSala = `pvp_${Date.now()}`;
 
-            const crearRes = await fetch("http://localhost:8000/api/crear-sala", {
+            const crearRes = await fetch("https://dragon-ball-game-hx4q.onrender.com/api/crear-sala", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                     Authorization: `Bearer ${token}`
                 },
-                body: JSON.stringify({ sala: nombreSala }) // 👈 Quitamos jugador1_id
+                body: JSON.stringify({ sala: nombreSala }) // Quitamos jugador1_id
             });
 
             if (!crearRes.ok) throw new Error("Error al crear la sala");
 
             const crearData = await crearRes.json();
 
-            console.log("✅ Sala creada:", crearData);
+            console.log("Sala creada:", crearData);
 
             // Guarda antes de cambiar a la página de la sala
             localStorage.setItem("jugador_id", jugador_id);

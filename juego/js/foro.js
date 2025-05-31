@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (!token) throw new Error('No hay token en localStorage.');
 
         // Obtener perfil del usuario actual
-        const perfilRes = await fetch("http://127.0.0.1:8000/api/perfil", {
+        const perfilRes = await fetch("https://dragon-ball-game-hx4q.onrender.com/api/perfil", {
             headers: { Authorization: `Bearer ${token}` },
             credentials: "include"
         });
@@ -20,8 +20,8 @@ document.addEventListener("DOMContentLoaded", async () => {
         const avatar = perfil.avatar
             ? (perfil.avatar.startsWith('http')
                 ? perfil.avatar
-                : `http://127.0.0.1:8000${perfil.avatar}`)
-            : 'http://127.0.0.1:8000/storage/avatars/default.jpg';
+                : `https://dragon-ball-game-hx4q.onrender.com${perfil.avatar}`)
+            : 'https://dragon-ball-game-hx4q.onrender.com/storage/avatars/default.jpg';
 
         console.log('🧾 Perfil del usuario:', { jugador_id, nombre, avatar });
 
@@ -58,8 +58,8 @@ document.addEventListener("DOMContentLoaded", async () => {
 
         // Normaliza la URL del avatar
         function normalizeAvatarUrl(url) {
-            if (!url) return 'http://127.0.0.1:8000/storage/avatars/default.jpg';
-            return url.startsWith('http') ? url : `http://127.0.0.1:8000${url}`;
+            if (!url) return 'https://dragon-ball-game-hx4q.onrender.com/storage/avatars/default.jpg';
+            return url.startsWith('http') ? url : `https://dragon-ball-game-hx4q.onrender.com${url}`;
         }
 
         // Agregar post al DOM
@@ -253,7 +253,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 const listaRanking = document.getElementById('lista-ranking');
 
 try {
-    const rankingRes = await fetch("http://127.0.0.1:8000/api/ranking", {
+    const rankingRes = await fetch("https://dragon-ball-game-hx4q.onrender.com/api/ranking", {
         headers: { Authorization: `Bearer ${token}` },
         credentials: "include"
     });
@@ -268,8 +268,8 @@ try {
         const avatarUrl = usuario.avatar
             ? (usuario.avatar.startsWith('http')
                 ? usuario.avatar
-                : `http://127.0.0.1:8000${usuario.avatar}`)
-            : 'http://127.0.0.1:8000/storage/avatars/default.jpg';
+                : `https://dragon-ball-game-hx4q.onrender.com${usuario.avatar}`)
+            : 'https://dragon-ball-game-hx4q.onrender.com/storage/avatars/default.jpg';
 
         if (usuario.id === jugadorId) {
             li.classList.add('jugador-actual');
@@ -295,8 +295,8 @@ try {
         const avatarUrl = ranking.jugador.avatar
             ? (ranking.jugador.avatar.startsWith('http')
                 ? ranking.jugador.avatar
-                : `http://127.0.0.1:8000${ranking.jugador.avatar}`)
-            : 'http://127.0.0.1:8000/storage/avatars/default.jpg';
+                : `https://dragon-ball-game-hx4q.onrender.com${ranking.jugador.avatar}`)
+            : 'https://dragon-ball-game-hx4q.onrender.com/storage/avatars/default.jpg';
 
         li.innerHTML = `
             <span>#${ranking.jugador.posicion}</span>

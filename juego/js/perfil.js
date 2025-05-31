@@ -59,7 +59,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (id && id !== currentUserId) {
             await cargarPerfilPorId(id);
         } else {
-            const res = await fetch("http://localhost:8000/api/perfil", {
+            const res = await fetch("https://dragon-ball-game-hx4q.onrender.com/api/perfil", {
                 headers: {
                     "Authorization": `Bearer ${token}`
                 }
@@ -69,7 +69,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             const data = await res.json();
             currentUserId = String(data.id);
-            avatar.src = `http://127.0.0.1:8000${data.avatar || '/storage/avatars/default.jpg'}`;
+            avatar.src = `https://dragon-ball-game-hx4q.onrender.com${data.avatar || '/storage/avatars/default.jpg'}`;
             nombre.textContent = data.nombre;
             btnEditar.style.display = 'inline-block';
         }
@@ -77,7 +77,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     // Cargar el perfil de otro usuario por ID
     async function cargarPerfilPorId(id) {
-        const res = await fetch(`http://localhost:8000/api/perfil/${id}`, {
+        const res = await fetch(`https://dragon-ball-game-hx4q.onrender.com/api/perfil/${id}`, {
             headers: {
                 "Authorization": `Bearer ${token}`
             }
@@ -89,7 +89,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         const data = await res.json();
-        avatar.src = `http://127.0.0.1:8000${data.avatar || '/storage/avatars/default.jpg'}`;
+        avatar.src = `https://dragon-ball-game-hx4q.onrender.com${data.avatar || '/storage/avatars/default.jpg'}`;
         nombre.textContent = data.nombre;
 
         mostrarBotonAgregarAmigo(id);
@@ -141,7 +141,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         statsContainer.innerHTML = "<h3>Estadísticas</h3>";
 
         try {
-            const perfilRes = await fetch(`http://localhost:8000/api/perfil/${viewId}`, {
+            const perfilRes = await fetch(`https://dragon-ball-game-hx4q.onrender.com/api/perfil/${viewId}`, {
                 headers: { "Authorization": `Bearer ${token}` }
             });
 
@@ -190,7 +190,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         statsContainer.innerHTML = "<h3>Estadísticas</h3>";
 
         try {
-            const perfilRes = await fetch(`http://localhost:8000/api/perfil/${viewId}`, {
+            const perfilRes = await fetch(`https://dragon-ball-game-hx4q.onrender.com/api/perfil/${viewId}`, {
                 headers: { "Authorization": `Bearer ${token}` }
             });
 
@@ -206,8 +206,8 @@ document.addEventListener("DOMContentLoaded", async () => {
     contenedorAmigos.innerHTML = '';
 
     const endpoint = currentUserId === viewId
-        ? `http://localhost:8000/api/amigos/${currentUserId}`
-        : 'http://localhost:8000/api/mis-amigos';
+        ? `https://dragon-ball-game-hx4q.onrender.com/api/amigos/${currentUserId}`
+        : 'https://dragon-ball-game-hx4q.onrender.com/api/mis-amigos';
 
     try {
         const res = await fetch(endpoint, {
@@ -235,7 +235,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const avatarAmigo = document.createElement('img');
                 avatarAmigo.src = amigo.avatar?.startsWith("http")
                     ? amigo.avatar
-                    : `http://127.0.0.1:8000${amigo.avatar || '/storage/avatars/default.jpg'}`;
+                    : `https://dragon-ball-game-hx4q.onrender.com${amigo.avatar || '/storage/avatars/default.jpg'}`;
                 avatarAmigo.alt = 'avatar';
                 avatarAmigo.onerror = () => avatarAmigo.src = '/storage/avatars/default.jpg';
                 avatarAmigo.classList.add("avatar-amigo");
@@ -262,7 +262,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         cont.innerHTML = "<h3>Solicitudes de amistad recibidas</h3>";
 
         try {
-            const response = await fetch("http://localhost:8000/api/solicitudes-pendientes", {
+            const response = await fetch("https://dragon-ball-game-hx4q.onrender.com/api/solicitudes-pendientes", {
                 method: "GET",
                 headers: {
                     "Content-Type": "application/json",
@@ -288,7 +288,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
                 const avatar = document.createElement("img");
                 avatar.src = solicitud.solicitante.avatar
-                    ? `http://127.0.0.1:8000${solicitud.solicitante.avatar}`
+                    ? `https://dragon-ball-game-hx4q.onrender.com${solicitud.solicitante.avatar}`
                     : "/storage/avatars/default.jpg";
                 avatar.onerror = () => avatar.src = "/storage/avatars/default.jpg";
 
@@ -320,7 +320,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Enviar respuesta a solicitud de amistad
     async function responderSolicitud(solicitudId, respuesta) {
         try {
-            const response = await fetch('http://localhost:8000/api/responder-solicitud', {
+            const response = await fetch('https://dragon-ball-game-hx4q.onrender.com/api/responder-solicitud', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -364,7 +364,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         try {
-            const res = await fetch(`http://localhost:8000/api/buscar-usuarios?nombre=${encodeURIComponent(nombre)}`, {
+            const res = await fetch(`https://dragon-ball-game-hx4q.onrender.com/api/buscar-usuarios?nombre=${encodeURIComponent(nombre)}`, {
                 headers: { "Authorization": `Bearer ${token}` }
             });
 
@@ -383,7 +383,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const img = document.createElement("img");
                 img.src = usuario.avatar?.startsWith("http")
                     ? usuario.avatar
-                    : `http://127.0.0.1:8000${usuario.avatar || '/storage/avatars/default.jpg'}`;
+                    : `https://dragon-ball-game-hx4q.onrender.com${usuario.avatar || '/storage/avatars/default.jpg'}`;
                 img.onerror = () => img.src = '/storage/avatars/default.jpg';
                 img.onclick = () => window.location.href = `perfil.html?id=${usuario.id}`;
 
@@ -394,7 +394,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                 const boton = document.createElement("button");
                 boton.textContent = "Agregar";
 
-                const estadoRes = await fetch(`http://localhost:8000/api/estado-amistad?id=${usuario.id}`, {
+                const estadoRes = await fetch(`https://dragon-ball-game-hx4q.onrender.com/api/estado-amistad?id=${usuario.id}`, {
                     headers: { "Authorization": `Bearer ${token}` }
                 });
 
@@ -408,7 +408,7 @@ document.addEventListener("DOMContentLoaded", async () => {
                     boton.disabled = true;
                 } else {
                     boton.onclick = async () => {
-                        const r = await fetch("http://localhost:8000/api/solicitar-amistad", {
+                        const r = await fetch("https://dragon-ball-game-hx4q.onrender.com/api/solicitar-amistad", {
                             method: "POST",
                             headers: {
                                 "Authorization": `Bearer ${token}`,
@@ -448,7 +448,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         try {
-            const res = await fetch(`http://localhost:8000/api/estado-amistad?id=${idPerfilVisitado}`, {
+            const res = await fetch(`https://dragon-ball-game-hx4q.onrender.com/api/estado-amistad?id=${idPerfilVisitado}`, {
                 headers: {
                     "Authorization": `Bearer ${token}`
                 }
@@ -466,7 +466,7 @@ document.addEventListener("DOMContentLoaded", async () => {
             } else {
                 boton.textContent = "Agregar amigo";
                 boton.addEventListener("click", async () => {
-                    const r = await fetch("http://localhost:8000/api/solicitar-amistad", {
+                    const r = await fetch("https://dragon-ball-game-hx4q.onrender.com/api/solicitar-amistad", {
                         method: "POST",
                         headers: {
                             "Authorization": `Bearer ${token}`,
@@ -526,7 +526,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     document.getElementById("form-nombre").addEventListener("submit", async e => {
         e.preventDefault();
         const nuevo = document.getElementById("nuevo-nombre").value;
-        const res = await fetch("http://localhost:8000/api/perfil/nombre", {
+        const res = await fetch("https://dragon-ball-game-hx4q.onrender.com/api/perfil/nombre", {
             method: "PUT",
             headers: {
                 "Authorization": `Bearer ${token}`,
@@ -545,7 +545,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         if (!file) return;
         const fd = new FormData();
         fd.append("avatar", file);
-        const res = await fetch("http://localhost:8000/api/perfil/avatar", {
+        const res = await fetch("https://dragon-ball-game-hx4q.onrender.com/api/perfil/avatar", {
             method: "POST",
             headers: {
                 "Authorization": `Bearer ${token}`
@@ -554,14 +554,14 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
         if (!res.ok) return alert("Error al subir avatar");
         const data = await res.json();
-        avatar.src = `http://127.0.0.1:8000${data.nuevo_avatar_url}`;
+        avatar.src = `https://dragon-ball-game-hx4q.onrender.com${data.nuevo_avatar_url}`;
         alert("Avatar actualizado correctamente.");
         window.location.reload();
     });
 
     // Borrar avatar
     document.getElementById("borrar-avatar").addEventListener("click", async () => {
-        const res = await fetch("http://127.0.0.1:8000/api/perfil/borrar-avatar", {
+        const res = await fetch("https://dragon-ball-game-hx4q.onrender.com/api/perfil/borrar-avatar", {
                 method: "PUT",
                 headers: {
                     "Authorization": `Bearer ${token}`,
@@ -570,7 +570,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
         if (!res.ok) return alert("Error al borrar avatar");
         const data = await res.json();
-        avatar.src = `http://127.0.1:8000${data.nuevo_avatar_url || '/storage/avatars/default.jpg'}`;
+        avatar.src = `https://dragon-ball-game-hx4q.onrender.com${data.nuevo_avatar_url || '/storage/avatars/default.jpg'}`;
         alert("Avatar eliminado correctamente.");
     });
 
@@ -581,7 +581,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         const nueva = document.getElementById("nueva-password").value;
         const confirmar = document.getElementById("confirmar-password").value;
         if (nueva !== confirmar) return alert("Las nuevas contraseñas no coinciden.");
-        const res = await fetch("http://localhost:8000/api/perfil/password", {
+        const res = await fetch("https://dragon-ball-game-hx4q.onrender.com/api/perfil/password", {
             method: "PUT",
             headers: {
                 "Authorization": `Bearer ${token}`,

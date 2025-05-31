@@ -50,9 +50,9 @@ const server = http.createServer(app);
 // Inicializa un servidor WebSocket con Socket.IO sobre el servidor HTTP
 const io = new Server(server);
 
-// Habilita CORS para permitir peticiones desde el frontend en localhost:3000
+// Habilita CORS para permitir peticiones desde el frontend en un dominio específico
 app.use(cors({
-  origin: "https://tu-frontend-en-render.com", 
+  origin: "https://dragon-ball-game-1-ppgv.onrender.com", // Origen permitido
   methods: ["GET", "POST"],                    // Métodos permitidos
   allowedHeaders: ["Content-Type", "Authorization"] // Cabeceras permitidas
 }));
@@ -539,7 +539,7 @@ socket.on("salir_sala", async ({ sala }) => {
 
             try {
                 // Aquí hacemos la llamada para eliminar la sala en BD
-                await fetch(`http://localhost:8000/api/salas/${salaId}`, {
+                await fetch(`https://dragon-ball-game-hx4q.onrender.com/api/salas/${salaId}`, {
                     method: "DELETE"
                 });
                 console.log(`Sala ID ${salaId} eliminada de la base de datos`);

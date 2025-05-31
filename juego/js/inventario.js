@@ -132,7 +132,7 @@ document.addEventListener("DOMContentLoaded", () => {
   // Cargar el inventario desde la API
   async function cargarInventario() {
     try {
-      const res = await fetch("http://127.0.0.1:8000/api/inventario", {
+      const res = await fetch("https://dragon-ball-game-hx4q.onrender.com/api/inventario", {
         headers: { Authorization: `Bearer ${token}` }
       });
 
@@ -147,7 +147,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Obtener detalles de cada carta en el inventario
       const detallesPromises = inventario.map(p =>
-        fetch(`http://127.0.0.1:8000/api/cartas/${p.carta_id}`, {
+        fetch(`https://dragon-ball-game-hx4q.onrender.com/api/cartas/${p.carta_id}`, {
           headers: { Authorization: `Bearer ${token}` }
         })
           .then(r => {

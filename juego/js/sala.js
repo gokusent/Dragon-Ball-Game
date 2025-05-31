@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     try {
         // Obtener perfil del jugador con credentials para enviar las cookies
-        const perfilRes = await fetch("http://localhost:8000/api/perfil", {
+        const perfilRes = await fetch("https://dragon-ball-game-hx4q.onrender.com/api/perfil", {
             headers: { Authorization: `Bearer ${token}` },
             credentials: "include"  // ¡Muy importante para enviar la cookie de sesión!
         });
@@ -55,7 +55,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         // Función para obtener el nombre de un jugador (si fuera necesaria)
         const obtenerNombreJugador = async (id) => {
             try {
-                const response = await fetch(`http://localhost:8000/api/usuario/${id}`, {
+                const response = await fetch(`https://dragon-ball-game-hx4q.onrender.com/api/usuario/${id}`, {
                     headers: {
                         "Authorization": `Bearer ${token}`
                     },
@@ -153,7 +153,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const confirmar = confirm("¿Salir de la sala?");
     if (confirmar) {
         try {
-        const response = await fetch(`http://localhost:8000/api/salas/${sala}`, {
+        const response = await fetch(`https://dragon-ball-game-hx4q.onrender.com/api/salas/${sala}`, {
             method: "DELETE",
             headers: { "Authorization": `Bearer ${token}` },
             credentials: "include"
