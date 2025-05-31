@@ -1,6 +1,6 @@
 import { io } from "https://cdn.socket.io/4.7.2/socket.io.esm.min.js";
 
-const URL = "http://localhost:3000";
+const URL = "wss://dragon-ball-game-hx4q.onrender.com";
 
 const socket = io(URL, {
     autoConnect: true,
