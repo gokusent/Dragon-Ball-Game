@@ -1,37 +1,31 @@
-# Usa una imagen oficial de PHP con Apache
 FROM php:8.2-apache
 
-# Instala extensiones necesarias para Laravel y MySQL
-RUN apt-get update && apt-get install -y \
-    libzip-dev zip unzip git curl libonig-dev libpng-dev libjpeg-dev libfreetype6-dev libxml2-dev \
-    && docker-php-ext-install pdo_mysql zip mbstring exif pcntl bcmath gd xml
+# ... tus instrucciones previas ...
 
-# Habilita mod_rewrite de Apache
-RUN a2enmod rewrite
-
-# Directorio de trabajo
-WORKDIR /var/www/html
-
-# Copia composer y código fuente
+# Copiar el código al contenedor
 COPY . /var/www/html
 
-# Copia el archivo .env para que Laravel tenga la configuración correcta en el contenedor
-COPY .env /var/www/html/.env
+# Copiar .env.example como .env para evitar errores
+COPY .env.example /var/www/html/.env
 
-# Instala dependencias PHP con Composer
-RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
-RUN composer install --no-dev --optimize-autoloader
+# Cambiar el directorio de trabajo
+WORKDIR /var/www/html
 
-# Da permisos adecuados
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+# Instalar dependencias PHP del proyecto con composer
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
-# Limpia caches y configuración de Laravel para evitar problemas
-RUN php artisan config:clear
-RUN php artisan cache:clear
-RUN php artisan route:clear
+# Enlazar storage (opcional, evita error si ya existe)
+RUN php artisan storage:link || true
 
-# Expone el puerto 80 para el servidor Apache
+# Cambiar DocumentRoot para que Apache sirva desde /public
+RUN sed -i 's|/var/www/html|/var/www/html/public|g' /etc/apache2/sites-available/000-default.conf
+
+# Ajustar permisos para Apache (lectura y escritura)
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache /var/www/html/public
+RUN chmod -R 755 /var/www/html/public
+
+# Exponer el puerto 80 para HTTP
 EXPOSE 80
 
-# Ejecuta Apache en primer plano
-CMD ["apache2-foreground"]
+# Ejecutar migraciones y arrancar Apache
+CMD ["bash", "-c", "php artisan migrate --force && apache2-foreground"]
