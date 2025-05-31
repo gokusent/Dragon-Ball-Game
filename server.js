@@ -24,11 +24,12 @@ require('dotenv').config();
 
 // Configura un pool de conexiones MySQL usando las variables de entorno
 const db = mysql.createPool({
-  host: process.env.DB_HOST || 'localhost',            // Dirección del servidor de base de datos
-  user: process.env.DB_USER || 'root',                 // Usuario de la base de datos
-  password: process.env.DB_PASSWORD || '',             // Contraseña del usuario
-  database: process.env.DB_NAME || 'juego',            // Nombre de la base de datos
-  port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 3306, // Puerto de conexión
+  host: process.env.DB_HOST || 'dpg-d0tdsue3jp1c73eg5h7g-a',            // Dirección del servidor de base de datos
+  user: process.env.DB_USER || 'dragonball_db_user',                 // Usuario de la base de datos
+  password: process.env.DB_PASSWORD || 'DvB8LJnbfUMO6IL5bld7ASAFDOR88wuz',             // Contraseña del usuario
+  database: process.env.DB_NAME || 'dragonball_db',            // Nombre de la base de datos
+  port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 5432, // Puerto de conexión
+  ssl: { rejectUnauthorized: false },
   waitForConnections: true,                            // Esperar si no hay conexiones disponibles
   connectionLimit: 10,                                 // Número máximo de conexiones simultáneas
   queueLimit: 0                                        // Sin límite para las conexiones en cola
