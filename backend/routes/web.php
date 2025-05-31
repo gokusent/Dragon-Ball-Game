@@ -7,5 +7,11 @@ Route::get('/', function () {
 });
 
 Route::get('/debug-log', function () {
-    return response()->file(storage_path('logs/laravel.log'));
+    $path = storage_path('logs/laravel.log');
+    if (!file_exists($path)) {
+        return 'El archivo de log no existe.';
+    }
+    $log = file($path);
+    $lastLines = array_slice($log, -30); // Muestra las últimas 30 líneas
+    return '<pre>' . implode("", $lastLines) . '</pre>';
 });
