@@ -79,7 +79,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const password = loginPassword.value.trim();
 
       // Enviar petición POST al backend con las credenciales
-      const response = await fetch("http://127.0.0.1:8000/api/login", {
+      const response = await fetch("https://dragon-ball-game-hx4q.onrender.com/api/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
@@ -118,7 +118,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const password = passwordRegistro.value.trim();
 
     // Enviar petición POST para crear nuevo usuario
-    fetch("http://127.0.0.1:8000/api/registrar", {
+    fetch("https://dragon-ball-game-hx4q.onrender.com/api/registrar", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ nombre, email, password })
