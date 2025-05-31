@@ -36,6 +36,7 @@
     "diff": "^5.2.0",
     "doctrine-temporary-fork": "^2.1.0",
     "documentation": "^14.0.3",
+    "dotenv": "^16.5.0",
     "eastasianwidth": "^0.2.0",
     "electron-to-chromium": "^1.5.112",
     "emoji-regex": "^9.2.2",
