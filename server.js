@@ -52,7 +52,7 @@ const io = new Server(server);
 
 // Habilita CORS para permitir peticiones desde el frontend en localhost:3000
 app.use(cors({
-  origin: "http://localhost:3000",             // Permitir solicitudes solo desde esta URL
+  origin: "https://tu-frontend-en-render.com", 
   methods: ["GET", "POST"],                    // Métodos permitidos
   allowedHeaders: ["Content-Type", "Authorization"] // Cabeceras permitidas
 }));
