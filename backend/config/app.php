@@ -156,7 +156,7 @@ return [
     Illuminate\View\ViewServiceProvider::class,
     Illuminate\Database\DatabaseServiceProvider::class,
     Illuminate\Cookie\CookieServiceProvider::class,
-
+    Illuminate\Encryption\EncryptionServiceProvider::class,
 
 ],
 
