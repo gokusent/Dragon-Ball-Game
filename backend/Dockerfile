@@ -11,7 +11,8 @@ RUN apt-get update && apt-get install -y \
     libxml2-dev \
     libpq-dev \
     zip \
-    && docker-php-ext-install pdo_mysql pdo_pgsql zip mbstring exif pcntl bcmath xml \
+    libssl-dev \                 # necesario para openssl
+    && docker-php-ext-install pdo_mysql pdo_pgsql zip mbstring exif pcntl bcmath xml openssl \
     && a2enmod rewrite
 
 # Instalar Composer manualmente
@@ -25,6 +26,13 @@ WORKDIR /var/www/html
 
 # Instalar dependencias PHP con Composer
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader
+
+# Generar clave APP_KEY (forzar para evitar problemas)
+RUN php artisan key:generate --force
+
+# Limpiar y cachear configuración para evitar errores de encrypter
+RUN php artisan config:clear
+RUN php artisan config:cache
 
 # Enlazar storage (opcional, evita error si ya existe)
 RUN php artisan storage:link || true
