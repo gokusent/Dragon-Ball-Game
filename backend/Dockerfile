@@ -1,5 +1,7 @@
-FROM php:8.2-apache
+# Usa una imagen base oficial con PHP 8.1 y extensiones comunes para Laravel
+FROM php:8.1-fpm
 
+# Instala dependencias del sistema necesarias
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
@@ -8,32 +10,32 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     libxml2-dev \
     zip \
-    && docker-php-ext-install pdo_mysql zip mbstring exif pcntl bcmath xml
+    curl \
+    && docker-php-ext-install pdo pdo_mysql zip mbstring exif pcntl bcmath gd
 
-RUN a2enmod rewrite
-
+# Instala Composer globalmente
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-COPY . /var/www/html/
+# Establece directorio de trabajo
+WORKDIR /var/www/html
 
-WORKDIR /var/www/html/
+# Copia archivos de la aplicación al contenedor
+COPY . .
 
-# Cambiar DocumentRoot a public y permitir .htaccess
-RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/public|g' /etc/apache2/sites-available/000-default.conf
-RUN sed -i '/<Directory \/var\/www\/>/,/<\/Directory>/ s|AllowOverride None|AllowOverride All|' /etc/apache2/apache2.conf
+# Instala dependencias de PHP con composer, sin dev, optimizando autoload
+RUN composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
 
-# Instalar dependencias composer sin dev, optimizando autoload
-RUN php -d memory_limit=-1 /usr/bin/composer install --no-dev --optimize-autoloader
+# Genera la key de la aplicación (opcional, si ya tienes la APP_KEY en .env puedes saltarlo)
+RUN php artisan key:generate
 
-# Ejecutar migraciones sin confirmación (produce error si no hay cambios, pero es ok)
-RUN php artisan migrate --force
-
-# Crear enlace simbólico para storage
+# Crea enlace simbólico para el storage
 RUN php artisan storage:link
 
-# Dar permisos adecuados
-RUN chown -R www-data:www-data storage bootstrap/cache
+# Otorga permisos adecuados (puedes ajustar según tu configuración)
+RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-EXPOSE 80
+# Expone el puerto 9000 para PHP-FPM
+EXPOSE 9000
 
-CMD ["apache2-foreground"]
+# Inicia PHP-FPM
+CMD ["php-fpm"]
