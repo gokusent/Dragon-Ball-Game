@@ -4,23 +4,29 @@ services:
     env: docker
     plan: free
     buildCommand: ""
-    startCommand: apache2-foreground
+    startCommand: ""   # Deja vacío para que tome el CMD del Dockerfile
     envVars:
       - key: APP_ENV
         value: production
       - key: APP_DEBUG
         value: false
       - key: APP_KEY
-        value: # Se genera automáticamente, o lo puedes meter luego en Render
+        value: base64:Iu9jkKFkOvFcaCtV3ZRuhdkx+PjV3Q2ShiObMQa3sCQ=
       - key: DB_CONNECTION
-        value: pgsql
+        value: mysql
       - key: DB_HOST
-        value: dpg-d0tdsue3jp1c73eg5h7g-a.oregon-postgres.render.com
+        value: nozomi.proxy.rlwy.net
       - key: DB_PORT
-        value: 5432
+        value: 13143
       - key: DB_DATABASE
-        value: dragonball_db
+        value: railway
       - key: DB_USERNAME
-        value: dragonball_db_user
+        value: root
       - key: DB_PASSWORD
-        value: DvB8LJnbfUMO6IL5bld7ASAFDOR88wuz
+        value: bSteYWZpyzAAFmOIPzuuTBrIPKGTWCHw
+      - key: SESSION_DRIVER
+        value: database
+      - key: CACHE_STORE
+        value: database
+      - key: QUEUE_CONNECTION
+        value: database
