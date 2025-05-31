@@ -155,7 +155,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         try {
-            const res = await fetch(`http://localhost:3000/api/estadisticas/usuario/${currentUserId}`, {
+            const res = await fetch(`https://dragon-ball-game-1-ppgv.onrender.com/api/estadisticas/usuario/${currentUserId}`, {
                 headers: { "Authorization": `Bearer ${token}` }
             });
 
