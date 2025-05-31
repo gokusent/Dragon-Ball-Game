@@ -18,9 +18,21 @@ COPY . /var/www/html/
 
 WORKDIR /var/www/html/
 
-RUN php -d memory_limit=-1 /usr/bin/composer install
+# Cambiar DocumentRoot a public y permitir .htaccess
+RUN sed -i 's|DocumentRoot /var/www/html|DocumentRoot /var/www/html/public|g' /etc/apache2/sites-available/000-default.conf
+RUN sed -i '/<Directory \/var\/www\/>/,/<\/Directory>/ s|AllowOverride None|AllowOverride All|' /etc/apache2/apache2.conf
 
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+# Instalar dependencias composer sin dev, optimizando autoload
+RUN php -d memory_limit=-1 /usr/bin/composer install --no-dev --optimize-autoloader
+
+# Ejecutar migraciones sin confirmación (produce error si no hay cambios, pero es ok)
+RUN php artisan migrate --force
+
+# Crear enlace simbólico para storage
+RUN php artisan storage:link
+
+# Dar permisos adecuados
+RUN chown -R www-data:www-data storage bootstrap/cache
 
 EXPOSE 80
 
