@@ -20,8 +20,6 @@ WORKDIR /var/www/html/
 
 RUN php -d memory_limit=-1 /usr/bin/composer install
 
-RUN php artisan key:generate
-
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
 EXPOSE 80
