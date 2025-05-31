@@ -20,9 +20,6 @@ RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local
 # Copiar el código al contenedor
 COPY . /var/www/html
 
-# Copiar .env.example como .env para configuración
-COPY .env.example /var/www/html/.env
-
 # Definir directorio de trabajo
 WORKDIR /var/www/html
 
