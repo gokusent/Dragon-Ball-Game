@@ -13,7 +13,6 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     libxml2-dev \
     libpq-dev \
-    libexif-dev \
     zip \
     libssl-dev \
     && docker-php-ext-install pdo_mysql pdo_pgsql zip mbstring exif pcntl bcmath xml \
@@ -31,8 +30,8 @@ WORKDIR /var/www/html
 # Instalar dependencias PHP con Composer
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
-# Generar clave APP_KEY (forzar para evitar problemas)
-RUN php artisan key:generate --force
+# Omitir generación de clave APP_KEY porque la defines en Render
+# RUN php artisan key:generate --force
 
 # Limpiar y cachear configuración para evitar errores de encrypter
 RUN php artisan config:clear
