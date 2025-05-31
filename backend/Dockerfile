@@ -13,11 +13,11 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     libxml2-dev \
     libpq-dev \
+    libexif-dev \
     zip \
     libssl-dev \
-    && docker-php-ext-install pdo_mysql pdo_pgsql zip mbstring exif pcntl bcmath xml openssl \
+    && docker-php-ext-install pdo_mysql pdo_pgsql zip mbstring exif pcntl bcmath xml \
     && a2enmod rewrite
-
 
 # Instalar Composer manualmente
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
