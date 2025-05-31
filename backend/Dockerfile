@@ -1,46 +1,37 @@
+# Usa una imagen oficial de PHP con Apache
 FROM php:8.2-apache
 
-# Instalar dependencias necesarias del sistema y extensiones PHP
+# Instala extensiones necesarias para Laravel y MySQL
 RUN apt-get update && apt-get install -y \
-    git \
-    unzip \
-    libzip-dev \
-    libpng-dev \
-    libonig-dev \
-    libxml2-dev \
-    libpq-dev \
-    zip \
-    curl \
-    && docker-php-ext-install pdo_mysql pdo_pgsql zip mbstring exif pcntl bcmath xml
+    libzip-dev zip unzip git curl libonig-dev libpng-dev libjpeg-dev libfreetype6-dev libxml2-dev \
+    && docker-php-ext-install pdo_mysql zip mbstring exif pcntl bcmath gd xml
 
-# Habilitar mod_rewrite de Apache
+# Habilita mod_rewrite de Apache
 RUN a2enmod rewrite
 
-# Evitar warning Apache ServerName
-RUN echo "ServerName localhost" >> /etc/apache2/apache2.conf
-
-# Instalar Composer
-COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
-
-# Copiar el código
-COPY . /var/www/html
-
+# Directorio de trabajo
 WORKDIR /var/www/html
 
-# Instalar dependencias PHP del proyecto
-RUN composer install --no-interaction --prefer-dist --optimize-autoloader
+# Copia composer y código fuente
+COPY . /var/www/html
 
-# Limpiar cache Laravel para evitar problemas con configuración antigua
-RUN php artisan config:clear && php artisan cache:clear && php artisan route:clear
+# Copia el archivo .env para que Laravel tenga la configuración correcta en el contenedor
+COPY .env /var/www/html/.env
 
-# Enlazar storage (en caso que falte)
-RUN php artisan storage:link || true
+# Instala dependencias PHP con Composer
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+RUN composer install --no-dev --optimize-autoloader
 
-# Ajustar permisos (muy importante)
+# Da permisos adecuados
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
-# Exponer puerto 80
+# Limpia caches y configuración de Laravel para evitar problemas
+RUN php artisan config:clear
+RUN php artisan cache:clear
+RUN php artisan route:clear
+
+# Expone el puerto 80 para el servidor Apache
 EXPOSE 80
 
-# Comando para correr migraciones y arrancar Apache
-CMD ["bash", "-c", "php artisan migrate --force && apache2-foreground"]
+# Ejecuta Apache en primer plano
+CMD ["apache2-foreground"]
