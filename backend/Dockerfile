@@ -1,5 +1,6 @@
 FROM php:8.2-apache
 
+# Instalar dependencias del sistema
 RUN apt-get update && apt-get install -y \
     git \
     unzip \
@@ -8,22 +9,32 @@ RUN apt-get update && apt-get install -y \
     libonig-dev \
     libxml2-dev \
     zip \
+    curl \
     && docker-php-ext-install pdo_mysql zip mbstring exif pcntl bcmath xml
 
+# Habilitar mod_rewrite de Apache
 RUN a2enmod rewrite
 
+# Instalar Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 
-COPY . /var/www/html/
+# Copiar el código al contenedor
+COPY . /var/www/html
 
-WORKDIR /var/www/html/
+# Establecer el directorio de trabajo
+WORKDIR /var/www/html
 
-RUN php -d memory_limit=-1 /usr/bin/composer install
+# Instalar dependencias de Laravel
+RUN composer install --no-interaction --prefer-dist --optimize-autoloader
 
-RUN php artisan storage:link
+# Enlazar storage
+RUN php artisan storage:link || true
 
+# Cambiar permisos a carpetas necesarias
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
 
+# Puerto que expone Apache (Render espera que escuches en $PORT)
 EXPOSE 80
 
-CMD ["apache2-foreground"]
+# Comando de inicio (usamos un script para incluir `php artisan migrate`)
+CMD ["bash", "-c", "php artisan migrate --force && apache2-foreground"]
