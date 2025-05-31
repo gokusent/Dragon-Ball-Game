@@ -2,6 +2,9 @@ FROM php:8.2-apache
 
 # Instalar dependencias del sistema y extensiones PHP necesarias
 RUN apt-get update && apt-get install -y \
+    build-essential \
+    autoconf \
+    pkg-config \
     curl \
     git \
     unzip \
@@ -15,6 +18,7 @@ RUN apt-get update && apt-get install -y \
     && docker-php-ext-install pdo_mysql pdo_pgsql zip mbstring exif pcntl bcmath xml openssl \
     && a2enmod rewrite
 
+
 # Instalar Composer manualmente
 RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
 
@@ -26,6 +30,13 @@ WORKDIR /var/www/html
 
 # Instalar dependencias PHP con Composer
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader
+
+# Generar clave APP_KEY (forzar para evitar problemas)
+RUN php artisan key:generate --force
+
+# Limpiar y cachear configuración para evitar errores de encrypter
+RUN php artisan config:clear
+RUN php artisan config:cache
 
 # Enlazar storage (opcional, evita error si ya existe)
 RUN php artisan storage:link || true
@@ -40,5 +51,5 @@ RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cac
 # Exponer puerto 80 para HTTP
 EXPOSE 80
 
-# Generar APP_KEY y ejecutar migraciones al iniciar el contenedor, luego arrancar Apache
-CMD ["bash", "-c", "php artisan key:generate --force && php artisan migrate --force && apache2-foreground"]
+# Ejecutar migraciones y arrancar Apache en primer plano
+CMD ["bash", "-c", "php artisan migrate --force && apache2-foreground"]
