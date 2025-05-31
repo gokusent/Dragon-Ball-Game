@@ -1,0 +1,26 @@
+services:
+  - type: web
+    name: laravel-backend
+    env: docker
+    plan: free
+    buildCommand: ""
+    startCommand: apache2-foreground
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: false
+      - key: APP_KEY
+        value: # Se genera automáticamente, o lo puedes meter luego en Render
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_HOST
+        value: dpg-d0tdsue3jp1c73eg5h7g-a.oregon-postgres.render.com
+      - key: DB_PORT
+        value: 5432
+      - key: DB_DATABASE
+        value: dragonball_db
+      - key: DB_USERNAME
+        value: dragonball_db_user
+      - key: DB_PASSWORD
+        value: DvB8LJnbfUMO6IL5bld7ASAFDOR88wuz
