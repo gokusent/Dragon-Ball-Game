@@ -69,7 +69,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             const data = await res.json();
             currentUserId = String(data.id);
-            avatar.src = data.avatar;
+            avatar.src = data.avatar ? `https://dragon-ball-game-hx4q.onrender.com${data.avatar}` : 'avatars/default.jpg';
             nombre.textContent = data.nombre;
             btnEditar.style.display = 'inline-block';
         }
