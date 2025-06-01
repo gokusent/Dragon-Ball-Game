@@ -69,7 +69,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             const data = await res.json();
             currentUserId = String(data.id);
-            avatar.src = data.avatar ? `https://dragon-ball-game-hx4q.onrender.com${data.avatar}` : 'avatars/default.jpg';
+            avatar.src = data.avatar || 'avatars/default.jpg';
             nombre.textContent = data.nombre;
             btnEditar.style.display = 'inline-block';
         }
@@ -89,9 +89,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
 
         const data = await res.json();
-        avatar.src = data.avatar
-            ? `https://dragon-ball-game-hx4q.onrender.com${data.avatar}`
-            : 'storage/avatars/default.jpg';
+        avatar.src = data.avatar || 'avatars/default.jpg';
         nombre.textContent = data.nombre;
 
         mostrarBotonAgregarAmigo(id);
