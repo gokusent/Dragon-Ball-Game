@@ -127,30 +127,29 @@ class UsuarioController extends Controller
 
 
     public function borrarAvatar(Request $request)
-{
-    $usuario = Usuario::find(Auth::id());
+    {
 
-    // Verificamos si el avatar actual no es el predeterminado
-    if ($usuario && $usuario->avatar != '/avatars/default.jpg') {
-        // Eliminamos el archivo del avatar actual en el servidor
-        $avatarPath = public_path($usuario->avatar); // Ruta completa del archivo en el servidor
-        if (file_exists($avatarPath)) {
-            unlink($avatarPath); // Eliminar el archivo
+        $usuario = Usuario::find(Auth::id());
+        // Verificamos si el avatar actual no es el predeterminado
+        if ($usuario && $usuario->avatar != '/storage/avatars/default.jpg') {
+            // Eliminamos el archivo del avatar actual en el servidor
+            $avatarPath = public_path($usuario->avatar); // Ruta completa del archivo en el servidor
+            if (file_exists($avatarPath)) {
+                unlink($avatarPath); // Eliminar el archivo
+            }
         }
+
+        // Restablecer el avatar a la imagen por defecto
+        if ($usuario) {
+            $usuario->avatar = '/avatars/default.jpg';
+            $usuario->save();
+        }
+
+        return response()->json([
+            'message' => 'Avatar borrado y restablecido correctamente',
+            'avatar' => $usuario->avatar
+        ]);
     }
-
-    // Restablecer el avatar a la imagen por defecto
-    if ($usuario) {
-        $usuario->avatar = '/avatars/default.jpg';
-        $usuario->save();
-    }
-
-    return response()->json([
-        'message' => 'Avatar borrado y restablecido correctamente',
-        'avatar' => $usuario->avatar
-    ]);
-}
-
     public function cambiarPassword(Request $request)
     {
         $validator = Validator::make($request->all(), [
