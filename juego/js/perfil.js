@@ -570,7 +570,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
         if (!res.ok) return alert("Error al borrar avatar");
         const data = await res.json();
-        avatar.src = `https://dragon-ball-game-hx4q.onrender.com${data.nuevo_avatar_url || '/storage/avatars/default.jpg'}`;
+        avatar.src = `https://dragon-ball-game-hx4q.onrender.com${data.avatar || '/avatars/default.jpg'}`;
         alert("Avatar eliminado correctamente.");
     });
 
