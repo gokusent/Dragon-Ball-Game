@@ -95,7 +95,7 @@ function generarToken() {
 const rutaJuego = __dirname;
 app.use(express.static(rutaJuego));
 app.use('/cartas', express.static(path.join(__dirname, 'juego/cartas')));
-app.use('/storage', express.static(path.join(__dirname, 'public/storage')));
+app.use('/storage/avatars', express.static(path.join(__dirname, 'storage')));
 
 // Servir archivos HTML del juego
 fs.readdirSync(rutaJuego).forEach(file => {
