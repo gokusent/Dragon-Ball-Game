@@ -69,7 +69,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
             const data = await res.json();
             currentUserId = String(data.id);
-            avatar.src = `https://dragon-ball-game-hx4q.onrender.com${data.avatar || '/storage/avatars/default.jpg'}`;
+            avatar.src = data.avatar;
             nombre.textContent = data.nombre;
             btnEditar.style.display = 'inline-block';
         }
@@ -554,7 +554,7 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
         if (!res.ok) return alert("Error al subir avatar");
         const data = await res.json();
-        avatar.src = data.nuevo_avatar_url;
+        avatar.src = `https://dragon-ball-game-hx4q.onrender.com${data.nuevo_avatar_url}`;
         alert("Avatar actualizado correctamente.");
         window.location.reload();
     });
