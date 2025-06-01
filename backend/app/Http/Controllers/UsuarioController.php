@@ -111,16 +111,17 @@ class UsuarioController extends Controller
             // Guardar el avatar
         if ($request->hasFile('avatar')) {
             $avatar = $request->file('avatar');
-            $ruta = $avatar->store('avatars', 'public'); // guarda en storage/app/public/avatars
-            
+            $nombre = uniqid() . '.' . $avatar->getClientOriginalExtension();
+            $avatar->move(public_path('avatars'), $nombre);
+                        
             // Actualizar la ruta del avatar en el usuario
-            $usuario->avatar = '/storage/' . $ruta;
+            $usuario->avatar = '/avatars/' . $nombre;
             $usuario->save();
         }
 
         return response()->json([
             'mensaje' => 'Avatar actualizado correctamente',
-            'nuevo_avatar_url' => asset('storage/' . $ruta) // aquí devolvemos la ruta pública
+            'nuevo_avatar_url' => asset($usuario->avatar) // aquí devolvemos la ruta pública
         ]);
     }
 
@@ -140,7 +141,7 @@ class UsuarioController extends Controller
 
         // Restablecer el avatar a la imagen por defecto
         if ($usuario) {
-            $usuario->avatar = '/storage/avatars/default.jpg';
+            $usuario->avatar = '/avatars/default.jpg';
             $usuario->save();
         }
 
