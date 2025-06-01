@@ -25,7 +25,7 @@ Route::get('/check-storage-link', function () {
     $target = storage_path('app/public');
 
     if (File::exists($link)) {
-        $isLink = File::isLink($link);
+        $isLink = is_link($link);  // función nativa PHP
         $linkTarget = $isLink ? readlink($link) : 'No es enlace simbólico';
         return response()->json([
             'exists' => true,
@@ -40,6 +40,7 @@ Route::get('/check-storage-link', function () {
         ]);
     }
 });
+
 
 Route::get('/check-avatar', function () {
     $avatarPath = storage_path('app/public/avatars/default.jpg');
