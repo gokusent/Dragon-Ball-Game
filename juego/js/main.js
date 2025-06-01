@@ -662,9 +662,18 @@ async function verificarFinDeJuego() {
  */
 async function modificarMonedas(monedasGanadas) {
     const token = localStorage.getItem("token");
-    const id = localStorage.getItem("jugador_id");
 
     try {
+        const perfil = await fetch("https://dragon-ball-game-hx4q.onrender.com/api/perfil", {
+            headers: { "Authorization": `Bearer ${token}` }
+        });
+        if (!perfil.ok) throw new Error("Error al obtener el perfil del usuario");
+        const { id } = await perfil.json();
+        if (!id) throw new Error("ID de usuario no encontrado");
+        
+        // Obtener las monedas actuales del usuario
+        console.log("ID del usuario:", id);
+        console.log("Monedas ganadas:", monedasGanadas);
         const respuestaGet = await fetch(`https://dragon-ball-game-hx4q.onrender.com/api/usuario/${id}`, {
             headers: { "Authorization": `Bearer ${token}` }
         });
