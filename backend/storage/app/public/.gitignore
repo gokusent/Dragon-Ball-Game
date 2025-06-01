@@ -1,4 +1,7 @@
 *
+!private/
+!public/
+!.gitignore
 !.gitignore
 !avatars/
 !cartas/
