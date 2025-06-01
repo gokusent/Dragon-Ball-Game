@@ -554,8 +554,9 @@ document.addEventListener("DOMContentLoaded", async () => {
         });
         if (!res.ok) return alert("Error al subir avatar");
         const data = await res.json();
-        avatar.src = `https://dragon-ball-game-hx4q.onrender.com${data.nuevo_avatar_url}?t=${Date.now()}`;
+        avatar.src = `https://dragon-ball-game-hx4q.onrender.com${data.nuevo_avatar_url}`;
         alert("Avatar actualizado correctamente.");
+        window.location.reload();
     });
 
     // Borrar avatar
