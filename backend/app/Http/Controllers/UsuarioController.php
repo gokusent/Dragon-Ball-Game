@@ -11,8 +11,9 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use App\Models\Amigo; 
 use Illuminate\Support\Facades\Log;
-use App\Models\SolicitudAmistad; // Asegúrate de importar el modelo correcto
+use App\Models\SolicitudAmistad;
 use Carbon\Carbon;
+use Cloudinary\Cloudinary;
 
 class UsuarioController extends Controller
 {
@@ -97,53 +98,78 @@ class UsuarioController extends Controller
     public function actualizarAvatar(Request $request)
     {
         $validator = Validator::make($request->all(), [
-            'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048', // máximo 2MB
-            ]);
+            'avatar' => 'required|image|mimes:jpeg,png,jpg,gif|max:2048',
+        ]);
 
-            if ($validator->fails()) {
-                return response()->json([
-                    'errores' => $validator->errors()
-                ], 422);
-            }
-            
-            $usuario = Usuario::find(Auth::id());
+        if ($validator->fails()) {
+            return response()->json([
+                'errores' => $validator->errors()
+            ], 422);
+        }
 
-            // Guardar el avatar
+        $usuario = Usuario::find(Auth::id());
+
         if ($request->hasFile('avatar')) {
-            $avatar = $request->file('avatar');
-            $nombre = uniqid() . '.' . $avatar->getClientOriginalExtension();
-            $avatar->move(public_path('avatars'), $nombre);
-                        
-            // Actualizar la ruta del avatar en el usuario
-            $usuario->avatar = '/avatars/' . $nombre;
+            $cloudinary = new Cloudinary(env('CLOUDINARY_URL'));
+
+            // Subir a Cloudinary
+            $uploaded = $cloudinary->uploadApi()->upload(
+                $request->file('avatar')->getRealPath(),
+                ['folder' => 'avatars']
+            );
+
+            // Borrar avatar anterior si no es el default
+            if ($usuario->avatar && $usuario->avatar !== '/avatars/default.jpg') {
+                try {
+                    $publicId = basename($usuario->avatar, '.' . pathinfo($usuario->avatar, PATHINFO_EXTENSION));
+                    $cloudinary->uploadApi()->destroy('avatars/' . $publicId);
+                } catch (\Exception $e) {
+                    // No hacer nada si falla
+                }
+            }
+
+            $usuario->avatar = $uploaded['secure_url'];
             $usuario->save();
         }
 
         return response()->json([
             'mensaje' => 'Avatar actualizado correctamente',
-            'nuevo_avatar_url' => asset($usuario->avatar) // aquí devolvemos la ruta pública
+            'nuevo_avatar_url' => $usuario->avatar
         ]);
     }
-
 
     public function borrarAvatar(Request $request)
 {
     $usuario = Usuario::find(Auth::id());
 
-    // Verificamos si el avatar actual no es el predeterminado
-    if ($usuario && $usuario->avatar != '/avatars/default.jpg') {
-        // Eliminamos el archivo del avatar actual en el servidor
-        $avatarPath = public_path($usuario->avatar); // Ruta completa del archivo en el servidor
-        if (file_exists($avatarPath)) {
-            unlink($avatarPath); // Eliminar el archivo
+    if ($usuario && $usuario->avatar && $usuario->avatar !== '/avatars/default.jpg') {
+        // Si el avatar es de Cloudinary
+        if (str_starts_with($usuario->avatar, 'http')) {
+            try {
+                $cloudinary = new \Cloudinary\Cloudinary(env('CLOUDINARY_URL'));
+
+                // Extraer el public_id desde la URL
+                $parsedUrl = parse_url($usuario->avatar, PHP_URL_PATH);
+                $pathParts = explode('/', $parsedUrl);
+                $fileWithExt = end($pathParts);
+                $publicId = 'avatars/' . pathinfo($fileWithExt, PATHINFO_FILENAME);
+
+                $cloudinary->uploadApi()->destroy($publicId);
+            } catch (\Exception $e) {
+                // Silenciar errores de Cloudinary
+            }
+        } else {
+            // Si el avatar era un archivo local (por compatibilidad con versiones anteriores)
+            $avatarPath = public_path($usuario->avatar);
+            if (file_exists($avatarPath)) {
+                unlink($avatarPath);
+            }
         }
     }
 
-    // Restablecer el avatar a la imagen por defecto
-    if ($usuario) {
-        $usuario->avatar = '/avatars/default.jpg';
-        $usuario->save();
-    }
+    // Restablecer avatar por defecto
+    $usuario->avatar = '/avatars/default.jpg';
+    $usuario->save();
 
     return response()->json([
         'message' => 'Avatar borrado y restablecido correctamente',

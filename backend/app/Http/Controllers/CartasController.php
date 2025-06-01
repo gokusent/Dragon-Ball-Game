@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Cloudinary\Cloudinary;
+
 class CartasController extends Controller
 {
     // Obtener todas las cartas
@@ -28,10 +30,8 @@ class CartasController extends Controller
         }
     }
 
-    // Agregar una nueva carta
     public function agregarCarta(Request $request)
-{
-    // Validación
+    {
     $validator = Validator::make($request->all(), [
         'nombre' => 'required|string|unique:cartas',
         'rareza' => 'required|in:Común,Raro,Épico,Legendario',
@@ -48,7 +48,6 @@ class CartasController extends Controller
         return response()->json(['errors' => $validator->errors()], 400);
     }
 
-    // Verificar archivos
     if (!$request->hasFile('imagen_url') || !$request->hasFile('imagen_url2')) {
         return response()->json(['error' => 'Faltan una o ambas imágenes.'], 400);
     }
@@ -60,17 +59,29 @@ class CartasController extends Controller
         return response()->json(['error' => 'Una o ambas imágenes no son válidas.'], 400);
     }
 
-    // Guardar imágenes manualmente en public/cartas
-    $nombre1 = uniqid('carta_') . '.' . $imagen->getClientOriginalExtension();
-    $nombre2 = uniqid('carta2_') . '.' . $imagen2->getClientOriginalExtension();
+    try {
+        $cloudinary = new Cloudinary(env('CLOUDINARY_URL'));
 
-    $imagen->move(public_path('cartas'), $nombre1);
-    $imagen2->move(public_path('cartas'), $nombre2);
+        $nombreBase = strtolower(preg_replace('/\s+/', '_', $request->nombre));
 
-    $url = asset("cartas/$nombre1");
-    $url2 = asset("cartas/$nombre2");
+        $upload1 = $cloudinary->uploadApi()->upload($imagen->getRealPath(), [
+            'folder' => 'cartas',
+            'public_id' => $nombreBase . '_1',
+            'overwrite' => true,
+        ]);
 
-    // Crear la carta en la base de datos
+        $upload2 = $cloudinary->uploadApi()->upload($imagen2->getRealPath(), [
+            'folder' => 'cartas',
+            'public_id' => $nombreBase . '_2',
+            'overwrite' => true,
+        ]);
+
+        $url1 = $upload1['secure_url'];
+        $url2 = $upload2['secure_url'];
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'Error al subir imágenes a Cloudinary'], 500);
+    }
+
     $carta = Carta::create([
         'nombre' => $request->nombre,
         'rareza' => $request->rareza,
@@ -79,7 +90,7 @@ class CartasController extends Controller
         'energia' => $request->energia,
         'tecnica_especial' => $request->tecnica_especial,
         'daño_especial' => $request->daño_especial,
-        'imagen_url' => $url,
+        'imagen_url' => $url1,
         'imagen_url2' => $url2
     ]);
 
