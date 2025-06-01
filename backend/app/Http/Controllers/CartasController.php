@@ -30,63 +30,62 @@ class CartasController extends Controller
 
     // Agregar una nueva carta
     public function agregarCarta(Request $request)
-    {
-        // Definir las reglas de validación de los datos de la carta
-        $validator = Validator::make($request->all(), [
-            'nombre' => 'required|string|unique:cartas', // Asegurarse de que el nombre sea único
-            'rareza' => 'required|in:Común,Raro,Épico,Legendario', // Validar rareza
-            'vida' => 'required|integer|min:1', // Asegurarse de que la vida sea un número entero positivo
-            'daño' => 'required|integer|min:1', // Asegurarse de que el daño sea un número entero positivo
-            'energia' => 'required|integer|min:1', // Asegurarse de que la energía sea un número entero positivo
-            'tecnica_especial' => 'required|string', // Asegurarse de que la técnica especial sea una cadena de texto
-            'daño_especial' => 'required|integer|min:1', // Asegurarse de que el daño especial sea un número entero positivo
-            'imagen_url' => 'required|image|mimes:jpeg,png,jpg,webp|max:5048', // Validar que la imagen sea un archivo de imagen y tenga un tamaño máximo
-            'imagen_url2' => 'required|image|mimes:jpeg,png,jpg,webp|max:5048' // Validar que la segunda imagen sea un archivo de imagen y tenga un tamaño máximo
-        ]);
+{
+    // Validación
+    $validator = Validator::make($request->all(), [
+        'nombre' => 'required|string|unique:cartas',
+        'rareza' => 'required|in:Común,Raro,Épico,Legendario',
+        'vida' => 'required|integer|min:1',
+        'daño' => 'required|integer|min:1',
+        'energia' => 'required|integer|min:1',
+        'tecnica_especial' => 'required|string',
+        'daño_especial' => 'required|integer|min:1',
+        'imagen_url' => 'required|image|mimes:jpeg,png,jpg,webp|max:5048',
+        'imagen_url2' => 'required|image|mimes:jpeg,png,jpg,webp|max:5048'
+    ]);
 
-        // Si la validación falla, devolver un error
-        if ($validator->fails()) {
-            return response()->json(['errors' => $validator->errors()], 400);
-        }
-
-        // Verificar si se subieron las imágenes
-        if (!$request->hasFile('imagen_url')) {
-            return response()->json(['error' => 'No se subió ninguna imagen.']);
-        }
-        
-        $imagen = $request->file('imagen_url'); // Obtener la imagen del request
-        $imagen2 = $request->file('imagen_url2'); // Obtener la segunda imagen del request
-        
-        // Validar tipo de archivo si hace falta
-        if (!$imagen->isValid()) {
-            return response()->json(['error' => 'Imagen no válida.']);
-        }
-        
-        if (!$imagen2->isValid()) {
-            return response()->json(['error' => 'Imagen no válida']);
-        }
-        // Guardar imagen
-        $path = $imagen->store('cartas', 'public');
-        $path2 = $imagen2->store('cartas', 'public');
-        
-        $url = asset(Storage::url($path));
-        $url2 = asset(Storage::url($path2));
-        // Guardar en base de datos
-        $carta = Carta::create([
-            'nombre' => $request->nombre,
-            'rareza' => $request->rareza,
-            'vida' => $request->vida,
-            'daño' => $request->daño,
-            'energia' => $request->energia,
-            'tecnica_especial' => $request->tecnica_especial,
-            'daño_especial' => $request->daño_especial,
-            'imagen_url' => $url,
-            'imagen_url2' => $url2
-        ]);
-        
-
-        return response()->json(["mensaje" => "Carta añadida correctamente", "carta" => $carta]);
+    if ($validator->fails()) {
+        return response()->json(['errors' => $validator->errors()], 400);
     }
+
+    // Verificar archivos
+    if (!$request->hasFile('imagen_url') || !$request->hasFile('imagen_url2')) {
+        return response()->json(['error' => 'Faltan una o ambas imágenes.'], 400);
+    }
+
+    $imagen = $request->file('imagen_url');
+    $imagen2 = $request->file('imagen_url2');
+
+    if (!$imagen->isValid() || !$imagen2->isValid()) {
+        return response()->json(['error' => 'Una o ambas imágenes no son válidas.'], 400);
+    }
+
+    // Guardar imágenes manualmente en public/cartas
+    $nombre1 = uniqid('carta_') . '.' . $imagen->getClientOriginalExtension();
+    $nombre2 = uniqid('carta2_') . '.' . $imagen2->getClientOriginalExtension();
+
+    $imagen->move(public_path('cartas'), $nombre1);
+    $imagen2->move(public_path('cartas'), $nombre2);
+
+    $url = asset("cartas/$nombre1");
+    $url2 = asset("cartas/$nombre2");
+
+    // Crear la carta en la base de datos
+    $carta = Carta::create([
+        'nombre' => $request->nombre,
+        'rareza' => $request->rareza,
+        'vida' => $request->vida,
+        'daño' => $request->daño,
+        'energia' => $request->energia,
+        'tecnica_especial' => $request->tecnica_especial,
+        'daño_especial' => $request->daño_especial,
+        'imagen_url' => $url,
+        'imagen_url2' => $url2
+    ]);
+
+    return response()->json(["mensaje" => "Carta añadida correctamente", "carta" => $carta]);
+}
+
   
     // Método para realizar un gacha
     public function gacha()
