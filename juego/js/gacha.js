@@ -9,7 +9,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Redirige si no hay token
     if (!token) {
         alert("Debes iniciar sesión para jugar al gacha.");
-        window.location.href = "index.html";
+        window.location.href = "../index.html";
         return;
     }
 

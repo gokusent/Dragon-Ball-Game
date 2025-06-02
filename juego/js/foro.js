@@ -241,7 +241,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     } catch (error) {
         console.error('Error al obtener el perfil:', error);
         alert('Hubo un problema al cargar tu perfil. Intenta volver a iniciar sesión.');
-        window.location.href = 'index.html';
+        window.location.href = '../index.html';
     }
 
     window.addEventListener('beforeunload', () => {

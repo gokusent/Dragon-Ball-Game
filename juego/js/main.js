@@ -210,7 +210,7 @@ const token = localStorage.getItem("token");
 
 if (!token) {
     alert("Debes iniciar sesión para jugar.");
-    window.location.href = "index.html";
+    window.location.href = "../index.html";
 }
 
 // **Definir los mazos del jugador y del rival**

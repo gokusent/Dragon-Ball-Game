@@ -17,7 +17,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     // Validación de sesión
     if (!token) {
         alert("Debes iniciar sesión para seleccionar personajes.");
-        window.location.href = "index.html";
+        window.location.href = "../index.html";
         return;
     }
 

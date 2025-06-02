@@ -27,7 +27,7 @@ document.addEventListener("DOMContentLoaded", async () => {
     const token = localStorage.getItem("token");
     if (!token) {
         // Redirigir a login si no hay token
-        window.location.href = "index.html";
+        window.location.href = "../index.html";
         return;
     }
 

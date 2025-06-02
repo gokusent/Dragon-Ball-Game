@@ -28,7 +28,7 @@ document.addEventListener("DOMContentLoaded", () => {
   if (!token) {
     // Redirigir a login si no hay token
     alert("Debes iniciar sesión para ver tu inventario.");
-    window.location.href = "index.html";
+    window.location.href = "../index.html";
     return;
   }
 
