@@ -1,7 +1,7 @@
 -- Crear la base de datos
 DROP DATABASE IF EXISTS juego;
-CREATE DATABASE juego;
-USE juego;
+-- CREATE DATABASE juego;
+USE railway;
 
 -- Tabla de usuarios
 DROP TABLE IF EXISTS usuarios;  
@@ -10,7 +10,7 @@ CREATE TABLE usuarios (
     nombre VARCHAR(50) UNIQUE NOT NULL,
     email VARCHAR(100) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
-    avatar VARCHAR(255) DEFAULT '/storage/avatars/default.jpg',
+    avatar VARCHAR(255) DEFAULT '/avatars/default.jpg',
     fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );	
 
