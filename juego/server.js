@@ -26,7 +26,7 @@ require('dotenv').config();
 const db = mysql.createPool({
   host: process.env.DB_HOST || 'maglev.proxy.rlwy.net',            // Dirección del servidor de base de datos
   user: process.env.DB_USER || 'root',                 // Usuario de la base de datos
-  password: process.env.DB_PASSWORD || 'bslwQSyWeKSMObobRmgMXgzLUkCinuccL',             // Contraseña del usuario
+  password: process.env.DB_PASSWORD || 'slwQSyWeKSMObobRmgMXgzLUkCinuccL',             // Contraseña del usuario
   database: process.env.DB_NAME || 'railway',            // Nombre de la base de datos
   port: process.env.DB_PORT ? parseInt(process.env.DB_PORT) : 52942, // Puerto de conexión
   ssl: { rejectUnauthorized: false },
