@@ -316,7 +316,7 @@ async function cargarEquipo() {
                 });
 
                 // 🔹 **El rival en modo CPU es Moro**
-                const cartaRival = new Carta("Moro", 300, 30, 10, "Planetarian Absorbtion", 80, "../cartas/Moro.webp");
+                const cartaRival = new Carta("Moro", 300, 30, 10, "Planetarian Absorbtion", 80, "../cartas/moroCarta.png");
                 cartaRival.vidaOriginal = cartaRival.vida; // Guardar vida original
                 rival.cartas.push(cartaRival);
             }
