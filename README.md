@@ -7,7 +7,7 @@ El objetivo del proyecto fue desarrollar una aplicación/juego web funcional, im
 ## Documentación
 La documentación completa del proyecto (memoria del TFG) y las instrucciones para ejecutar el proyecto están disponibles en el siguiente enlace:
 
-👉 [Ver documentación del TFG](https://drive.google.com/drive/folders/1ed19tx0AvJb8coalLEbwe8q3upQMQLSB?usp=sharing)
+[Ver documentación del TFG](https://drive.google.com/drive/folders/1ed19tx0AvJb8coalLEbwe8q3upQMQLSB?usp=sharing)
 
 ## Tecnologías utilizadas
 - PHP (Laravel)
