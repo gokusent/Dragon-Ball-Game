@@ -986,15 +986,14 @@ function atacar() {
     animarAtaque(objetivoAtacante, atacanteIndex);
     animarRecibirDaño(objetivoDefensor, defensorIndex);
 
-        if (defensor.vida <= 0) {
-            const siguienteDefensorIndex = equipoDefensor.findIndex(carta => carta.vida > 0);
-            if (siguienteDefensorIndex === -1) {
-                verificarFinDeJuego();
-                return;
-            }
+    if (defensor.vida <= 0) {
+        const siguienteDefensorIndex = equipoDefensor.findIndex(carta => carta.vida > 0);
+        if (siguienteDefensorIndex === -1) {
+            verificarFinDeJuego();
+            return;
         }
-        cambiarTurno(false);
     }
+    cambiarTurno(false);
 }
 
 /**
