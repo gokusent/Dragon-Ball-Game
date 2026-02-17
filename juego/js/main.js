@@ -973,8 +973,24 @@ function atacar() {
     console.log(`Daño de ${atacante.nombre}: ${daño}`);
 
     // Determinar a quién se aplican las animaciones
-    const objetivoDefensor = turno === 0 ? "rival" : "jugador";
-    const objetivoAtacante = turno === 0 ? "jugador" : "rival";
+let objetivoDefensor, objetivoAtacante;
+
+if (modoJuego === "pvp") {
+    // En PvP: tus cartas siempre están en "jugador", las del rival en "rival"
+    if (soyJugador1) {
+        // Soy jugador1: mi turno es 0, ataco al rival (que es jugador2)
+        objetivoDefensor = turno === 0 ? "rival" : "jugador";
+        objetivoAtacante = turno === 0 ? "jugador" : "rival";
+    } else {
+        // Soy jugador2: mi turno es 1, ataco al rival (que es jugador1)
+        objetivoDefensor = turno === 1 ? "rival" : "jugador";
+        objetivoAtacante = turno === 1 ? "jugador" : "rival";
+    }
+} else {
+    // En local/cpu: comportamiento original
+    objetivoDefensor = turno === 0 ? "rival" : "jugador";
+    objetivoAtacante = turno === 0 ? "jugador" : "rival";
+}
 
     if (modoJuego === "pvp") {
         // En PvP: emitir al servidor, el daño se aplica cuando llega ataque_recibido
@@ -1010,6 +1026,15 @@ function atacar() {
  * Aumenta la energía de la carta del jugador en el turno actual.
  */
 function aumentarEnergia() {
+    // En PvP verificar que sea tu turno
+    if (modoJuego === "pvp") {
+        const esMiTurno = (turno === 0 && soyJugador1) || (turno === 1 && !soyJugador1);
+        if (!esMiTurno) {
+            console.log("No es tu turno.");
+            return;
+        }
+    }
+
     // Determinar qué equipo está en turno
     const equipoAtacante = turno === 0 ? jugador.cartas : rival.cartas;
 
@@ -1061,7 +1086,12 @@ function aumentarEnergia() {
     }, 1500);
 
     // Cambiar turno
-    cambiarTurno();
+    if (modoJuego === "pvp") {
+        cambiarTurno(true); // esPvp = true
+    } else {
+        cambiarTurno(false);
+    }
+    
     actualizarEstadoCartas(); 
 }
 
