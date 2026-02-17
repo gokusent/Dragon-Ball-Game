@@ -122,8 +122,10 @@ function cambiarTurno(esPvp) {
     turno = turno === 0 ? 1 : 0;
 
     turnos++; // Aumentamos el contador de turnos
+
     if (esPvp) {
-        socket.emit("cambiar_turno", turno);
+        const turnoString = turno === 0 ? "jugador1" : "jugador2" //Convertir a string
+        socket.emit("cambiar_turno", turnoString);
     }
 
     actualizarBotones();
