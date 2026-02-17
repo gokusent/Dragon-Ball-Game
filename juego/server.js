@@ -48,11 +48,16 @@ const app = express();
 const server = http.createServer(app);
 
 // Inicializa un servidor WebSocket con Socket.IO sobre el servidor HTTP
-const io = new Server(server);
+const io = new Server(server, {
+  cors: {
+    origin: "*",
+    method:["GET", "POST"]
+  }
+});
 
 // Habilita CORS para permitir peticiones desde el frontend en un dominio específico
 app.use(cors({
-  origin: "https://dragon-ball-game-1-ppgv.onrender.com", // Origen permitido
+  origin: "*", // Origen permitido
   methods: ["GET", "POST"],                    // Métodos permitidos
   allowedHeaders: ["Content-Type", "Authorization"] // Cabeceras permitidas
 }));
