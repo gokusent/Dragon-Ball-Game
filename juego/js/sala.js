@@ -77,16 +77,17 @@ document.addEventListener("DOMContentLoaded", async () => {
         socket.on("estado_sala", async (data) => {
             console.log("Estado de la sala recibido:", data);
 
-            // Verificar si este jugador es el host según el campo 'soyHost' recibido
             soyHost = data.soyHost;
 
+            // ✅ SIEMPRE guardar soyHost (true o false) para ambos jugadores
+            localStorage.setItem("soyHost", soyHost ? "true" : "false");
+            // ✅ Guardar jugador_id con clave consistente que leerá main.js
+            localStorage.setItem("jugador_id", jugador_id);
+
             if (soyHost) {
-                // Lógica para el host (ejemplo: permitir iniciar la partida)
-                console.log("¡Eres el host!");
-                localStorage.setItem("soyHost", soyHost ? "true" : "false");
+                console.log("¡Eres el host (jugador1)!");
             } else {
-                // Lógica para el jugador invitado
-                console.log("Eres el invitado.");
+                console.log("Eres el invitado (jugador2).");
             }
 
             // Obtener nombres de los jugadores o establecer "Esperando..." si no están definidos
