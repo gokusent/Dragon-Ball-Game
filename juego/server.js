@@ -513,20 +513,46 @@ socket.on('nuevo_comentario', async (comentarioData) => {
     console.log(`[ATAQUE] Jugador ${jugador_id} ataca. Turno actual: ${turnoActual}, Jugador del turno: ${jugadorTurno}`);
   
     if (jugador_id !== jugadorTurno) {
-      console.log(`ATAQUE BLOQUEADO: No es el turno del jugador ${jugador_id}`);
-      return; // Bloqueamos el ataque si no es su turno
+        console.log(`❌ ATAQUE BLOQUEADO: No es el turno del jugador ${jugador_id}`);
+        return; // Bloqueamos el ataque si no es su turno
     }
   
     const salaActual = salas[sala];
   
     if (atacanteEsJugador1) {
-      salaActual.jugador2.vida -= ataque.daño;
-      io.to(sala).emit("ataque_recibido", { jugador: "jugador2", ataque });
+        salaActual.jugador2.vida -= ataque.daño;
+        io.to(sala).emit("ataque_recibido", { jugador: "jugador2", ataque, vidaRestante: salaActual.jugador2.vida });
     } else {
-      salaActual.jugador1.vida -= ataque.daño;
-      io.to(sala).emit("ataque_recibido", { jugador: "jugador1", ataque });
+        salaActual.jugador1.vida -= ataque.daño;
+        io.to(sala).emit("ataque_recibido", { jugador: "jugador1", ataque, vidaRestante: salaActual.jugador1.vida });
     }
-  });
+
+    // EL SERVIDOR CAMBIA EL TURNO AUTOMÁTICAMENTE
+    const nuevoTurno = turnoActual === "jugador1" ? "jugador2" : "jugador1";
+    salas[sala].turno = nuevoTurno;
+    console.log(`[SERVIDOR CAMBIÓ TURNO] De ${turnoActual} a ${nuevoTurno}`);
+    io.to(sala).emit("cambiar_turno", nuevoTurno);
+});
+
+socket.on("aumentar_energia", ({ sala, jugador_id }) => {
+    if (!salas[sala]) return;
+  
+    const turnoActual = salas[sala].turno;
+    const jugadorTurno = turnoActual === "jugador1" ? salas[sala].jugador1?.jugador_id : salas[sala].jugador2?.jugador_id;
+  
+    if (jugador_id !== jugadorTurno) {
+        console.log(`ENERGÍA BLOQUEADA: No es el turno del jugador ${jugador_id}`);
+        return;
+    }
+
+    // Notificar a ambos que se aumentó energía
+    io.to(sala).emit("energia_aumentada", { jugador_id });
+
+    // Cambiar turno
+    const nuevoTurno = turnoActual === "jugador1" ? "jugador2" : "jugador1";
+    salas[sala].turno = nuevoTurno;
+    io.to(sala).emit("cambiar_turno", nuevoTurno);
+});
   
 socket.on("salir_sala", async ({ sala }) => {
     socket.leave(sala);

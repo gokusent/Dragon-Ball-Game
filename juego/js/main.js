@@ -1003,7 +1003,6 @@ function atacar() {
         });
         // Solo animaciones locales, NO aplicar daño aún (lo hará ataque_recibido)
         animarAtaque(objetivoAtacante, atacanteIndex);
-        cambiarTurno(true); // esPvp = true
     } else {
         // En local/cpu: aplicar daño directamente
         defensor.vida = Math.max(0, defensor.vida - daño);
@@ -1089,9 +1088,10 @@ function aumentarEnergia() {
 
     // Cambiar turno
     if (modoJuego === "pvp") {
-        cambiarTurno(true); // esPvp = true
-    } else {
-        cambiarTurno(false);
+        socket.emit("aumentar_energia", {
+            sala: salaId,
+            jugador_id: jugadorID
+        })
     }
     
     actualizarEstadoCartas(); 
