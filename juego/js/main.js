@@ -71,8 +71,6 @@ document.body.appendChild(anuncioTurno);
 let turno = 0; // 0: jugador1, 1: jugador2
 let turnos = 0;
 
-*/
-
 // Escuchar estado_sala para saber quién somos (jugador1 o jugador2)
 socket.on("estado_sala", ({ jugador1, jugador2, soyHost: esHost, turno: turnoActual }) => {
     estadoSala.jugador1 = jugador1;
