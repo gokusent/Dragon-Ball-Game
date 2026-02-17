@@ -47,10 +47,23 @@ socket.on("iniciar_turno", (data) => {
   // Actualiza la UI según el jugador que deba jugar
 });
 
-let soyHost = localStorage.getItem("soyHost") === "true"; // Verifica si el jugador es el host
-let jugadorID = null; //
-let estadoSala = {};  // 
 */
+
+// Variables PvP activas
+// Leer sala desde URL (seleccion.js redirige con ?sala=...) o localStorage como fallback
+const _urlParamsSala = new URLSearchParams(window.location.search);
+let salaId = _urlParamsSala.get("sala") || localStorage.getItem("salaPvp") || null;
+
+// jugador_id: menu.js lo guarda como "jugador_id", también disponible en objeto "usuario"
+const _usuarioGuardado = JSON.parse(localStorage.getItem("usuario") || "{}");
+let jugadorID = _usuarioGuardado?.id || parseInt(localStorage.getItem("jugador_id")) || null;
+
+// soyHost: sala.js solo lo guarda cuando es true, así que si no existe = false (eres jugador2)
+let soyHost = localStorage.getItem("soyHost") === "true";
+let soyJugador1 = soyHost; // Se confirma definitivamente al recibir estado_sala
+let estadoSala = {};
+
+console.log("[PvP Init] Sala:", salaId, "| JugadorID:", jugadorID, "| SoyHost:", soyHost);
 
 const anuncioTurno = document.createElement('div');
 anuncioTurno.classList.add('turno-anuncio');
@@ -58,14 +71,29 @@ document.body.appendChild(anuncioTurno);
 let turno = 0; // 0: jugador1, 1: jugador2
 let turnos = 0;
 
-/*
-// Emitir solicitud para iniciar partida si eres el host
-if (modoJuego === "pvp" && soyHost) {
-    console.log("Esperando a que ambos jugadores estén listos...");
-    socket.emit("solicitar_inicio_partida");  // El servidor elige el turno y emite a ambos
-    console.log("Partida iniciada.");
-}
 */
+
+// Escuchar estado_sala para saber quién somos (jugador1 o jugador2)
+socket.on("estado_sala", ({ jugador1, jugador2, soyHost: esHost, turno: turnoActual }) => {
+    estadoSala.jugador1 = jugador1;
+    estadoSala.jugador2 = jugador2;
+    soyJugador1 = esHost; // El host siempre es jugador1
+    if (turnoActual !== undefined) turno = turnoActual === "jugador1" ? 0 : 1;
+    console.log("Soy jugador1:", soyJugador1, "| Mi ID:", jugadorID);
+    actualizarBotones();
+});
+
+// Reconexión al servidor
+socket.on("connect", () => {
+    console.log("Conectado al servidor con ID:", socket.id);
+    if (jugadorID && salaId) {
+        socket.emit("unirse_sala_pvp", {
+            sala: salaId,
+            jugador_id: jugadorID,
+            nombre: localStorage.getItem("nombreJugador") || "Jugador"
+        });
+    }
+});
 // Esperar a que el servidor indique el inicio y el turno inicial
 socket.on("iniciar_partida", ({ turnoInicial, jugador1, jugador2 }) => {
     estadoSala.jugador1 = jugador1;
@@ -108,22 +136,33 @@ function cambiarTurno(esPvp) {
     }
 }
 
-/*
-// Verifica si es tu turno
-function verificarTurnoPropio() {
-    if (!jugadorID) return false;
-    if (turno === 0) return estadoSala.jugador1?.jugador_id === jugadorID;
-    if (turno === 1) return estadoSala.jugador2?.jugador_id === jugadorID;
-    return false;
-}
-
-socket.on("cambiar_turno", ({ nuevoTurno }) => {
-    turno = nuevoTurno;
+// Escuchar cambio de turno desde el servidor
+socket.on("cambiar_turno", (nuevoTurno) => {
+    turno = nuevoTurno === "jugador1" ? 0 : 1;
     anunciarTurno();
     actualizarBotones();
-}
-);
-*/
+});
+
+// Escuchar ataque recibido desde el servidor (¡ESTO FALTABA!)
+socket.on("ataque_recibido", ({ jugador: jugadorAfectado, ataque, vidaRestante }) => {
+    const equipoAfectado = jugadorAfectado === "jugador1" ? jugador.cartas : rival.cartas;
+    const objetivo = jugadorAfectado === "jugador1" ? "jugador" : "rival";
+
+    // Encontrar carta afectada
+    const defensorIndex = equipoAfectado.findIndex(carta => carta.vida > 0);
+    if (defensorIndex === -1) return;
+
+    const defensor = equipoAfectado[defensorIndex];
+    defensor.vida = Math.max(0, defensor.vida - ataque.daño);
+
+    // Actualizar UI
+    actualizarBarraVida(objetivo, defensorIndex);
+    mostrarDaño(objetivo, defensorIndex, ataque.daño);
+    actualizarEstadoCartas();
+    animarRecibirDaño(objetivo, defensorIndex);
+
+    if (verificarFinDeJuego()) return;
+});
 
 /**
  * Función que hace que la IA tome decisiones en su turno
@@ -159,19 +198,44 @@ function actualizarBotones() {
     const contenedoresJugador = document.querySelectorAll('.contenedor-jugador .carta-container');
     const contenedoresRival = document.querySelectorAll('.contenedor-rival .carta-container');
 
-    contenedoresRival.forEach(container => {
-        container.querySelectorAll('button').forEach(boton => {
-            boton.disabled = turno === 0;
-            boton.style.opacity = boton.disabled ? "0.5" : "1";
-        });
-    });
+    if (modoJuego === "pvp") {
+        // En PvP: solo puedes usar tus botones y solo en tu turno
+        const esMiTurno = (turno === 0 && soyJugador1) || (turno === 1 && !soyJugador1);
 
-    contenedoresJugador.forEach(container => {
-        container.querySelectorAll('button').forEach(boton => {
-            boton.disabled = turno === 1;
-            boton.style.opacity = boton.disabled ? "0.5" : "1";
+        // Jugador1 ve sus cartas en contenedor-jugador, Jugador2 en contenedor-rival
+        const miContenedor = soyJugador1 ? contenedoresJugador : contenedoresRival;
+        const rivalContenedor = soyJugador1 ? contenedoresRival : contenedoresJugador;
+
+        miContenedor.forEach(container => {
+            container.querySelectorAll('button').forEach(boton => {
+                boton.disabled = !esMiTurno;
+                boton.style.opacity = boton.disabled ? "0.5" : "1";
+            });
         });
-    });
+
+        // Siempre deshabilitar botones del rival
+        rivalContenedor.forEach(container => {
+            container.querySelectorAll('button').forEach(boton => {
+                boton.disabled = true;
+                boton.style.opacity = "0.5";
+            });
+        });
+    } else {
+        // Modo local/cpu: comportamiento original
+        contenedoresRival.forEach(container => {
+            container.querySelectorAll('button').forEach(boton => {
+                boton.disabled = turno === 0;
+                boton.style.opacity = boton.disabled ? "0.5" : "1";
+            });
+        });
+
+        contenedoresJugador.forEach(container => {
+            container.querySelectorAll('button').forEach(boton => {
+                boton.disabled = turno === 1;
+                boton.style.opacity = boton.disabled ? "0.5" : "1";
+            });
+        });
+    }
 }
 
 /**
@@ -881,6 +945,15 @@ function activarTecnicaEspecial(jugadorActual, turno) {
 }
 
 function atacar() {
+    // En PvP verificar que sea tu turno
+    if (modoJuego === "pvp") {
+        const esMiTurno = (turno === 0 && soyJugador1) || (turno === 1 && !soyJugador1);
+        if (!esMiTurno) {
+            console.log("No es tu turno.");
+            return;
+        }
+    }
+
     // Determinar qué equipo ataca y cuál defiende
     const equipoAtacante = turno === 0 ? jugador.cartas : rival.cartas;
     const equipoDefensor = turno === 0 ? rival.cartas : jugador.cartas;
@@ -901,31 +974,38 @@ function atacar() {
     let daño = atacante.daño;
     console.log(`Daño de ${atacante.nombre}: ${daño}`);
 
-    // Aplicar el daño asegurando que la vida no sea negativa
-    defensor.vida = Math.max(0, defensor.vida - daño);
-
-    // Determinar a quién se aplican las animaciones y actualizaciones
+    // Determinar a quién se aplican las animaciones
     const objetivoDefensor = turno === 0 ? "rival" : "jugador";
     const objetivoAtacante = turno === 0 ? "jugador" : "rival";
 
-    // Actualizar UI y animaciones
-    actualizarBarraVida(objetivoDefensor, defensorIndex);
-    mostrarDaño(objetivoDefensor, defensorIndex, daño);
-    actualizarEstadoCartas(); // 
-    animarAtaque(objetivoAtacante, atacanteIndex);
-    animarRecibirDaño(objetivoDefensor, defensorIndex);
+    if (modoJuego === "pvp") {
+        // En PvP: emitir al servidor, el daño se aplica cuando llega ataque_recibido
+        socket.emit("atacar", {
+            sala: salaId,
+            jugador_id: jugadorID,
+            ataque: { daño: daño, nombre: atacante.nombre }
+        });
+        // Solo animaciones locales, NO aplicar daño aún (lo hará ataque_recibido)
+        animarAtaque(objetivoAtacante, atacanteIndex);
+        cambiarTurno(true); // esPvp = true
+    } else {
+        // En local/cpu: aplicar daño directamente
+        defensor.vida = Math.max(0, defensor.vida - daño);
+        actualizarBarraVida(objetivoDefensor, defensorIndex);
+        mostrarDaño(objetivoDefensor, defensorIndex, daño);
+        actualizarEstadoCartas();
+        animarAtaque(objetivoAtacante, atacanteIndex);
+        animarRecibirDaño(objetivoDefensor, defensorIndex);
 
-    // Si la carta defensora quedó sin vida, buscar la siguiente en su equipo
-    if (defensor.vida <= 0) {
-        const siguienteDefensorIndex = equipoDefensor.findIndex(carta => carta.vida > 0);
-        if (siguienteDefensorIndex === -1) {
-            verificarFinDeJuego();
-            return;
+        if (defensor.vida <= 0) {
+            const siguienteDefensorIndex = equipoDefensor.findIndex(carta => carta.vida > 0);
+            if (siguienteDefensorIndex === -1) {
+                verificarFinDeJuego();
+                return;
+            }
         }
+        cambiarTurno(false);
     }
-
-    // Cambiar el turno
-    cambiarTurno();
 }
 
 /**
