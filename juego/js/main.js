@@ -972,28 +972,54 @@ function atacar() {
     let daño = atacante.daño;
     console.log(`Daño de ${atacante.nombre}: ${daño}`);
 
-    // Aplicar el daño asegurando que la vida no sea negativa
-    defensor.vida = Math.max(0, defensor.vida - daño);
+    // Determinar a quién se aplican las animaciones
+    let objetivoDefensor, objetivoAtacante;
 
-    // Determinar a quién se aplican las animaciones y actualizaciones
-    const objetivoDefensor = turno === 0 ? "rival" : "jugador";
-    const objetivoAtacante = turno === 0 ? "jugador" : "rival";
-
-    // Actualizar UI y animaciones
-    actualizarBarraVida(objetivoDefensor, defensorIndex);
-    mostrarDaño(objetivoDefensor, defensorIndex, daño);
-    actualizarEstadoCartas(); // 
-    animarAtaque(objetivoAtacante, atacanteIndex);
-    animarRecibirDaño(objetivoDefensor, defensorIndex);
-
-    if (defensor.vida <= 0) {
-        const siguienteDefensorIndex = equipoDefensor.findIndex(carta => carta.vida > 0);
-        if (siguienteDefensorIndex === -1) {
-            verificarFinDeJuego();
-            return;
+    if (modoJuego === "pvp") {
+        // En PvP: tus cartas siempre están en "jugador", las del rival en "rival"
+        if (soyJugador1) {
+            // Soy jugador1: mi turno es 0, ataco al rival (que es jugador2)
+            objetivoDefensor = turno === 0 ? "rival" : "jugador";
+            objetivoAtacante = turno === 0 ? "jugador" : "rival";
+        } else {
+            // Soy jugador2: mi turno es 1, ataco al rival (que es jugador1)
+            objetivoDefensor = turno === 1 ? "rival" : "jugador";
+            objetivoAtacante = turno === 1 ? "jugador" : "rival";
         }
+    } else {
+        // En local/cpu: comportamiento original
+        objetivoDefensor = turno === 0 ? "rival" : "jugador";
+        objetivoAtacante = turno === 0 ? "jugador" : "rival";
     }
-    cambiarTurno(false);
+
+    if (modoJuego === "pvp") {
+        // En PvP: emitir al servidor, el daño se aplica cuando llega ataque_recibido
+        socket.emit("atacar", {
+            sala: salaId,
+            jugador_id: jugadorID,
+            ataque: { daño: daño, nombre: atacante.nombre }
+        });
+        // Solo animaciones locales, NO aplicar daño aún (lo hará ataque_recibido)
+        animarAtaque(objetivoAtacante, atacanteIndex);
+        cambiarTurno(true); // esPvp = true
+    } else {
+        // En local/cpu: aplicar daño directamente
+        defensor.vida = Math.max(0, defensor.vida - daño);
+        actualizarBarraVida(objetivoDefensor, defensorIndex);
+        mostrarDaño(objetivoDefensor, defensorIndex, daño);
+        actualizarEstadoCartas();
+        animarAtaque(objetivoAtacante, atacanteIndex);
+        animarRecibirDaño(objetivoDefensor, defensorIndex);
+
+        if (defensor.vida <= 0) {
+            const siguienteDefensorIndex = equipoDefensor.findIndex(carta => carta.vida > 0);
+            if (siguienteDefensorIndex === -1) {
+                verificarFinDeJuego();
+                return;
+            }
+        }
+        cambiarTurno(false);
+    }
 }
 
 /**
