@@ -143,10 +143,36 @@ socket.on("cambiar_turno", (nuevoTurno) => {
     actualizarBotones();
 });
 
-// Escuchar ataque recibido desde el servidor (¡ESTO FALTABA!)
+// Escuchar ataque recibido desde el servidor
 socket.on("ataque_recibido", ({ jugador: jugadorAfectado, ataque, vidaRestante }) => {
-    const equipoAfectado = jugadorAfectado === "jugador1" ? jugador.cartas : rival.cartas;
-    const objetivo = jugadorAfectado === "jugador1" ? "jugador" : "rival";
+    console.log(`[ATAQUE RECIBIDO] Jugador afectado: ${jugadorAfectado}, Soy jugador1: ${soyJugador1}`);
+    
+    // ✅ FIX: Determinar quién recibe el daño según quién SOY yo
+    let equipoAfectado, objetivo;
+    
+    if (jugadorAfectado === "jugador1") {
+        // El servidor dice que jugador1 recibe daño
+        if (soyJugador1) {
+            // Yo soy jugador1, así que MIS cartas reciben daño
+            equipoAfectado = jugador.cartas;
+            objetivo = "jugador";
+        } else {
+            // Yo soy jugador2, así que las cartas del RIVAL reciben daño
+            equipoAfectado = rival.cartas;
+            objetivo = "rival";
+        }
+    } else {
+        // El servidor dice que jugador2 recibe daño
+        if (soyJugador1) {
+            // Yo soy jugador1, así que las cartas del RIVAL reciben daño
+            equipoAfectado = rival.cartas;
+            objetivo = "rival";
+        } else {
+            // Yo soy jugador2, así que MIS cartas reciben daño
+            equipoAfectado = jugador.cartas;
+            objetivo = "jugador";
+        }
+    }
 
     // Encontrar carta afectada
     const defensorIndex = equipoAfectado.findIndex(carta => carta.vida > 0);
@@ -154,6 +180,8 @@ socket.on("ataque_recibido", ({ jugador: jugadorAfectado, ataque, vidaRestante }
 
     const defensor = equipoAfectado[defensorIndex];
     defensor.vida = Math.max(0, defensor.vida - ataque.daño);
+
+    console.log(`[DAÑO APLICADO] ${defensor.nombre} ahora tiene ${defensor.vida} vida`);
 
     // Actualizar UI
     actualizarBarraVida(objetivo, defensorIndex);
