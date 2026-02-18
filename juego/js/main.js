@@ -192,6 +192,70 @@ socket.on("ataque_recibido", ({ jugador: jugadorAfectado, ataque, vidaRestante }
     if (verificarFinDeJuego()) return;
 });
 
+// Escuchar aumento de energía desde el servidor
+socket.on("energia_aumentada", ({ jugador: jugadorQueAumento }) => {
+    console.log(`[ENERGÍA AUMENTADA] Jugador: ${jugadorQueAumento}, Soy jugador1: ${soyJugador1}`);
+    
+    // Determinar de quién es la carta que aumentó energía
+    let equipoAfectado, contenedorClase;
+    
+    if (jugadorQueAumento === "jugador1") {
+        if (soyJugador1) {
+            equipoAfectado = jugador.cartas;
+            contenedorClase = "jugador";
+        } else {
+            equipoAfectado = rival.cartas;
+            contenedorClase = "rival";
+        }
+    } else {
+        if (soyJugador1) {
+            equipoAfectado = rival.cartas;
+            contenedorClase = "rival";
+        } else {
+            equipoAfectado = jugador.cartas;
+            contenedorClase = "jugador";
+        }
+    }
+    
+    // Encontrar la carta activa
+    const cartaIndex = equipoAfectado.findIndex(carta => carta.vida > 0);
+    if (cartaIndex === -1) return;
+    
+    const carta = equipoAfectado[cartaIndex];
+    
+    // Aumentar energía (igual que hace aumentarEnergia localmente)
+    carta.habilidad += carta.energia;
+    if (carta.habilidad > 100) carta.habilidad = 100;
+    if (carta.habilidad === 100) carta.habilidadLista = true;
+    
+    console.log(`[ENERGÍA] ${carta.nombre} ahora tiene ${carta.habilidad} de energía`);
+    
+    // Actualizar UI
+    const cartaContainer = document.querySelectorAll(`.contenedor-${contenedorClase} .carta-container`)[cartaIndex];
+    if (!cartaContainer) return;
+    
+    const habilidadElement = cartaContainer.querySelector('.habilidad-texto');
+    if (habilidadElement) {
+        habilidadElement.innerText = `Habilidad: ${carta.habilidad}`;
+    }
+    
+    const barraHabilidad = cartaContainer.querySelector('.barra-habilidad .habilidad');
+    if (barraHabilidad) {
+        barraHabilidad.style.width = `${carta.habilidad}%`;
+    }
+    
+    // Animar
+    const cartaElemento = cartaContainer.querySelector('.carta');
+    if (cartaElemento) {
+        cartaElemento.classList.add('cargando-energia', 'resplandor');
+        setTimeout(() => {
+            cartaElemento.classList.remove('cargando-energia', 'resplandor');
+        }, 1500);
+    }
+    
+    actualizarEstadoCartas();
+});
+
 /**
  * Función que hace que la IA tome decisiones en su turno
  */

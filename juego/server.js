@@ -540,17 +540,27 @@ socket.on("aumentar_energia", ({ sala, jugador_id }) => {
     const turnoActual = salas[sala].turno;
     const jugadorTurno = turnoActual === "jugador1" ? salas[sala].jugador1?.jugador_id : salas[sala].jugador2?.jugador_id;
   
+    console.log(`[ENERGÍA] Jugador ${jugador_id} intenta aumentar energía. Turno: ${turnoActual}`);
+  
     if (jugador_id !== jugadorTurno) {
         console.log(`ENERGÍA BLOQUEADA: No es el turno del jugador ${jugador_id}`);
         return;
     }
 
-    // Notificar a ambos que se aumentó energía
-    io.to(sala).emit("energia_aumentada", { jugador_id });
+    // Determinar quién aumentó energía
+    const jugadorQueAumento = salas[sala].jugador1?.jugador_id === jugador_id ? "jugador1" : "jugador2";
+    
+    console.log(`[ENERGÍA] ${jugadorQueAumento} aumentó energía`);
 
-    // Cambiar turno
+    // Notificar a ambos jugadores que se aumentó energía
+    io.to(sala).emit("energia_aumentada", { 
+        jugador: jugadorQueAumento
+    });
+
+    // Cambiar turno automáticamente
     const nuevoTurno = turnoActual === "jugador1" ? "jugador2" : "jugador1";
     salas[sala].turno = nuevoTurno;
+    console.log(`[SERVIDOR CAMBIÓ TURNO] De ${turnoActual} a ${nuevoTurno}`);
     io.to(sala).emit("cambiar_turno", nuevoTurno);
 });
   
