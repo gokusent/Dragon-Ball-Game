@@ -241,7 +241,7 @@ socket.on("energia_aumentada", ({ jugador: jugadorQueAumento }) => {
     const habilidadElement = cartaContainer.querySelector('.habilidad-texto');
     if (habilidadElement) {
         habilidadElement.innerText = `Habilidad: ${carta.habilidad}`;
-        console.log(`✅ Texto actualizado: Habilidad ${carta.habilidad}`);
+        console.log(`Texto actualizado: Habilidad ${carta.habilidad}`);
     } else {
         console.error('No se encontró .habilidad-texto');
     }
@@ -302,33 +302,36 @@ function actualizarBotones() {
     const contenedoresRival = document.querySelectorAll('.contenedor-rival .carta-container');
 
     if (modoJuego === "pvp") {
-        const esMiTurno = (turno === 0 && soyJugador1) || (turno === 1 && !soyJugador1);
+    const esMiTurno = (turno === 0 && soyJugador1) || (turno === 1 && !soyJugador1);
 
-        const miContenedor = soyJugador1 ? contenedoresJugador : contenedoresRival;
-        const rivalContenedor = soyJugador1 ? contenedoresRival : contenedoresJugador;
+    // FIX: En PvP, TUS cartas SIEMPRE están en contenedor-jugador (izquierda)
+    const miContenedor = contenedoresJugador;
+    const rivalContenedor = contenedoresRival;
 
-        miContenedor.forEach((container, index) => {
-            const carta = jugador.cartas[index];
-            container.querySelectorAll('button').forEach(boton => {
-                // Habilitar botones solo si es mi turno
-                if (boton.classList.contains('btn-ataque-especial')) {
-                    // Botón de habilidad: solo si tengo 100 de energía Y es mi turno
-                    boton.disabled = !esMiTurno || (carta && carta.habilidad < 100);
-                } else {
-                    // Otros botones: solo si es mi turno
-                    boton.disabled = !esMiTurno;
-                }
-                boton.style.opacity = boton.disabled ? "0.5" : "1";
-            });
+    // Actualizar MIS botones
+    miContenedor.forEach((container, index) => {
+        const carta = jugador.cartas[index];
+        if (!carta) return;
+        
+        container.querySelectorAll('button').forEach(boton => {
+            if (boton.classList.contains('btn-ataque-especial')) {
+                // Botón de habilidad: solo si tengo 100 de energía Y es mi turno
+                boton.disabled = !esMiTurno || carta.habilidad < 100;
+            } else {
+                // Otros botones: solo si es mi turno
+                boton.disabled = !esMiTurno;
+            }
+            boton.style.opacity = boton.disabled ? "0.5" : "1";
         });
+    });
 
-        // Siempre deshabilitar botones del rival
-        rivalContenedor.forEach(container => {
-            container.querySelectorAll('button').forEach(boton => {
-                boton.disabled = true;
-                boton.style.opacity = "0.5";
-            });
+    // Siempre deshabilitar botones del RIVAL
+    rivalContenedor.forEach(container => {
+        container.querySelectorAll('button').forEach(boton => {
+            boton.disabled = true;
+            boton.style.opacity = "0.5";
         });
+    });
     } else {
         // Modo local/cpu: comportamiento original
         contenedoresRival.forEach(container => {
