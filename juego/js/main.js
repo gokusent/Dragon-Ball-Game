@@ -291,16 +291,22 @@ function actualizarBotones() {
     const contenedoresRival = document.querySelectorAll('.contenedor-rival .carta-container');
 
     if (modoJuego === "pvp") {
-        // En PvP: solo puedes usar tus botones y solo en tu turno
         const esMiTurno = (turno === 0 && soyJugador1) || (turno === 1 && !soyJugador1);
 
-        // Jugador1 ve sus cartas en contenedor-jugador, Jugador2 en contenedor-rival
         const miContenedor = soyJugador1 ? contenedoresJugador : contenedoresRival;
         const rivalContenedor = soyJugador1 ? contenedoresRival : contenedoresJugador;
 
-        miContenedor.forEach(container => {
+        miContenedor.forEach((container, index) => {
+            const carta = jugador.cartas[index];
             container.querySelectorAll('button').forEach(boton => {
-                boton.disabled = !esMiTurno;
+                // Habilitar botones solo si es mi turno
+                if (boton.classList.contains('btn-ataque-especial')) {
+                    // Botón de habilidad: solo si tengo 100 de energía Y es mi turno
+                    boton.disabled = !esMiTurno || (carta && carta.habilidad < 100);
+                } else {
+                    // Otros botones: solo si es mi turno
+                    boton.disabled = !esMiTurno;
+                }
                 boton.style.opacity = boton.disabled ? "0.5" : "1";
             });
         });

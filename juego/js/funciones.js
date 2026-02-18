@@ -2,7 +2,7 @@
 import { Carta } from './clases.js';
 
 // Importamos las funciones necesarias del archivo 'main.js'
-import { atacar, turno, aumentarEnergia, activarTecnicaEspecial } from './main.js'; // Asegúrate de que la ruta sea correcta
+import { atacar, turno, aumentarEnergia, activarTecnicaEspecial } from './main.js';
 
 function colocar(jugador, rival, tapete) {
     // Limpiamos el contenido previo del tapete
@@ -68,40 +68,35 @@ function colocar(jugador, rival, tapete) {
         // Añadir atributos a la carta
         cartaDiv.appendChild(atributos);
 
-        // Contenedor de botones de acción (Solo para el jugador)
+        // Contenedor de botones de acción
         const botonesContainer = document.createElement('div');
         botonesContainer.classList.add('botones');
-
-        // Botón para aumentar energía (con identificación del jugador o rival)
-        const botonDefender = document.createElement('button');
-        botonDefender.classList.add('boton-defender');
-        botonDefender.innerText = 'Energía';
-        botonDefender.addEventListener('click', () => {
-            console.log("Botón Energía clickeado");
-            aumentarEnergia(jugador);  // Pasamos el jugador al que pertenece este botón
-        });
-        // Botón para activar la técnica especial
-        const botonHabilidad = document.createElement("button");
-        botonHabilidad.classList.add("btn-ataque-especial");
-        botonHabilidad.innerText = carta.tecnicaEspecial ? carta.tecnicaEspecial : "Habilidad Desconocida";
-        if (jugador.energia < 100) {
-            botonHabilidad.disabled = true;
-        } else {
-            botonHabilidad.disabled = false;
-            botonHabilidad.addEventListener('click', () => {
-            if (turno === 0) {
-                activarTecnicaEspecial(jugador, turno);      
-            }
-        }); 
-    }
 
         // Botón para atacar
         const botonAtacar = document.createElement('button');
         botonAtacar.classList.add('btn-ataque');
         botonAtacar.innerText = 'Atacar';
-        botonAtacar.addEventListener('click', () => atacar(jugador, rival));
+        botonAtacar.addEventListener('click', () => atacar());
 
-        // Agregar botones solo si la carta pertenece al jugador
+        // Botón para aumentar energía
+        const botonDefender = document.createElement('button');
+        botonDefender.classList.add('boton-defender');
+        botonDefender.innerText = 'Energía';
+        botonDefender.addEventListener('click', () => {
+            console.log("Botón Energía clickeado");
+            aumentarEnergia();
+        });
+
+        // Botón para activar la técnica especial
+        const botonHabilidad = document.createElement("button");
+        botonHabilidad.classList.add("btn-ataque-especial");
+        botonHabilidad.innerText = carta.tecnicaEspecial ? carta.tecnicaEspecial : "Habilidad Desconocida";
+        // SIEMPRE añadir el evento, actualizarBotones() controlará si está habilitado
+        botonHabilidad.addEventListener('click', () => {
+            activarTecnicaEspecial(jugador, turno);
+        });
+
+        // Agregar botones
         botonesContainer.append(botonAtacar, botonDefender, botonHabilidad);
         cartaContainer.appendChild(cartaDiv);
         cartaContainer.appendChild(botonesContainer);
@@ -167,7 +162,13 @@ function colocar(jugador, rival, tapete) {
         const botonesContainer = document.createElement('div');
         botonesContainer.classList.add('botones');
 
-        // Botón para aumentar energía **(FALTABA)**
+        // Botón para atacar
+        const botonAtacar = document.createElement('button');
+        botonAtacar.classList.add('btn-ataque');
+        botonAtacar.innerText = 'Atacar';
+        botonAtacar.addEventListener('click', () => atacar());
+
+        // Botón para aumentar energía
         const botonDefender = document.createElement('button');
         botonDefender.classList.add('boton-defender');
         botonDefender.innerText = 'Energía';
@@ -177,17 +178,10 @@ function colocar(jugador, rival, tapete) {
         const botonHabilidad = document.createElement("button");
         botonHabilidad.classList.add("btn-ataque-especial");
         botonHabilidad.innerText = carta.tecnicaEspecial ? carta.tecnicaEspecial : "Habilidad Desconocida";
-        botonHabilidad.addEventListener('click', () => { 
-            if (turno === 1) {
-                activarTecnicaEspecial(rival, turno);
-        }
-    });
-
-        // Botón para atacar
-        const botonAtacar = document.createElement('button');
-        botonAtacar.classList.add('btn-ataque');
-        botonAtacar.innerText = 'Atacar';
-        botonAtacar.addEventListener('click', () => atacar(rival, jugador));
+        // SIEMPRE añadir el evento, actualizarBotones() controlará si está habilitado
+        botonHabilidad.addEventListener('click', () => {
+            activarTecnicaEspecial(rival, turno);
+        });
 
         // Agregar botones al rival
         botonesContainer.append(botonAtacar, botonDefender, botonHabilidad);
@@ -201,7 +195,7 @@ function colocar(jugador, rival, tapete) {
     // **Agregar los contenedores al tapete**
     tapete.appendChild(contenedorJugador);
 
-    // Si es la primera carta y hay más de una, añadimos un separador "VS"
+    // Separador "VS"
     const vsPlaceholder = document.createElement('div');
     vsPlaceholder.classList.add('vs-placeholder');
     vsPlaceholder.innerText = 'VS';
