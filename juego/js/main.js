@@ -336,6 +336,13 @@ async function cargarEquipo() {
                 const equipoPropio = JSON.parse(localStorage.getItem(`equipo_${idJugador}`)) || [];
                 const equipoRival = JSON.parse(localStorage.getItem("equipoRival")) || [];
 
+                console.log("=== DEBUG CARGA DE EQUIPOS PVP ===");
+                console.log("ID Jugador:", idJugador);
+                console.log("Soy Jugador1:", soyJugador1);
+                console.log("Equipo propio (IDs):", equipoPropio);
+                console.log("Equipo rival (IDs):", equipoRival);
+                console.log("===================================");
+
                 if (equipoPropio.length === 0 || equipoRival.length === 0) {
                     alert("Faltan datos de los equipos.");
                     window.location.href = "seleccion.html?modo=pvp";
@@ -347,6 +354,11 @@ async function cargarEquipo() {
 
                 await cargarCartasDesdeIDs(equipoPropio, jugador);
                 await cargarCartasDesdeIDs(equipoRival, rival);
+                
+                console.log("=== DESPUÉS DE CARGAR ===");
+                console.log("Jugador cartas:", jugador.cartas.map(c => c.nombre));
+                console.log("Rival cartas:", rival.cartas.map(c => c.nombre));
+                console.log("==========================");
             } else if (modoJuego === "cpu") {
                 // 🔹 **Modo CPU o PVP: Cargar desde la API**
                 const respuesta = await fetch("https://dragon-ball-game-hx4q.onrender.com/api/equipo", {
