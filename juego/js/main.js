@@ -967,8 +967,17 @@ function atacar() {
     }
 
     // Determinar qué equipo ataca y cuál defiende
-    const equipoAtacante = turno === 0 ? jugador.cartas : rival.cartas;
-    const equipoDefensor = turno === 0 ? rival.cartas : jugador.cartas;
+    let equipoAtacante, equipoDefensor;
+    
+    if (modoJuego === "pvp") {
+        // En PvP: SIEMPRE atacas con TUS cartas (jugador.cartas)
+        equipoAtacante = jugador.cartas;
+        equipoDefensor = rival.cartas;
+    } else {
+        // En local/cpu: depende del turno
+        equipoAtacante = turno === 0 ? jugador.cartas : rival.cartas;
+        equipoDefensor = turno === 0 ? rival.cartas : jugador.cartas;
+    }
 
     // Encontrar la primera carta con vida en cada equipo
     const atacanteIndex = equipoAtacante.findIndex(carta => carta.vida > 0);
