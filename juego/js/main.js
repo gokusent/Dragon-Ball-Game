@@ -985,23 +985,17 @@ function atacar() {
 
     let daño = atacante.daño;
     console.log(`Daño de ${atacante.nombre}: ${daño}`);
-
+    
     // Determinar a quién se aplican las animaciones
     let objetivoDefensor, objetivoAtacante;
 
     if (modoJuego === "pvp") {
-        // En PvP: tus cartas siempre están en "jugador", las del rival en "rival"
-        if (soyJugador1) {
-            // Soy jugador1: mi turno es 0, ataco al rival (que es jugador2)
-            objetivoDefensor = turno === 0 ? "rival" : "jugador";
-            objetivoAtacante = turno === 0 ? "jugador" : "rival";
-        } else {
-            // Soy jugador2: mi turno es 1, ataco al rival (que es jugador1)
-            objetivoDefensor = turno === 1 ? "rival" : "jugador";
-            objetivoAtacante = turno === 1 ? "jugador" : "rival";
-        }
+        // En PvP: Siempre YO ataco, y siempre se anima al RIVAL recibiendo daño
+        // Sin importar si soy jugador1 o jugador2
+        objetivoAtacante = "jugador";  // Mis cartas siempre atacan desde "jugador"
+        objetivoDefensor = "rival";     // El rival siempre recibe en "rival"
     } else {
-        // En local/cpu: comportamiento original
+        // En local/cpu: depende del turno
         objetivoDefensor = turno === 0 ? "rival" : "jugador";
         objetivoAtacante = turno === 0 ? "jugador" : "rival";
     }
