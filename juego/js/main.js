@@ -228,20 +228,31 @@ socket.on("energia_aumentada", ({ jugador: jugadorQueAumento }) => {
     if (carta.habilidad > 100) carta.habilidad = 100;
     if (carta.habilidad === 100) carta.habilidadLista = true;
     
-    console.log(`[ENERGÍA] ${carta.nombre} ahora tiene ${carta.habilidad} de energía`);
+    console.log(`[ENERGÍA] ${carta.nombre} ahora tiene ${carta.habilidad} de energía (contenedor: ${contenedorClase})`);
     
-    // Actualizar UI
+    // Actualizar UI - SELECTOR CORRECTO
     const cartaContainer = document.querySelectorAll(`.contenedor-${contenedorClase} .carta-container`)[cartaIndex];
-    if (!cartaContainer) return;
+    if (!cartaContainer) {
+        console.error(`No se encontró el contenedor para ${contenedorClase}`);
+        return;
+    }
     
+    // Actualizar texto
     const habilidadElement = cartaContainer.querySelector('.habilidad-texto');
     if (habilidadElement) {
         habilidadElement.innerText = `Habilidad: ${carta.habilidad}`;
+        console.log(`✅ Texto actualizado: Habilidad ${carta.habilidad}`);
+    } else {
+        console.error('No se encontró .habilidad-texto');
     }
     
-    const barraHabilidad = cartaContainer.querySelector('.barra-habilidad .habilidad');
-    if (barraHabilidad) {
-        barraHabilidad.style.width = `${carta.habilidad}%`;
+    // FIX: Actualizar barra de habilidad (la div.habilidad dentro de div.barra-habilidad)
+    const habilidadBarra = cartaContainer.querySelector('.barra-habilidad .habilidad');
+    if (habilidadBarra) {
+        habilidadBarra.style.width = `${carta.habilidad}%`;
+        console.log(`Barra actualizada: ${carta.habilidad}%`);
+    } else {
+        console.error('No se encontró .barra-habilidad .habilidad');
     }
     
     // Animar
