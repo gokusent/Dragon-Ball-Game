@@ -1142,7 +1142,17 @@ function activarTecnicaEspecial(jugadorActual, turno) {
     const nuevaImagen = document.createElement('img');
     nuevaImagen.src = cartaImagen.src;
     nuevaImagen.alt = 'Habilidad Especial';
-    nuevaImagen.classList.add('nueva-imagen', turno === 0 ? 'primera-carta' : 'segunda-carta');
+    // Determinar clase de animación según el modo
+    let claseAnimacion;
+    if (modoJuego === "pvp") {
+        // En PvP, la animación siempre viene desde la izquierda (donde están tus cartas)
+        claseAnimacion = 'primera-carta';
+    } else {
+        // En local/cpu, depende del turno
+        claseAnimacion = turno === 0 ? 'primera-carta' : 'segunda-carta';
+    }
+
+    nuevaImagen.classList.add('nueva-imagen', claseAnimacion);
     document.body.appendChild(nuevaImagen);
 
     // Crear capa oscura de fondo
@@ -1336,44 +1346,34 @@ function aumentarEnergia() {
 
     const cartaAtacante = equipoAtacante[cartaAtacanteIndex];
 
-    // Aumentar energía
-    cartaAtacante.habilidad += cartaAtacante.energia;
+    // Solo actualizar UI localmente si NO es PvP
+    if (modoJuego !== "pvp") {
+        // Seleccionamos el contenedor de la carta activa
+        const cartaContainer = document.querySelectorAll(`.contenedor-${turno === 0 ? 'jugador' : 'rival'} .carta-container`)[cartaAtacanteIndex];
 
-    // Limitar la habilidad a un máximo de 100
-    if (cartaAtacante.habilidad > 100) {
-        cartaAtacante.habilidad = 100;
+        // Actualizar texto de la habilidad
+        const habilidadElement = cartaContainer.querySelector('.habilidad-texto');
+        if (habilidadElement) {
+            habilidadElement.innerText = `Habilidad: ${cartaAtacante.habilidad}`;
+        }
+
+        // Actualizar AMBAS barras
+        const barraHabilidadContainer = cartaContainer.querySelector('.barra-habilidad');
+        const barraHabilidadInterna = cartaContainer.querySelector('.barra-habilidad .habilidad');
+        if (barraHabilidadContainer && barraHabilidadInterna) {
+            barraHabilidadContainer.style.width = `${cartaAtacante.habilidad}%`;
+            barraHabilidadInterna.style.width = `${cartaAtacante.habilidad}%`;
+        }
+
+        // Animar el aumento de energía
+        const cartaElemento = cartaContainer.querySelector('.carta');
+        cartaElemento.classList.add('cargando-energia', 'resplandor');
+
+        // Eliminar animación después de 1.5 segundos
+        setTimeout(() => {
+            cartaElemento.classList.remove('cargando-energia', 'resplandor');
+        }, 1500);
     }
-
-    // Si la habilidad llega al máximo, activar habilidad especial
-    if (cartaAtacante.habilidad === 100) {
-        cartaAtacante.habilidadLista = true;
-    }
-
-    // Seleccionamos el contenedor de la carta activa
-    const cartaContainer = document.querySelectorAll(`.contenedor-${turno === 0 ? 'jugador' : 'rival'} .carta-container`)[cartaAtacanteIndex];
-
-    // Actualizar texto de la habilidad
-    const habilidadElement = cartaContainer.querySelector('.habilidad-texto');
-    if (habilidadElement) {
-        habilidadElement.innerText = `Habilidad: ${cartaAtacante.habilidad}`;
-    }
-
-    // Actualizar AMBAS barras
-    const barraHabilidadContainer = cartaContainer.querySelector('.barra-habilidad');
-    const barraHabilidadInterna = cartaContainer.querySelector('.barra-habilidad .habilidad');
-    if (barraHabilidadContainer && barraHabilidadInterna) {
-        barraHabilidadContainer.style.width = `${cartaAtacante.habilidad}%`;
-        barraHabilidadInterna.style.width = `${cartaAtacante.habilidad}%`;
-    }
-
-    // Animar el aumento de energía
-    const cartaElemento = cartaContainer.querySelector('.carta');
-    cartaElemento.classList.add('cargando-energia', 'resplandor');
-
-    // Eliminar animación después de 1.5 segundos
-    setTimeout(() => {
-        cartaElemento.classList.remove('cargando-energia', 'resplandor');
-    }, 1500);
 
     // Cambiar turno
     if (modoJuego === "pvp") {
@@ -1381,6 +1381,9 @@ function aumentarEnergia() {
             sala: salaId,
             jugador_id: jugadorID
         })
+         // El servidor manejará el resto (energía + turno)
+    } else {
+        cambiarTurno(false);
     }
     
     actualizarEstadoCartas(); 
