@@ -563,6 +563,48 @@ socket.on("aumentar_energia", ({ sala, jugador_id }) => {
     console.log(`[SERVIDOR CAMBIÓ TURNO] De ${turnoActual} a ${nuevoTurno}`);
     io.to(sala).emit("cambiar_turno", nuevoTurno);
 });
+
+socket.on("ataque_especial", ({ sala, jugador_id, ataque }) => {
+    if (!salas[sala]) return;
+  
+    const turnoActual = salas[sala].turno;
+    const jugadorTurno = turnoActual === "jugador1" ? salas[sala].jugador1?.jugador_id : salas[sala].jugador2?.jugador_id;
+  
+    console.log(`[ATAQUE ESPECIAL] Jugador ${jugador_id} intenta usar ataque especial. Turno: ${turnoActual}`);
+  
+    if (jugador_id !== jugadorTurno) {
+        console.log(`ATAQUE ESPECIAL BLOQUEADO: No es el turno del jugador ${jugador_id}`);
+        return;
+    }
+
+    const salaActual = salas[sala];
+    const atacanteEsJugador1 = salaActual.jugador1?.jugador_id === jugador_id;
+    
+    // Aplicar daño del ataque especial
+    if (atacanteEsJugador1) {
+        salaActual.jugador2.vida -= ataque.daño;
+        io.to(sala).emit("ataque_especial_recibido", { 
+            jugador: "jugador2", 
+            ataque,
+            vidaRestante: salaActual.jugador2.vida 
+        });
+    } else {
+        salaActual.jugador1.vida -= ataque.daño;
+        io.to(sala).emit("ataque_especial_recibido", { 
+            jugador: "jugador1", 
+            ataque,
+            vidaRestante: salaActual.jugador1.vida 
+        });
+    }
+
+    console.log(`[ATAQUE ESPECIAL] ${atacanteEsJugador1 ? 'Jugador1' : 'Jugador2'} usó ${ataque.nombre}`);
+
+    // Cambiar turno automáticamente
+    const nuevoTurno = turnoActual === "jugador1" ? "jugador2" : "jugador1";
+    salas[sala].turno = nuevoTurno;
+    console.log(`[SERVIDOR CAMBIÓ TURNO] De ${turnoActual} a ${nuevoTurno}`);
+    io.to(sala).emit("cambiar_turno", nuevoTurno);
+});
   
 socket.on("salir_sala", async ({ sala }) => {
     socket.leave(sala);
