@@ -310,6 +310,53 @@ socket.on("ataque_especial_recibido", ({ jugador: jugadorAfectado, ataque, vidaR
     actualizarEstadoCartas();
     animarRecibirDañoEspecial(defensorIndex, objetivo === "jugador");
 
+    // También resetear la barra del ATACANTE (el que lanzó el ataque especial)
+    // Determinar quién atacó
+    let equipoAtacante, contenedorAtacante;
+
+    if (jugadorAfectado === "jugador1") {
+        // El defensor es jugador1, entonces el atacante es jugador2
+        if (soyJugador1) {
+            equipoAtacante = rival.cartas;
+            contenedorAtacante = "rival";
+        } else {
+            equipoAtacante = jugador.cartas;
+            contenedorAtacante = "jugador";
+        }
+    } else {
+        // El defensor es jugador2, entonces el atacante es jugador1
+        if (soyJugador1) {
+            equipoAtacante = jugador.cartas;
+            contenedorAtacante = "jugador";
+        } else {
+            equipoAtacante = rival.cartas;
+            contenedorAtacante = "rival";
+        }
+    }
+
+    // Encontrar carta atacante y resetear su habilidad
+    const atacanteIndex = equipoAtacante.findIndex(carta => carta.vida > 0);
+    if (atacanteIndex !== -1) {
+        const atacante = equipoAtacante[atacanteIndex];
+        atacante.habilidad = 0;
+        atacante.habilidadLista = false;
+    
+    // Actualizar barra visualmente
+    const cartaContainerAtacante = document.querySelectorAll(`.contenedor-${contenedorAtacante} .carta-container`)[atacanteIndex];
+    if (cartaContainerAtacante) {
+        const habilidadElement = cartaContainerAtacante.querySelector('.habilidad-texto');
+        if (habilidadElement) {
+            habilidadElement.innerText = `Habilidad: 0`;
+        }
+        
+        const barraHabilidadContainer = cartaContainerAtacante.querySelector('.barra-habilidad');
+        const barraHabilidadInterna = cartaContainerAtacante.querySelector('.barra-habilidad .habilidad');
+        if (barraHabilidadContainer && barraHabilidadInterna) {
+            barraHabilidadContainer.style.width = '0%';
+            barraHabilidadInterna.style.width = '0%';
+        }
+    }
+}
     if (verificarFinDeJuego()) return;
 });
 
@@ -1120,7 +1167,25 @@ function activarTecnicaEspecial(jugadorActual, turno) {
             // Resetear habilidad localmente
             atacante.habilidad = 0;
             atacante.habilidadLista = false;
-            actualizarBarraHabilidad(turno);
+
+            // Actualizar la barra visualmente
+            const cartaContainer = document.querySelectorAll(`.contenedor-${modoJuego === "pvp" ? "jugador" : (turno === 0 ? 'jugador' : 'rival')} .carta-container`)[atacanteIndex];
+            if (cartaContainer) {
+                // Actualizar texto
+                const habilidadElement = cartaContainer.querySelector('.habilidad-texto');
+                if (habilidadElement) {
+                    habilidadElement.innerText = `Habilidad: 0`;
+                }
+                
+                // Actualizar AMBAS barras
+                const barraHabilidadContainer = cartaContainer.querySelector('.barra-habilidad');
+                const barraHabilidadInterna = cartaContainer.querySelector('.barra-habilidad .habilidad');
+                if (barraHabilidadContainer && barraHabilidadInterna) {
+                    barraHabilidadContainer.style.width = '0%';
+                    barraHabilidadInterna.style.width = '0%';
+                }
+            }
+
             actualizarEstadoCartas();
             
         } else {
