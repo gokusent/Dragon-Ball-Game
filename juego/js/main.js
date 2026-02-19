@@ -1011,79 +1011,156 @@ function actualizarBarraHabilidad(tipo, index) {
  * @returns {void}
  * @throws {Error} Si no hay cartas activas o si la habilidad no está cargada al 100%.
  */
-function activarTecnicaEspecial(equipoAtacante, turnoActual) {
+function activarTecnicaEspecial(jugadorActual, turno) {
     // Validar turno en PvP
     if (modoJuego === "pvp") {
-        const esMiTurno = (turnoActual === 0 && soyJugador1) || (turnoActual === 1 && !soyJugador1);
+        const esMiTurno = (turno === 0 && soyJugador1) || (turno === 1 && !soyJugador1);
         if (!esMiTurno) {
             console.log("No es tu turno.");
             return;
         }
     }
     
-    // Determinar equipos
+    // Determinar equipos según el modo
     let equipoAtacanteReal, equipoDefensor;
     
     if (modoJuego === "pvp") {
         equipoAtacanteReal = jugador.cartas;
         equipoDefensor = rival.cartas;
     } else {
-        equipoAtacanteReal = turnoActual === 0 ? jugador.cartas : rival.cartas;
-        equipoDefensor = turnoActual === 0 ? rival.cartas : jugador.cartas;
+        equipoAtacanteReal = turno === 0 ? jugador.cartas : rival.cartas;
+        equipoDefensor = turno === 0 ? rival.cartas : jugador.cartas;
     }
     
+    // Buscar carta activa del atacante
     const atacanteIndex = equipoAtacanteReal.findIndex(carta => carta.vida > 0);
-    const defensorIndex = equipoDefensor.findIndex(carta => carta.vida > 0);
-    
-    if (atacanteIndex === -1 || defensorIndex === -1) return;
-    
-    const atacante = equipoAtacanteReal[atacanteIndex];
-    const defensor = equipoDefensor[defensorIndex];
-    
-    // Verificar que tenga 100 de energía
-    if (atacante.habilidad < 100) {
-        console.log("No tienes suficiente energía para el ataque especial.");
+    if (atacanteIndex === -1) {
+        console.error("No hay cartas activas para realizar la técnica especial.");
         return;
     }
+
+    const atacante = equipoAtacanteReal[atacanteIndex];
+
+    // Verificar si la habilidad está cargada al 100%
+    if (atacante.habilidad < 100) {
+        console.warn(`${atacante.nombre} aún no ha cargado su habilidad especial.`);
+        return;
+    }
+
+    // Buscar carta activa del defensor
+    const defensorIndex = equipoDefensor.findIndex(carta => carta.vida > 0);
+    if (defensorIndex === -1) {
+        console.error("No hay cartas enemigas activas para recibir el ataque especial.");
+        return;
+    }
+
+    const defensor = equipoDefensor[defensorIndex];
+
+    console.log(`${atacante.nombre} usa ${atacante.tecnicaEspecial} contra ${defensor.nombre}`);
+
+    // Determinar contenedores según el modo
+    let contenedorAtacante, contenedorDefensor;
     
     if (modoJuego === "pvp") {
-        // En PvP: emitir al servidor
-        socket.emit("ataque_especial", {
-            sala: salaId,
-            jugador_id: jugadorID,
-            ataque: { 
-                daño: atacante.dañoEspecial, 
-                nombre: atacante.tecnicaEspecial 
-            }
-        });
-        
-        // Solo animaciones locales (el daño lo aplica el listener)
-        // Mostrar animación del ataque especial
-        mostrarAnimacionEspecial(atacante, turnoActual);
-        
-        // Resetear habilidad localmente
-        atacante.habilidad = 0;
-        atacante.habilidadLista = false;
-        actualizarBarraHabilidad(turnoActual);
-        
+        // En PvP: atacante siempre es "jugador", defensor siempre es "rival"
+        contenedorAtacante = "jugador";
+        contenedorDefensor = "rival";
     } else {
-        // En local/cpu: aplicar daño directamente
-        defensor.vida = Math.max(0, defensor.vida - atacante.dañoEspecial);
-        
-        // Animaciones y actualizaciones
-        mostrarAnimacionEspecial(atacante, turnoActual);
-        actualizarBarraVida(turnoActual === 0 ? 'rival' : 'jugador', defensorIndex);
-        mostrarDaño(turnoActual === 0 ? "rival" : "jugador", defensorIndex, atacante.dañoEspecial);
-        
-        // Resetear habilidad
-        atacante.habilidad = 0;
-        atacante.habilidadLista = false;
-        actualizarBarraHabilidad(turnoActual);
-        
-        if (verificarFinDeJuego()) return;
-        
-        cambiarTurno(false);
+        // En local/cpu: depende del turno
+        contenedorAtacante = turno === 0 ? 'jugador' : 'rival';
+        contenedorDefensor = turno === 0 ? 'rival' : 'jugador';
     }
+
+    // Obtener el contenedor de la carta atacante
+    const cartaContainerAtacante = document.querySelectorAll(`.contenedor-${contenedorAtacante} .carta-container`)[atacanteIndex];
+    if (!cartaContainerAtacante) {
+        console.error(`No se encontró la carta atacante`);
+        return;
+    }
+
+    // Obtener el contenedor de la carta defensora
+    const cartaContainerDefensor = document.querySelectorAll(`.contenedor-${contenedorDefensor} .carta-container`)[defensorIndex];
+    if (!cartaContainerDefensor) {
+        console.error(`No se encontró la carta defensora`);
+        return;
+    }
+
+    // Crear imagen de animación
+    const cartaImagen = cartaContainerAtacante.querySelector('.carta img');
+    if (!cartaImagen) {
+        console.error('No se encontró la imagen de la carta atacante.');
+        return;
+    }
+
+    const nuevaImagen = document.createElement('img');
+    nuevaImagen.src = cartaImagen.src;
+    nuevaImagen.alt = 'Habilidad Especial';
+    nuevaImagen.classList.add('nueva-imagen', turno === 0 ? 'primera-carta' : 'segunda-carta');
+    document.body.appendChild(nuevaImagen);
+
+    // Crear capa oscura de fondo
+    const capaOscura = document.createElement('div');
+    capaOscura.classList.add('fondo-oscuro');
+    document.body.appendChild(capaOscura);
+
+    // Esperar fin de animación
+    nuevaImagen.addEventListener('animationend', () => {
+        
+        if (modoJuego === "pvp") {
+            // En PvP: emitir al servidor
+            socket.emit("ataque_especial", {
+                sala: salaId,
+                jugador_id: jugadorID,
+                ataque: { 
+                    daño: atacante.dañoEspecial, 
+                    nombre: atacante.tecnicaEspecial 
+                }
+            });
+            
+            // Resetear habilidad localmente
+            atacante.habilidad = 0;
+            atacante.habilidadLista = false;
+            actualizarBarraHabilidad(turno);
+            actualizarEstadoCartas();
+            
+        } else {
+            // En local/cpu: aplicar daño directamente
+            defensor.vida = Math.max(0, defensor.vida - atacante.dañoEspecial);
+
+            // Mostrar daño en la carta del defensor
+            mostrarDaño(contenedorDefensor, defensorIndex, atacante.dañoEspecial);
+
+            // Resetear habilidad del atacante
+            atacante.habilidad = 0;
+            atacante.habilidadLista = false;
+
+            // Actualizar la interfaz gráfica
+            actualizarBarraVida(contenedorDefensor, defensorIndex);
+            actualizarEstadoCartas(); 
+            actualizarBarraHabilidad(turno);
+
+            // Mostrar animaciones adicionales
+            animarAtaque(contenedorAtacante, atacanteIndex);
+
+            // Aplicar animación de daño especial
+            animarRecibirDañoEspecial(defensorIndex, contenedorDefensor === "jugador");
+
+            // Verificar si el juego ha terminado
+            if (verificarFinDeJuego()) {
+                capaOscura.remove();
+                nuevaImagen.remove();
+                return;
+            }
+
+            // Cambiar turno
+            cambiarTurno(false);
+            console.log("Turno cambiado");
+        }
+
+        // Limpiar elementos de animación
+        nuevaImagen.remove();
+        capaOscura.remove();
+    });
 }
 
 function atacar() {
