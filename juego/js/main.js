@@ -1125,101 +1125,80 @@ function activarTecnicaEspecial(jugadorActual, turno) {
 
     console.log(`${atacante.nombre} usa ${atacante.tecnicaEspecial} contra ${defensor.nombre}`);
 
-    // Determinar contenedores según el modo
-    let contenedorAtacante, contenedorDefensor;
-    
+    // ✅ DIVISIÓN: PvP vs Local/CPU
     if (modoJuego === "pvp") {
-        // En PvP: atacante siempre es "jugador", defensor siempre es "rival"
-        contenedorAtacante = "jugador";
-        contenedorDefensor = "rival";
-    } else {
-        // En local/cpu: depende del turno
-        contenedorAtacante = turno === 0 ? 'jugador' : 'rival';
-        contenedorDefensor = turno === 0 ? 'rival' : 'jugador';
-    }
-
-    // Obtener el contenedor de la carta atacante
-    const cartaContainerAtacante = document.querySelectorAll(`.contenedor-${contenedorAtacante} .carta-container`)[atacanteIndex];
-    if (!cartaContainerAtacante) {
-        console.error(`No se encontró la carta atacante`);
-        return;
-    }
-
-    // Obtener el contenedor de la carta defensora
-    const cartaContainerDefensor = document.querySelectorAll(`.contenedor-${contenedorDefensor} .carta-container`)[defensorIndex];
-    if (!cartaContainerDefensor) {
-        console.error(`No se encontró la carta defensora`);
-        return;
-    }
-
-    // Crear imagen de animación
-    const cartaImagen = cartaContainerAtacante.querySelector('.carta img');
-    if (!cartaImagen) {
-        console.error('No se encontró la imagen de la carta atacante.');
-        return;
-    }
-
-    const nuevaImagen = document.createElement('img');
-    nuevaImagen.src = cartaImagen.src;
-    nuevaImagen.alt = 'Habilidad Especial';
-    // Determinar clase de animación según el modo
-    let claseAnimacion;
-    if (modoJuego === "pvp") {
-        // En PvP, la animación siempre viene desde la izquierda (donde están tus cartas)
-        claseAnimacion = 'primera-carta';
-    } else {
-        // En local/cpu, depende del turno
-        claseAnimacion = turno === 0 ? 'primera-carta' : 'segunda-carta';
-    }
-
-    nuevaImagen.classList.add('nueva-imagen', claseAnimacion);
-    document.body.appendChild(nuevaImagen);
-
-    // Crear capa oscura de fondo
-    const capaOscura = document.createElement('div');
-    capaOscura.classList.add('fondo-oscuro');
-    document.body.appendChild(capaOscura);
-
-    // Esperar fin de animación
-    nuevaImagen.addEventListener('animationend', () => {
+        // ==================== MODO PVP ====================
+        // Solo emitir al servidor, el listener mostrará la animación
         
-        if (modoJuego === "pvp") {
-            // En PvP: emitir al servidor
-            socket.emit("ataque_especial", {
-                sala: salaId,
-                jugador_id: jugadorID,
-                ataque: { 
-                    daño: atacante.dañoEspecial, 
-                    nombre: atacante.tecnicaEspecial 
-                }
-            });
-            
-            // Resetear habilidad localmente
-            atacante.habilidad = 0;
-            atacante.habilidadLista = false;
-
-            // Actualizar la barra visualmente
-            const cartaContainer = document.querySelectorAll(`.contenedor-${modoJuego === "pvp" ? "jugador" : (turno === 0 ? 'jugador' : 'rival')} .carta-container`)[atacanteIndex];
-            if (cartaContainer) {
-                // Actualizar texto
-                const habilidadElement = cartaContainer.querySelector('.habilidad-texto');
-                if (habilidadElement) {
-                    habilidadElement.innerText = `Habilidad: 0`;
-                }
-                
-                // Actualizar AMBAS barras
-                const barraHabilidadContainer = cartaContainer.querySelector('.barra-habilidad');
-                const barraHabilidadInterna = cartaContainer.querySelector('.barra-habilidad .habilidad');
-                if (barraHabilidadContainer && barraHabilidadInterna) {
-                    barraHabilidadContainer.style.width = '0%';
-                    barraHabilidadInterna.style.width = '0%';
-                }
+        socket.emit("ataque_especial", {
+            sala: salaId,
+            jugador_id: jugadorID,
+            ataque: { 
+                daño: atacante.dañoEspecial, 
+                nombre: atacante.tecnicaEspecial 
             }
-
-            actualizarEstadoCartas();
+        });
+        
+        // Resetear habilidad localmente (sin animación)
+        atacante.habilidad = 0;
+        atacante.habilidadLista = false;
+        
+        // Actualizar barra visualmente
+        const cartaContainer = document.querySelectorAll('.contenedor-jugador .carta-container')[atacanteIndex];
+        if (cartaContainer) {
+            const habilidadElement = cartaContainer.querySelector('.habilidad-texto');
+            if (habilidadElement) {
+                habilidadElement.innerText = `Habilidad: 0`;
+            }
             
-        } else {
-            // En local/cpu: aplicar daño directamente
+            const barraHabilidadContainer = cartaContainer.querySelector('.barra-habilidad');
+            const barraHabilidadInterna = cartaContainer.querySelector('.barra-habilidad .habilidad');
+            if (barraHabilidadContainer && barraHabilidadInterna) {
+                barraHabilidadContainer.style.width = '0%';
+                barraHabilidadInterna.style.width = '0%';
+            }
+        }
+        
+        actualizarEstadoCartas();
+        
+    } else {
+        // ==================== MODO LOCAL/CPU ====================
+        // Crear y mostrar la animación completa
+        
+        // Determinar contenedores
+        const contenedorAtacante = turno === 0 ? 'jugador' : 'rival';
+        const contenedorDefensor = turno === 0 ? 'rival' : 'jugador';
+        
+        // Obtener contenedores
+        const cartaContainerAtacante = document.querySelectorAll(`.contenedor-${contenedorAtacante} .carta-container`)[atacanteIndex];
+        const cartaContainerDefensor = document.querySelectorAll(`.contenedor-${contenedorDefensor} .carta-container`)[defensorIndex];
+        
+        if (!cartaContainerAtacante || !cartaContainerDefensor) {
+            console.error('No se encontraron los contenedores');
+            return;
+        }
+
+        // Crear imagen de animación
+        const cartaImagen = cartaContainerAtacante.querySelector('.carta img');
+        if (!cartaImagen) {
+            console.error('No se encontró la imagen de la carta atacante.');
+            return;
+        }
+
+        const nuevaImagen = document.createElement('img');
+        nuevaImagen.src = cartaImagen.src;
+        nuevaImagen.alt = 'Habilidad Especial';
+        nuevaImagen.classList.add('nueva-imagen', turno === 0 ? 'primera-carta' : 'segunda-carta');
+        document.body.appendChild(nuevaImagen);
+
+        // Crear capa oscura de fondo
+        const capaOscura = document.createElement('div');
+        capaOscura.classList.add('fondo-oscuro');
+        document.body.appendChild(capaOscura);
+
+        // Esperar fin de animación
+        nuevaImagen.addEventListener('animationend', () => {
+            // Aplicar daño directamente
             defensor.vida = Math.max(0, defensor.vida - atacante.dañoEspecial);
 
             // Mostrar daño en la carta del defensor
@@ -1247,15 +1226,15 @@ function activarTecnicaEspecial(jugadorActual, turno) {
                 return;
             }
 
+            // Limpiar elementos de animación
+            nuevaImagen.remove();
+            capaOscura.remove();
+
             // Cambiar turno
             cambiarTurno(false);
             console.log("Turno cambiado");
-        }
-
-        // Limpiar elementos de animación
-        nuevaImagen.remove();
-        capaOscura.remove();
-    });
+        });
+    }
 }
 
 function atacar() {
