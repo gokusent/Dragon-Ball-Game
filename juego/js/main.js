@@ -1022,13 +1022,14 @@ function activarTecnicaEspecial(equipoAtacante, turnoActual) {
     }
     
     // Determinar equipos
-    const equipoAtacanteReal = turnoActual === 0 ? jugador.cartas : rival.cartas;
-    const equipoDefensor = turnoActual === 0 ? rival.cartas : jugador.cartas;
+    let equipoAtacanteReal, equipoDefensor;
     
-    // En PvP siempre usamos jugador.cartas para atacar
     if (modoJuego === "pvp") {
         equipoAtacanteReal = jugador.cartas;
         equipoDefensor = rival.cartas;
+    } else {
+        equipoAtacanteReal = turnoActual === 0 ? jugador.cartas : rival.cartas;
+        equipoDefensor = turnoActual === 0 ? rival.cartas : jugador.cartas;
     }
     
     const atacanteIndex = equipoAtacanteReal.findIndex(carta => carta.vida > 0);
