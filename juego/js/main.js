@@ -274,90 +274,110 @@ socket.on("energia_aumentada", ({ jugador: jugadorQueAumento }) => {
 socket.on("ataque_especial_recibido", ({ jugador: jugadorAfectado, ataque, vidaRestante }) => {
     console.log(`[ATAQUE ESPECIAL RECIBIDO] Jugador afectado: ${jugadorAfectado}, Ataque: ${ataque.nombre}`);
     
-    // Determinar quién recibe el daño
-    let equipoAfectado, objetivo;
+    // Determinar quién recibe el daño y quién ataca
+    let equipoAfectado, objetivo, equipoAtacante, contenedorAtacante;
     
     if (jugadorAfectado === "jugador1") {
         if (soyJugador1) {
             equipoAfectado = jugador.cartas;
             objetivo = "jugador";
+            equipoAtacante = rival.cartas;
+            contenedorAtacante = "rival";
         } else {
             equipoAfectado = rival.cartas;
             objetivo = "rival";
+            equipoAtacante = jugador.cartas;
+            contenedorAtacante = "jugador";
         }
     } else {
         if (soyJugador1) {
             equipoAfectado = rival.cartas;
             objetivo = "rival";
+            equipoAtacante = jugador.cartas;
+            contenedorAtacante = "jugador";
         } else {
             equipoAfectado = jugador.cartas;
             objetivo = "jugador";
+            equipoAtacante = rival.cartas;
+            contenedorAtacante = "rival";
         }
     }
 
-    // Encontrar carta afectada
+    // Encontrar cartas
     const defensorIndex = equipoAfectado.findIndex(carta => carta.vida > 0);
-    if (defensorIndex === -1) return;
+    const atacanteIndex = equipoAtacante.findIndex(carta => carta.vida > 0);
+    if (defensorIndex === -1 || atacanteIndex === -1) return;
 
     const defensor = equipoAfectado[defensorIndex];
-    defensor.vida = Math.max(0, defensor.vida - ataque.daño);
+    const atacante = equipoAtacante[atacanteIndex];
 
-    console.log(`[DAÑO ESPECIAL APLICADO] ${defensor.nombre} ahora tiene ${defensor.vida} vida`);
-
-    // Actualizar UI
-    actualizarBarraVida(objetivo, defensorIndex);
-    mostrarDaño(objetivo, defensorIndex, ataque.daño);
-    actualizarEstadoCartas();
-    animarRecibirDañoEspecial(defensorIndex, objetivo === "jugador");
-
-    // También resetear la barra del ATACANTE (el que lanzó el ataque especial)
-    // Determinar quién atacó
-    let equipoAtacante, contenedorAtacante;
-
-    if (jugadorAfectado === "jugador1") {
-        // El defensor es jugador1, entonces el atacante es jugador2
-        if (soyJugador1) {
-            equipoAtacante = rival.cartas;
-            contenedorAtacante = "rival";
-        } else {
-            equipoAtacante = jugador.cartas;
-            contenedorAtacante = "jugador";
-        }
-    } else {
-        // El defensor es jugador2, entonces el atacante es jugador1
-        if (soyJugador1) {
-            equipoAtacante = jugador.cartas;
-            contenedorAtacante = "jugador";
-        } else {
-            equipoAtacante = rival.cartas;
-            contenedorAtacante = "rival";
-        }
+    // MOSTRAR LA ANIMACIÓN DEL ATAQUE ESPECIAL
+    const cartaContainerAtacante = document.querySelectorAll(`.contenedor-${contenedorAtacante} .carta-container`)[atacanteIndex];
+    if (!cartaContainerAtacante) {
+        console.error('No se encontró el contenedor del atacante');
+        return;
     }
 
-    // Encontrar carta atacante y resetear su habilidad
-    const atacanteIndex = equipoAtacante.findIndex(carta => carta.vida > 0);
-    if (atacanteIndex !== -1) {
-        const atacante = equipoAtacante[atacanteIndex];
+    const cartaImagen = cartaContainerAtacante.querySelector('.carta img');
+    if (!cartaImagen) {
+        console.error('No se encontró la imagen del atacante');
+        return;
+    }
+
+    // Crear imagen de animación
+    const nuevaImagen = document.createElement('img');
+    nuevaImagen.src = cartaImagen.src;
+    nuevaImagen.alt = 'Habilidad Especial';
+    
+    // En PvP, determinar desde qué lado viene la animación
+    let claseAnimacion = contenedorAtacante === "jugador" ? 'primera-carta' : 'segunda-carta';
+    
+    nuevaImagen.classList.add('nueva-imagen', claseAnimacion);
+    document.body.appendChild(nuevaImagen);
+
+    // Crear capa oscura
+    const capaOscura = document.createElement('div');
+    capaOscura.classList.add('fondo-oscuro');
+    document.body.appendChild(capaOscura);
+
+    // Esperar a que termine la animación para aplicar el daño
+    nuevaImagen.addEventListener('animationend', () => {
+        // Aplicar daño
+        defensor.vida = Math.max(0, defensor.vida - ataque.daño);
+
+        console.log(`[DAÑO ESPECIAL APLICADO] ${defensor.nombre} ahora tiene ${defensor.vida} vida`);
+
+        // Actualizar UI
+        actualizarBarraVida(objetivo, defensorIndex);
+        mostrarDaño(objetivo, defensorIndex, ataque.daño);
+        actualizarEstadoCartas();
+        animarRecibirDañoEspecial(defensorIndex, objetivo === "jugador");
+
+        // Resetear habilidad del atacante
         atacante.habilidad = 0;
         atacante.habilidadLista = false;
-    
-    // Actualizar barra visualmente
-    const cartaContainerAtacante = document.querySelectorAll(`.contenedor-${contenedorAtacante} .carta-container`)[atacanteIndex];
-    if (cartaContainerAtacante) {
-        const habilidadElement = cartaContainerAtacante.querySelector('.habilidad-texto');
-        if (habilidadElement) {
-            habilidadElement.innerText = `Habilidad: 0`;
-        }
         
-        const barraHabilidadContainer = cartaContainerAtacante.querySelector('.barra-habilidad');
-        const barraHabilidadInterna = cartaContainerAtacante.querySelector('.barra-habilidad .habilidad');
-        if (barraHabilidadContainer && barraHabilidadInterna) {
-            barraHabilidadContainer.style.width = '0%';
-            barraHabilidadInterna.style.width = '0%';
+        // Actualizar barra del atacante
+        if (cartaContainerAtacante) {
+            const habilidadElement = cartaContainerAtacante.querySelector('.habilidad-texto');
+            if (habilidadElement) {
+                habilidadElement.innerText = `Habilidad: 0`;
+            }
+            
+            const barraHabilidadContainer = cartaContainerAtacante.querySelector('.barra-habilidad');
+            const barraHabilidadInterna = cartaContainerAtacante.querySelector('.barra-habilidad .habilidad');
+            if (barraHabilidadContainer && barraHabilidadInterna) {
+                barraHabilidadContainer.style.width = '0%';
+                barraHabilidadInterna.style.width = '0%';
+            }
         }
-    }
-}
-    if (verificarFinDeJuego()) return;
+
+        // Limpiar animación
+        nuevaImagen.remove();
+        capaOscura.remove();
+
+        if (verificarFinDeJuego()) return;
+    });
 });
 
 /**
@@ -1385,7 +1405,7 @@ function aumentarEnergia() {
     } else {
         cambiarTurno(false);
     }
-    
+
     actualizarEstadoCartas(); 
 }
 
