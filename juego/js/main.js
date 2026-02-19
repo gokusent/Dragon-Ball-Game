@@ -246,13 +246,16 @@ socket.on("energia_aumentada", ({ jugador: jugadorQueAumento }) => {
         console.error('No se encontró .habilidad-texto');
     }
     
-    // FIX: Actualizar barra de habilidad (la div.habilidad dentro de div.barra-habilidad)
+    // Actualizar AMBAS barras (contenedor y barra interna)
+    const barraHabilidadContainer = cartaContainer.querySelector('.barra-habilidad');
     const habilidadBarra = cartaContainer.querySelector('.barra-habilidad .habilidad');
-    if (habilidadBarra) {
+
+    if (barraHabilidadContainer && habilidadBarra) {
+        barraHabilidadContainer.style.width = `${carta.habilidad}%`;
         habilidadBarra.style.width = `${carta.habilidad}%`;
         console.log(`Barra actualizada: ${carta.habilidad}%`);
     } else {
-        console.error('No se encontró .barra-habilidad .habilidad');
+        console.error('No se encontró la barra de habilidad');
     }
     
     // Animar
@@ -1198,10 +1201,12 @@ function aumentarEnergia() {
         habilidadElement.innerText = `Habilidad: ${cartaAtacante.habilidad}`;
     }
 
-    // Actualizar barra de habilidad visualmente
-    const barraHabilidad = cartaContainer.querySelector('.barra-habilidad');
-    if (barraHabilidad) {
-        barraHabilidad.style.width = `${cartaAtacante.habilidad}%`;
+    // Actualizar AMBAS barras
+    const barraHabilidadContainer = cartaContainer.querySelector('.barra-habilidad');
+    const barraHabilidadInterna = cartaContainer.querySelector('.barra-habilidad .habilidad');
+    if (barraHabilidadContainer && barraHabilidadInterna) {
+        barraHabilidadContainer.style.width = `${cartaAtacante.habilidad}%`;
+        barraHabilidadInterna.style.width = `${cartaAtacante.habilidad}%`;
     }
 
     // Animar el aumento de energía
